@@ -49,7 +49,7 @@
 
 <script>
 const CLIENT_ID = '1513281082626281472';
-const REDIRECT = 'https://giftblox-ten.vercel.app/callback.html';
+const REDIRECT = 'https://new-giftblox.vercel.app/callback.html';
 function login(){
   let p = new URLSearchParams({client_id:CLIENT_ID,redirect_uri:REDIRECT,response_type:'token',scope:'identify email'});
   window.location.href = 'https://discord.com/api/oauth2/authorize?' + p.toString();
