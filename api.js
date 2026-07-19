@@ -4,18 +4,41 @@ const cors = require('cors');
 const path = require('path');
 const Groq = require('groq-sdk');
 const db = require('./database/db.js');
+const http = require('http');
+const WebSocket = require('ws');
 
 const app = express();
+const server = http.createServer(app);
 const PORT = process.env.API_PORT || 3001;
 const OWNER_ID = '1527668994210005002';
 const groq = process.env.GROQ_API_KEY ? new Groq({ apiKey: process.env.GROQ_API_KEY }) : null;
 
+// Rate limiting middleware
+const rateLimit = require('express-rate-limit');
+
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests per windowMs
+  message: 'Trop de requêtes, veuillez réessayer plus tard.',
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+const strictLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 20, // Stricter limit for sensitive endpoints
+  message: 'Trop de requêtes sur cet endpoint, veuillez réessayer plus tard.',
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
 app.use(cors());
+app.use(limiter);
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'website')));
 
 // Health
-app.get('/api/health', (_, res) => res.json({ success: true, status: 'ok' }));
+app.get('/api/health', (_, res) => res.json({ success: true, status: 'ok', timestamp: new Date().toISOString() }));
 
 // User
 app.get('/api/user/:userId', (req, res) => {
@@ -48,13 +71,206 @@ app.post('/api/notifications/:userId/read', (req, res) => {
 app.get('/api/leaderboard', (req, res) => {
   let limit = Math.min(parseInt(req.query.limit) || 10, 50);
   let data = db.getLeaderboard(limit);
-  res.json({ success: true, data: data.map((u, i) => ({ ...u, rank: i + 1 })) });
+  res.json({ success: true, data, count: data.length });
 });
+
+// Advanced leaderboard with pagination
+app.get('/api/leaderboard/advanced', (req, res) => {
+  const page = Math.max(1, parseInt(req.query.page) || 1);
+  const limit = Math.min(parseInt(req.query.limit) || 10, 50);
+  const offset = (page - 1) * limit;
+  
+  let allUsers = db.getLeaderboard(100);
+  const total = allUsers.length;
+  const paginated = allUsers.slice(offset, offset + limit);
+  
+  res.json({ 
+    success: true, 
+    data: paginated, 
+    pagination: {
+      page,
+      limit,
+      total,
+      totalPages: Math.ceil(total / limit),
+      hasNext: offset + limit < total,
+      hasPrev: page > 1
+    }
+  });
+});
+
+// User search
+app.get('/api/users/search', (req, res) => {
+  const query = req.query.q || '';
+  if (query.length < 2) return res.json({ success: true, data: [] });
+  
+  const users = db.searchUsers(query, 20);
+  res.json({ success: true, data: users, count: users.length });
+});
+
+// User transactions
+app.get('/api/user/:userId/transactions', (req, res) => {
+  const limit = Math.min(parseInt(req.query.limit) || 20, 100);
+  const transactions = db.getUserTransactions(req.params.userId, limit);
+  res.json({ success: true, data: transactions, count: transactions.length });
+});
+
+// User achievements/badges
+app.get('/api/user/:userId/badges', (req, res) => {
+  const badges = db.getUserBadges(req.params.userId);
+  const unlocked = badges.filter(b => b.unlocked);
+  res.json({ 
+    success: true, 
+    data: { 
+      all: badges, 
+      unlocked, 
+      progress: { unlocked: unlocked.length, total: badges.length } 
+    } 
+  });
+});
+
+// Shop items
+app.get('/api/shop/items', (req, res) => {
+  const items = db.getShopItems();
+  res.json({ success: true, data: items, count: items.length });
+});
+
+// Purchase item
+app.post('/api/shop/purchase', strictLimiter, (req, res) => {
+  const { userId, itemId } = req.body;
+  if (!userId || !itemId) return res.status(400).json({ success: false, error: 'Missing parameters' });
+  
+  const result = db.purchaseItem(userId, itemId);
+  if (!result) return res.status(400).json({ success: false, error: 'Purchase failed' });
+  
+  res.json({ success: true, data: result });
+});
+
+// Quests
+app.get('/api/quests', (req, res) => {
+  const quests = db.getActiveQuests();
+  res.json({ success: true, data: quests, count: quests.length });
+});
+
+app.get('/api/user/:userId/quests', (req, res) => {
+  const quests = db.getUserQuests(req.params.userId);
+  res.json({ success: true, data: quests, count: quests.length });
+});
+
+// Complete quest
+app.post('/api/quest/:questId/complete', strictLimiter, (req, res) => {
+  const { userId } = req.body;
+  if (!userId) return res.status(400).json({ success: false, error: 'Missing userId' });
+  
+  const result = db.completeQuest(userId, req.params.questId);
+  if (!result) return res.status(400).json({ success: false, error: 'Quest completion failed' });
+  
+  res.json({ success: true, data: result });
+});
+
+// Analytics
+app.get('/api/analytics/global', (req, res) => {
+  const stats = db.getGlobalStats();
+  const weekly = db.getWeeklyStats();
+  const monthly = db.getMonthlyStats();
+  
+  res.json({ 
+    success: true, 
+    data: { 
+      current: stats, 
+      weekly, 
+      monthly,
+      trends: {
+        usersGrowth: calculateGrowth(weekly.users, monthly.users),
+        pointsGrowth: calculateGrowth(weekly.points, monthly.points),
+        activityGrowth: calculateGrowth(weekly.activity, monthly.activity)
+      }
+    } 
+  });
+});
+
+function calculateGrowth(weekly, monthly) {
+  if (!monthly || monthly === 0) return 0;
+  return ((weekly - monthly) / Math.abs(monthly) * 100).toFixed(2);
+}
 
 // Global stats
 app.get('/api/global-stats', (req, res) => {
   res.json({ success: true, ...db.getGlobalStats() });
 });
+
+// WebSocket Server for real-time updates
+const wss = new WebSocket.Server({ server, path: '/ws' });
+
+const clients = new Map(); // Store connected clients by userId
+
+wss.on('connection', (ws, req) => {
+  const userId = req.url.split('userId=')[1];
+  
+  if (userId) {
+    clients.set(userId, ws);
+    console.log(`WebSocket client connected: ${userId}`);
+    
+    // Send initial data
+    ws.send(JSON.stringify({
+      type: 'connected',
+      data: { userId, timestamp: new Date().toISOString() }
+    }));
+  }
+  
+  ws.on('message', (message) => {
+    try {
+      const data = JSON.parse(message);
+      
+      switch (data.type) {
+        case 'subscribe':
+          // Subscribe to specific updates
+          ws.subscriptions = data.channels || [];
+          ws.send(JSON.stringify({ type: 'subscribed', channels: ws.subscriptions }));
+          break;
+          
+        case 'ping':
+          ws.send(JSON.stringify({ type: 'pong', timestamp: new Date().toISOString() }));
+          break;
+      }
+    } catch (error) {
+      console.error('WebSocket message error:', error);
+    }
+  });
+  
+  ws.on('close', () => {
+    if (userId) {
+      clients.delete(userId);
+      console.log(`WebSocket client disconnected: ${userId}`);
+    }
+  });
+  
+  ws.on('error', (error) => {
+    console.error('WebSocket error:', error);
+  });
+});
+
+// Broadcast function to send updates to specific users
+function broadcastToUser(userId, type, data) {
+  const client = clients.get(userId);
+  if (client && client.readyState === WebSocket.OPEN) {
+    client.send(JSON.stringify({ type, data, timestamp: new Date().toISOString() }));
+  }
+}
+
+// Broadcast to all connected clients
+function broadcastToAll(type, data) {
+  wss.clients.forEach((client) => {
+    if (client.readyState === WebSocket.OPEN) {
+      client.send(JSON.stringify({ type, data, timestamp: new Date().toISOString() }));
+    }
+  });
+}
+
+// Periodic leaderboard updates (every 30 seconds)
+setInterval(() => {
+  const leaderboard = db.getLeaderboard(10);
+  broadcastToAll('leaderboard_update', leaderboard);
+}, 30000);
 
 // Tickets
 app.get('/api/tickets', (req, res) => {
@@ -171,7 +387,7 @@ app.get('*', (req, res) => {
 
 async function start() {
   await db.init();
-  app.listen(PORT, () => console.log(`API sur http://localhost:${PORT}`));
+  server.listen(PORT, () => console.log(`API sur http://localhost:${PORT} avec WebSocket support`));
 }
 
 start();

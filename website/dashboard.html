@@ -1,630 +1,750 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Dashboard | GiftBlox</title>
-<script src="https://cdn.tailwindcss.com">
-</script>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>GiftBlox — Dashboard</title>
+<script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js">
-</script>
-<style>@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;500;700&display=swap');
-*{font-family:'Rajdhani',sans-serif}h1,h2,h3{font-family:'Orbitron',sans-serif}body{background:#030303;color:#fff;overflow-x:hidden}
-.glass{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);backdrop-filter:blur(20px)}
-.glass-hover{transition:all .3s}.glass-hover:hover{background:rgba(255,255,255,.06);transform:translateY(-2px)}
-.btn-primary{background:linear-gradient(135deg,#8b5cf6,#ec4899)}.btn-primary:hover{transform:scale(1.04);box-shadow:0 0 25px rgba(139,92,246,.4)}
-.sidebar{width:260px;flex-shrink:0;height:100vh;position:sticky;top:0;overflow-y:auto;z-index:50;background:rgba(3,3,3,.95);border-right:1px solid rgba(255,255,255,.06)}
-.sidebar a{display:flex;align-items:center;gap:12px;padding:12px 20px;border-radius:12px;margin:2px 12px;font-size:14px;font-weight:600;color:#888;transition:all .2s;letter-spacing:.02em}
-.sidebar a:hover{background:rgba(139,92,246,.1);color:#fff;transform:translateX(4px)}
-.sidebar a.active{background:linear-gradient(135deg,rgba(139,92,246,.2),rgba(236,72,153,.1));color:#fff;box-shadow:0 0 20px rgba(139,92,246,.1)}
-.tab-content{display:none}.tab-content.active{display:block}
-.mobile-nav{display:none}
-@media(max-width:768px){
-.sidebar{position:fixed;left:-280px;width:280px;transition:left .3s;z-index:100}
-.sidebar.open{left:0}
-.mobile-nav{display:flex}
-.content{padding-bottom:80px}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap');
+*{font-family:'Inter',sans-serif;letter-spacing:-.02em}
+
+/* Animated Background */
+body{
+  background:#0a0a0f;
+  color:#fff;
+  overflow-x:hidden;
+  position:relative;
+  min-height:100vh
 }
-.stat-card{background:linear-gradient(135deg,rgba(139,92,246,.08),rgba(236,72,153,.05));border:1px solid rgba(139,92,246,.1);border-radius:16px;padding:20px}
-.stat-value{font-family:Orbitron,sans-serif;font-weight:900;font-size:28px}
-.item-card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:16px;padding:16px;transition:all .3s}
-.item-card:hover{transform:translateY(-4px);box-shadow:0 8px 30px rgba(139,92,246,.15)}
-.ticket-badge{font-size:10px;padding:2px 8px;border-radius:20px;font-weight:700}
+
+body::before{
+  content:'';
+  position:fixed;
+  top:0;
+  left:0;
+  right:0;
+  bottom:0;
+  background:
+    radial-gradient(ellipse at 20% 20%, rgba(139,92,246,0.15) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 80%, rgba(236,72,153,0.1) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 50%, rgba(139,92,246,0.05) 0%, transparent 70%);
+  pointer-events:none;
+  z-index:0;
+  animation:bgPulse 8s ease-in-out infinite
+}
+
+@keyframes bgPulse{
+  0%,100%{opacity:1}
+  50%{opacity:0.7}
+}
+
+/* Floating Particles */
+.particles{
+  position:fixed;
+  top:0;
+  left:0;
+  right:0;
+  bottom:0;
+  pointer-events:none;
+  z-index:1;
+  overflow:hidden
+}
+
+.particle{
+  position:absolute;
+  width:4px;
+  height:4px;
+  background:rgba(139,92,246,0.3);
+  border-radius:50%;
+  animation:float 15s infinite
+}
+
+@keyframes float{
+  0%,100%{transform:translateY(100vh) rotate(0deg);opacity:0}
+  10%{opacity:1}
+  90%{opacity:1}
+  100%{transform:translateY(-100vh) rotate(720deg);opacity:0}
+}
+
+.glass{
+  background:linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01));
+  border:1px solid rgba(255,255,255,.06);
+  backdrop-filter:blur(24px)
+}
+
+.glass2{
+  background:rgba(255,255,255,.03);
+  border:1px solid rgba(255,255,255,.05)
+}
+
+.neon{
+  box-shadow:0 0 20px rgba(139,92,246,.15),0 0 60px rgba(139,92,246,.05)
+}
+
+.card{
+  background:linear-gradient(135deg,rgba(255,255,255,.03) 0%,rgba(139,92,246,.04) 100%);
+  border:1px solid rgba(139,92,246,.1);
+  border-radius:20px;
+  padding:24px;
+  transition:all .4s cubic-bezier(.175,.885,.32,1.275);
+  position:relative;
+  overflow:hidden
+}
+
+.card::before{
+  content:'';
+  position:absolute;
+  top:0;
+  left:-100%;
+  width:100%;
+  height:100%;
+  background:linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
+  transition:left 0.5s
+}
+
+.card:hover::before{
+  left:100%
+}
+
+.card:hover{
+  border-color:rgba(139,92,246,.25);
+  transform:translateY(-4px);
+  box-shadow:0 12px 50px rgba(139,92,246,.2)
+}
+
+.btn-p{
+  background:linear-gradient(135deg,#8b5cf6,#c084fc);
+  color:#fff;
+  font-weight:700;
+  border-radius:14px;
+  padding:12px 28px;
+  transition:all .3s;
+  font-size:13px;
+  border:none;
+  cursor:pointer;
+  position:relative;
+  overflow:hidden
+}
+
+.btn-p::after{
+  content:'';
+  position:absolute;
+  top:50%;
+  left:50%;
+  width:0;
+  height:0;
+  background:rgba(255,255,255,0.2);
+  border-radius:50%;
+  transform:translate(-50%, -50%);
+  transition:width 0.6s, height 0.6s
+}
+
+.btn-p:hover::after{
+  width:300px;
+  height:300px
+}
+
+.btn-p:hover{
+  transform:translateY(-2px);
+  box-shadow:0 8px 30px rgba(139,92,246,.35)
+}
+
+.btn-ghost{
+  background:rgba(139,92,246,.1);
+  color:#c084fc;
+  border-radius:12px;
+  padding:10px 20px;
+  font-weight:600;
+  font-size:13px;
+  transition:all .2s;
+  border:none;
+  cursor:pointer
+}
+
+.btn-ghost:hover{
+  background:rgba(139,92,246,.2);
+  transform:scale(1.05)
+}
+
+.val{
+  font-family:'JetBrains Mono',monospace;
+  font-weight:700;
+  font-size:28px;
+  background:linear-gradient(135deg,#fff,#a78bfa);
+  -webkit-background-clip:text;
+  background-clip:text;
+  -webkit-text-fill-color:transparent;
+  animation:shimmer 3s infinite
+}
+
+@keyframes shimmer{
+  0%,100%{filter:brightness(1)}
+  50%{filter:brightness(1.2)}
+}
+
+.val2{
+  font-weight:700;
+  font-size:28px;
+  color:#fff
+}
+
+.stat{
+  background:linear-gradient(135deg,rgba(139,92,246,.08),rgba(236,72,153,.04));
+  border:1px solid rgba(139,92,246,.1);
+  border-radius:18px;
+  padding:20px;
+  transition:all .3s;
+  position:relative;
+  overflow:hidden
+}
+
+.stat::before{
+  content:'';
+  position:absolute;
+  top:-50%;
+  left:-50%;
+  width:200%;
+  height:200%;
+  background:conic-gradient(from 0deg, transparent, rgba(139,92,246,0.1), transparent 30%);
+  animation:rotate 4s linear infinite;
+  opacity:0;
+  transition:opacity 0.3s
+}
+
+.stat:hover::before{
+  opacity:1
+}
+
+@keyframes rotate{
+  100%{transform:rotate(360deg)}
+}
+
+.stat:hover{
+  border-color:rgba(139,92,246,.25);
+  transform:scale(1.02)
+}
+
+/* Sidebar premium */
+.sb{width:270px;flex-shrink:0;height:100vh;position:sticky;top:0;overflow-y:auto;z-index:50;background:rgba(10,10,15,.98);border-right:1px solid rgba(255,255,255,.05);padding:0 10px}
+.sb::-webkit-scrollbar{width:4px}.sb::-webkit-scrollbar-thumb{background:rgba(139,92,246,.3);border-radius:10px}
+.sb-item{display:flex;align-items:center;gap:12px;padding:12px 16px;border-radius:12px;margin:2px 0;font-size:13px;font-weight:500;color:#888;transition:all .2s;cursor:pointer;text-decoration:none}
+.sb-item:hover{background:rgba(139,92,246,.08);color:#fff;transform:translateX(3px)}
+.sb-item.active{background:linear-gradient(135deg,rgba(139,92,246,.15),rgba(139,92,246,.05));color:#fff;border:1px solid rgba(139,92,246,.15);font-weight:600}
+.sb-item i{width:20px;text-align:center;font-size:14px}
+
+.tc{display:none}.tc.active{display:block;animation:fadeIn .4s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+/* Dropdown custom */
+.dropdown{position:relative;display:inline-block}
+.dropdown-menu{position:absolute;top:100%;right:0;margin-top:8px;min-width:220px;background:rgba(20,20,30,.98);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:8px;backdrop-filter:blur(24px);opacity:0;visibility:hidden;transform:translateY(-8px);transition:all .25s cubic-bezier(.175,.885,.32,1.275);z-index:200}
+.dropdown.open .dropdown-menu{opacity:1;visibility:visible;transform:translateY(0)}
+.dropdown-item{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:10px;font-size:13px;font-weight:500;color:#aaa;transition:all .15s;cursor:pointer}
+.dropdown-item:hover{background:rgba(139,92,246,.12);color:#fff}
+.dropdown-item.danger:hover{background:rgba(239,68,68,.12);color:#ef4444}
+.dropdown-hr{border:none;border-top:1px solid rgba(255,255,255,.06);margin:6px 0}
+
+/* Tabs mobile */
+.mn{display:none;position:fixed;bottom:0;left:0;right:0;z-index:100;background:rgba(10,10,15,.98);border-top:1px solid rgba(255,255,255,.06);padding:6px 8px env(safe-area-inset-bottom);backdrop-filter:blur(20px)}
+.mn-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:10px 6px;border-radius:14px;font-size:10px;font-weight:600;color:#666;transition:all .3s cubic-bezier(.175,.885,.32,1.275);background:none;border:none;cursor:pointer}
+.mn-btn i{font-size:20px;transition:transform .3s}.mn-btn:hover{transform:translateY(-2px)}.mn-btn.active{color:#c084fc;background:linear-gradient(135deg,rgba(139,92,246,.15),rgba(139,92,246,.05));border:1px solid rgba(139,92,246,.15)}.mn-btn.active i{transform:scale(1.1)}
+
+/* Enhanced mobile responsiveness */
+@media(max-width:900px){
+  .sb{position:fixed;left:-300px;width:300px;transition:left .4s cubic-bezier(.165,.84,.44,1);z-index:200;background:rgba(10,10,15,.99);backdrop-filter:blur(30px)}.sb.open{left:0}
+  .mn{display:flex}.content{padding-bottom:100px;padding-top:70px}
+  .top-bar{display:flex!important}
+  .card{padding:16px;border-radius:16px}
+  .stat{padding:16px;border-radius:14px}
+  .grid-cols-2{grid-template-columns:repeat(2,1fr)!important}
+  .grid-cols-4{grid-template-columns:repeat(2,1fr)!important}
+  .grid-cols-3{grid-template-columns:repeat(2,1fr)!important}
+}
+
+@media(max-width:600px){
+  .grid-cols-2{grid-template-columns:1fr!important}
+  .grid-cols-4{grid-template-columns:1fr!important}
+  .grid-cols-3{grid-template-columns:1fr!important}
+  .card{padding:14px;border-radius:14px}
+  .val{font-size:22px}
+  .val2{font-size:22px}
+  .btn-p{padding:10px 20px;font-size:12px}
+  .top-bar{padding:10px 12px}
+}
+
+.top-bar{display:none;position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(10,10,15,.98);border-bottom:1px solid rgba(255,255,255,.06);padding:12px 16px;align-items:center;justify-content:space-between;backdrop-filter:blur(20px)}
+
+/* Touch-friendly interactions */
+@media(hover:none) and (pointer:coarse){
+  .card:hover{transform:none}
+  .stat:hover{transform:none}
+  .btn-ghost:hover{transform:none}
+  .sb-item:hover{transform:none}
+  .card:active{transform:scale(0.98)}
+  .btn-p:active{transform:scale(0.95)}
+}
+
+/* Shop items */
+.item{background:linear-gradient(135deg,rgba(255,255,255,.03),rgba(139,92,246,.03));border:1px solid rgba(139,92,246,.08);border-radius:20px;padding:20px;transition:all .4s cubic-bezier(.175,.885,.32,1.275);cursor:pointer}
+.item:hover{transform:translateY(-6px);border-color:rgba(139,92,246,.25);box-shadow:0 12px 50px rgba(139,92,246,.15)}
+
+/* Toast */
+.toast{position:fixed;bottom:24px;right:24px;z-index:999;background:rgba(20,20,30,.98);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:16px 20px;min-width:300px;backdrop-filter:blur(24px);transform:translateY(20px);opacity:0;transition:all .4s cubic-bezier(.175,.885,.32,1.275);pointer-events:none}
+.toast.show{transform:translateY(0);opacity:1;pointer-events:all}
+.toast-icon{width:36px;height:36px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+
+/* Toggle sidebar overlay */
+.overlay{position:fixed;inset:0;z-index:150;background:rgba(0,0,0,.5);display:none}.overlay.show{display:block}
 </style>
 </head>
 <body>
-<div class="flex">
+<!-- Floating Particles -->
+<div class="particles" id="particles"></div>
+
+<div class="flex min-h-screen relative z-10">
+  <!-- Overlay mobile -->
+  <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
   <!-- Sidebar -->
-  <div class="sidebar" id="sidebar">
-    <div class="flex items-center space-x-3 px-6 py-6 mb-4">
-      <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center"><span class="text-white font-black text-sm">G</span></div>
-      <span class="font-black text-lg tracking-tighter">GiftBlox</span>
+  <div class="sb" id="sidebar">
+    <div class="flex items-center gap-3 pt-6 pb-4 px-4 mb-2 border-b border-white/5">
+      <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-600 to-fuchsia-600 flex items-center justify-center shadow-lg shadow-violet-600/20"><span class="text-white font-black text-sm tracking-tight">G</span></div>
+      <div><span class="font-black text-base tracking-tight">GiftBlox</span><div class="text-[10px] font-semibold text-violet-400">PREMIUM</div></div>
     </div>
-    <div class="px-4 mb-6">
-      <div class="flex items-center space-x-3 glass rounded-2xl p-3">
-        <div class="w-10 h-10 rounded-full bg-purple-600/30 flex items-center justify-center overflow-hidden"><img class="avatar-img w-full h-full object-cover" src="" alt="avatar"></div>
+    <div class="px-2 mb-6">
+      <div class="flex items-center gap-3 rounded-2xl p-3 glass2">
+        <div class="w-10 h-10 rounded-full bg-violet-600/30 flex items-center justify-center overflow-hidden ring-2 ring-violet-500/30"><img class="avatar-img w-full h-full object-cover" src=""></div>
         <div class="flex-1 min-w-0">
-          <div class="font-bold text-sm truncate <span class="discord-username"></span>"></div>
-          <div class="text-xs text-gray-500"><span id="headerPoints">0</span> pts · <span id="headerLevel">1</span></div>
+          <div class="font-semibold text-sm truncate discord-username">...</div>
+          <div class="flex items-center gap-2 text-xs"><span class="text-violet-400 font-semibold" id="sbPts">0</span><span class="text-gray-600">·</span><span class="text-gray-500">Nv.</span><span class="text-violet-400 font-semibold" id="sbLvl">1</span></div>
         </div>
       </div>
     </div>
     <nav>
-      <a href="#" class="active" data-tab="home"><i class="fas fa-home w-5"></i>Accueil</a>
-      <a href="#" data-tab="quests"><i class="fas fa-tasks w-5"></i>Quêtes</a>
-      <a href="#" data-tab="shop"><i class="fas fa-store w-5"></i>Boutique</a>
-      <a href="#" data-tab="vault"><i class="fas fa-vault w-5"></i>Vault</a>
-      <a href="#" data-tab="rewards"><i class="fas fa-gift w-5"></i>Récompenses</a>
-      <a href="#" data-tab="leaderboard"><i class="fas fa-trophy w-5"></i>Classement</a>
-      <a href="#" data-tab="invites"><i class="fas fa-user-plus w-5"></i>Invitations</a>
-      <a href="#" data-tab="ia"><i class="fas fa-robot w-5"></i>IA Assistant</a>
-      <a href="#" data-tab="analytics"><i class="fas fa-chart-line w-5"></i>Analytics</a>
-      <a href="#" data-tab="profile"><i class="fas fa-user w-5"></i>Profil</a>
-      <a href="#" data-tab="support"><i class="fas fa-headset w-5"></i>Support</a>
-      <a href="#" data-tab="admin" id="adminLink" class="!hidden"><i class="fas fa-crown w-5"></i>Admin</a>
-      <hr class="mx-6 my-4 border-white/10">
-      <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt w-5"></i>Déconnexion</a>
+      <div class="sb-item active" data-tab="home"><i class="fas fa-home"></i>Accueil</div>
+      <div class="sb-item" data-tab="quests"><i class="fas fa-tasks"></i>Quêtes <span class="ml-auto text-[10px] bg-violet-600/20 text-violet-400 px-2 py-0.5 rounded-full font-bold">3</span></div>
+      <div class="sb-item" data-tab="shop"><i class="fas fa-store"></i>Boutique</div>
+      <div class="sb-item" data-tab="vault"><i class="fas fa-vault"></i>Vault</div>
+      <div class="sb-item" data-tab="rewards"><i class="fas fa-gift"></i>Récompenses</div>
+      <div class="sb-item" data-tab="leaderboard"><i class="fas fa-trophy"></i>Classement</div>
+      <div class="sb-item" data-tab="invites"><i class="fas fa-user-plus"></i>Parrainage</div>
+      <div class="sb-item" data-tab="ia"><i class="fas fa-robot"></i>IA Assistant</div>
+      <div class="sb-item" data-tab="analytics"><i class="fas fa-chart-bar"></i>Analytics</div>
+      <div class="sb-item" data-tab="profile"><i class="fas fa-user"></i>Profil</div>
+      <div class="sb-item" data-tab="support"><i class="fas fa-headset"></i>Support</div>
+      <div class="sb-item !hidden" data-tab="admin" id="adminLink"><i class="fas fa-crown" style="color:#fbbf24"></i>Admin <span class="ml-auto text-[10px] bg-amber-500/20 text-amber-400 px-2 py-0.5 rounded-full font-bold">!</span></div>
     </nav>
+    <div class="mt-auto pt-4 border-t border-white/5 px-4 py-4">
+      <div class="sb-item" onclick="logout()"><i class="fas fa-sign-out-alt"></i>Déconnexion</div>
+    </div>
   </div>
 
   <!-- Main Content -->
-  <div class="flex-1 min-h-screen">
-    <!-- Mobile Nav -->
-    <div class="mobile-nav fixed bottom-0 left-0 right-0 z-50 bg-black/95 border-t border-white/10 px-4 py-3">
-      <div class="flex justify-around">
-        <button onclick="selectTab('home')" class="tab-mobile active-tab" style="color:#888"><i class="fas fa-home text-xl"></i></button>
-        <button onclick="selectTab('shop')" class="tab-mobile" style="color:#888"><i class="fas fa-store text-xl"></i></button>
-        <button onclick="selectTab('quests')" class="tab-mobile" style="color:#888"><i class="fas fa-tasks text-xl"></i></button>
-        <button onclick="selectTab('leaderboard')" class="tab-mobile" style="color:#888"><i class="fas fa-trophy text-xl"></i></button>
-        <button onclick="selectTab('profile')" class="tab-mobile" style="color:#888"><i class="fas fa-user text-xl"></i></button>
-      </div>
+  <div class="flex-1 content" style="background:radial-gradient(ellipse at 20% 50%,rgba(139,92,246,.04) 0%,transparent 60%),radial-gradient(ellipse at 80% 20%,rgba(236,72,153,.03) 0%,transparent 50%)">
+    
+    <!-- Top Bar mobile -->
+    <div class="top-bar">
+      <button onclick="toggleSidebar()" class="text-white bg-transparent border-none text-xl cursor-pointer"><i class="fas fa-bars"></i></button>
+      <div class="flex items-center gap-2"><div class="w-7 h-7 rounded-full bg-violet-600/30 overflow-hidden"><img class="avatar-img w-full h-full object-cover" src=""></div><span class="font-bold text-sm">GiftBlox</span></div>
     </div>
 
-    <!-- Home -->
-    <div id="tab-home" class="tab-content active p-6 max-w-7xl mx-auto">
-      <div class="flex items-center justify-between mb-8">
-        <div>
-          <h1 class="text-3xl font-black">Bonjour, <span id="welcomeName">...</span></h1>
-          <p class="text-gray-500 font-medium mt-1">Bienvenue sur ton dashboard</p>
+    <!-- HOME -->
+    <div class="tc active" id="tab-home">
+      <div class="max-w-7xl mx-auto px-4 md:px-8 pt-6 md:pt-10 pb-24">
+        <div class="flex items-center justify-between mb-10">
+          <div><h1 class="text-3xl md:text-4xl font-black tracking-tight">Bienvenue, <span id="welcomeName" class="bg-gradient-to-r from-violet-400 to-fuchsia-400 bg-clip-text text-transparent">...</span></h1><p class="text-gray-500 font-medium mt-1">Prêt à gagner ?</p></div>
+          <div class="flex items-center gap-3"><button onclick="selectTab('profile')" class="btn-ghost hidden md:flex"><i class="fas fa-user mr-2"></i>Profil</button></div>
         </div>
-        <button onclick="selectTab('profile')" class="btn-primary px-4 py-2 rounded-full text-xs font-black uppercase tracking-widest">Mon Profil</button>
-      </div>
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-        <div class="stat-card"><div class="text-gray-400 text-xs font-bold uppercase tracking-widest mb-1">💰 Points</div><div class="stat-value" id="homePoints">0</div></div>
-        <div class="stat-card"><div class="text-gray-400 text-xs font-bold uppercase tracking-widest mb-1">⭐ Niveau</div><div class="stat-value" id="homeLevel">1</div></div>
-        <div class="stat-card"><div class="text-gray-400 text-xs font-bold uppercase tracking-widest mb-1">🔥 Streak</div><div class="stat-value" id="homeStreak">0</div></div>
-        <div class="stat-card"><div class="text-gray-400 text-xs font-bold uppercase tracking-widest mb-1">📋 Tâches</div><div class="stat-value" id="homeTasks">0</div></div>
-      </div>
-      <div class="grid md:grid-cols-2 gap-8">
-        <div class="glass rounded-3xl p-6">
-          <h2 class="font-black text-lg mb-4">Activité récente</h2>
-          <div id="recentActivity" class="space-y-3 text-sm"></div>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
+          <div class="stat"><div class="flex items-center gap-2 mb-2"><i class="fas fa-coins text-violet-400 text-sm"></i><span class="text-xs font-semibold uppercase text-gray-500 tracking-wider">Points</span></div><div class="val" id="homePts">0</div></div>
+          <div class="stat"><div class="flex items-center gap-2 mb-2"><i class="fas fa-star text-emerald-400 text-sm"></i><span class="text-xs font-semibold uppercase text-gray-500 tracking-wider">Niveau</span></div><div class="val2" id="homeLvl">1</div></div>
+          <div class="stat"><div class="flex items-center gap-2 mb-2"><i class="fas fa-fire text-orange-400 text-sm"></i><span class="text-xs font-semibold uppercase text-gray-500 tracking-wider">Streak</span></div><div class="val2" id="homeStreak">0</div></div>
+          <div class="stat"><div class="flex items-center gap-2 mb-2"><i class="fas fa-check-circle text-sky-400 text-sm"></i><span class="text-xs font-semibold uppercase text-gray-500 tracking-wider">Tâches</span></div><div class="val2" id="homeTasks">0</div></div>
         </div>
-        <div class="glass rounded-3xl p-6">
-          <h2 class="font-black text-lg mb-4">Distribution XP (7 jours)</h2>
-          <canvas id="chartXP" height="180"></canvas>
+        <div class="grid md:grid-cols-2 gap-6">
+          <div class="card"><div class="flex items-center justify-between mb-5"><h2 class="font-bold text-lg">Activité récente</h2><i class="fas fa-sync-alt text-gray-600 text-sm cursor-pointer hover:text-white" onclick="loadAll()"></i></div><div id="recentActivity" class="space-y-3 text-sm"></div></div>
+          <div class="card"><div class="flex items-center justify-between mb-5"><h2 class="font-bold text-lg">XP Hebdo</h2><span class="text-xs text-gray-500">7 jours</span></div><canvas id="chartXP" height="180"></canvas></div>
         </div>
       </div>
     </div>
 
-    <!-- Quests -->
-    <div id="tab-quests" class="tab-content p-6 max-w-5xl mx-auto">
-      <h1 class="text-3xl font-black mb-8"><i class="fas fa-tasks text-purple-400 mr-3"></i>Quêtes</h1>
-      <div id="questsList" class="grid md:grid-cols-2 gap-4"></div>
+    <!-- QUESTS -->
+    <div class="tc" id="tab-quests">
+      <div class="max-w-5xl mx-auto px-4 md:px-8 pt-6 md:pt-10 pb-24">
+        <div class="mb-10"><h1 class="text-3xl font-black tracking-tight">Quêtes</h1><p class="text-gray-500 font-medium mt-1">Complète des défis pour gagner des récompenses</p></div>
+        <div id="questsList" class="grid md:grid-cols-2 gap-4"></div>
+      </div>
     </div>
 
-    <!-- Shop -->
-    <div id="tab-shop" class="tab-content p-6 max-w-5xl mx-auto">
-      <h1 class="text-3xl font-black mb-8"><i class="fas fa-store text-purple-400 mr-3"></i>Boutique</h1>
-      <p class="text-gray-500 font-medium mb-6">Soldes : <span id="userPointsDisplay">0</span> 💰</p>
-      <div id="shopList" class="grid md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
-    </div>
-
-    <!-- Vault -->
-    <div id="tab-vault" class="tab-content p-6 max-w-5xl mx-auto">
-      <h1 class="text-3xl font-black mb-8"><i class="fas fa-vault text-purple-400 mr-3"></i>Vault</h1>
-      <div class="grid md:grid-cols-2 gap-4">
-        <div class="glass rounded-3xl p-6">
-          <h2 class="font-black text-lg mb-4">Achats récents</h2>
-          <div id="purchasesList" class="space-y-3 text-sm"></div>
+    <!-- SHOP -->
+    <div class="tc" id="tab-shop">
+      <div class="max-w-6xl mx-auto px-4 md:px-8 pt-6 md:pt-10 pb-24">
+        <div class="flex items-center justify-between mb-10">
+          <div><h1 class="text-3xl font-black tracking-tight">Boutique</h1><p class="text-gray-500 font-medium mt-1"><span id="shopPts">0</span> points disponibles</p></div>
         </div>
-        <div class="glass rounded-3xl p-6">
-          <h2 class="font-black text-lg mb-4">Historique transactions</h2>
-          <div id="transactionsList" class="space-y-2 text-sm max-h-96 overflow-y-auto"></div>
+        <div id="shopList" class="grid md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+      </div>
+    </div>
+
+    <!-- VAULT -->
+    <div class="tc" id="tab-vault">
+      <div class="max-w-5xl mx-auto px-4 md:px-8 pt-6 md:pt-10 pb-24">
+        <h1 class="text-3xl font-black tracking-tight mb-10">Vault</h1>
+        <div class="grid md:grid-cols-2 gap-6">
+          <div class="card"><h2 class="font-bold text-lg mb-5">Achats</h2><div id="purchasesList" class="space-y-3 text-sm"></div></div>
+          <div class="card"><h2 class="font-bold text-lg mb-5">Transactions</h2><div id="transactionsList" class="space-y-2 text-sm max-h-96 overflow-y-auto"></div></div>
         </div>
       </div>
     </div>
 
-    <!-- Rewards -->
-    <div id="tab-rewards" class="tab-content p-6 max-w-5xl mx-auto">
-      <h1 class="text-3xl font-black mb-8"><i class="fas fa-gift text-purple-400 mr-3"></i>Récompenses</h1>
-      <div class="glass rounded-3xl p-6 mb-8">
-        <h2 class="font-black text-lg mb-4">Badges débloqués</h2>
-        <div id="badgesList" class="flex flex-wrap gap-4"></div>
-      </div>
-      <div class="glass rounded-3xl p-6">
-        <h2 class="font-black text-lg mb-4">Récompense quotidienne</h2>
-        <button onclick="claimDaily()" class="btn-primary px-6 py-3 rounded-full text-xs font-black uppercase tracking-widest"><i class="fas fa-calendar-day mr-2"></i>Réclamer</button>
-        <div id="dailyResult" class="mt-4 text-sm text-gray-400"></div>
+    <!-- REWARDS -->
+    <div class="tc" id="tab-rewards">
+      <div class="max-w-5xl mx-auto px-4 md:px-8 pt-6 md:pt-10 pb-24">
+        <h1 class="text-3xl font-black tracking-tight mb-3">Récompenses</h1>
+        <div class="card mb-6"><h2 class="font-bold text-lg mb-5">Badges</h2><div id="badgesList" class="flex flex-wrap gap-4"></div></div>
+        <div class="card"><h2 class="font-bold text-lg mb-5">Quotidienne</h2><button onclick="claimDaily()" class="btn-p"><i class="fas fa-calendar-day mr-2"></i>Réclamer</button><div id="dailyResult" class="mt-4 text-sm"></div></div>
       </div>
     </div>
 
-    <!-- Leaderboard -->
-    <div id="tab-leaderboard" class="tab-content p-6 max-w-4xl mx-auto">
-      <h1 class="text-3xl font-black mb-8"><i class="fas fa-trophy text-purple-400 mr-3"></i>Classement</h1>
-      <div class="glass rounded-3xl p-6">
-        <div id="leaderboardList" class="space-y-4"></div>
+    <!-- LEADERBOARD -->
+    <div class="tc" id="tab-leaderboard">
+      <div class="max-w-4xl mx-auto px-4 md:px-8 pt-6 md:pt-10 pb-24">
+        <h1 class="text-3xl font-black tracking-tight mb-10">Classement</h1>
+        <div class="card !p-3" id="leaderboardList"></div>
       </div>
     </div>
 
-    <!-- Invites -->
-    <div id="tab-invites" class="tab-content p-6 max-w-4xl mx-auto">
-      <h1 class="text-3xl font-black mb-8"><i class="fas fa-user-plus text-purple-400 mr-3"></i>Invitations</h1>
-      <div class="grid md:grid-cols-2 gap-8">
-        <div class="glass rounded-3xl p-6">
-          <h2 class="font-black text-lg mb-4">Ton code de parrainage</h2>
-          <div id="referralInfo" class="text-center">
-            <div class="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500 my-4" id="refCode">---</div>
-            <p class="text-gray-400 text-sm"><span id="refCount">0</span> utilisations</p>
+    <!-- INVITES -->
+    <div class="tc" id="tab-invites">
+      <div class="max-w-4xl mx-auto px-4 md:px-8 pt-6 md:pt-10 pb-24">
+        <h1 class="text-3xl font-black tracking-tight mb-10">Parrainage</h1>
+        <div class="grid md:grid-cols-2 gap-6">
+          <div class="card text-center"><h2 class="font-bold text-lg mb-4">Ton code</h2><div class="text-4xl font-black tracking-widest bg-gradient-to-r from-violet-400 to-fuchsia-400 bg-clip-text text-transparent my-4" id="refCode">---</div><p class="text-gray-500 text-sm"><span id="refCount" class="font-bold text-white">0</span> utilisations</p></div>
+          <div class="card"><h2 class="font-bold text-lg mb-4">Top Parrains</h2><div id="topReferrers" class="space-y-3 text-sm"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- I.A. -->
+    <div class="tc" id="tab-ia">
+      <div class="max-w-4xl mx-auto px-4 md:px-8 pt-6 md:pt-10 pb-24">
+        <h1 class="text-3xl font-black tracking-tight mb-10">Assistant IA</h1>
+        <div class="card">
+          <div id="chatMessages" class="space-y-4 mb-6 max-h-[500px] overflow-y-auto"></div>
+          <div class="flex gap-3"><input id="chatInput" class="flex-1 bg-white/5 border border-white/10 rounded-2xl px-5 py-3 outline-none focus:border-violet-500 transition text-sm" placeholder="Pose une question..."><button onclick="sendMessage()" class="btn-p">Envoyer</button></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ANALYTICS -->
+    <div class="tc" id="tab-analytics">
+      <div class="max-w-6xl mx-auto px-4 md:px-8 pt-6 md:pt-10 pb-24">
+        <h1 class="text-3xl font-black tracking-tight mb-10">Analytics</h1>
+        <div class="grid md:grid-cols-3 gap-4 mb-8">
+          <div class="stat"><span class="text-xs font-semibold uppercase text-gray-500 tracking-wider">Membres</span><div class="val" id="anUsers">-</div></div>
+          <div class="stat"><span class="text-xs font-semibold uppercase text-gray-500 tracking-wider">Transactions</span><div class="val" id="anTx">-</div></div>
+          <div class="stat"><span class="text-xs font-semibold uppercase text-gray-500 tracking-wider">Tickets</span><div class="val" id="anTickets">-</div></div>
+        </div>
+        <div class="grid md:grid-cols-2 gap-6"><div class="card"><h2 class="font-bold text-lg mb-4">Distribution Points</h2><canvas id="chartPts" height="200"></canvas></div><div class="card"><h2 class="font-bold text-lg mb-4">Niveaux</h2><canvas id="chartLvls" height="200"></canvas></div></div>
+      </div>
+    </div>
+
+    <!-- PROFILE -->
+    <div class="tc" id="tab-profile">
+      <div class="max-w-4xl mx-auto px-4 md:px-8 pt-6 md:pt-10 pb-24">
+        <h1 class="text-3xl font-black tracking-tight mb-10">Profil</h1>
+        <div class="grid md:grid-cols-2 gap-6">
+          <div class="card text-center">
+            <div class="w-20 h-20 rounded-full bg-gradient-to-br from-violet-600 to-fuchsia-600 mx-auto mb-4 p-1"><div class="w-full h-full rounded-full overflow-hidden bg-black/50"><img id="profileAvatar" class="w-full h-full object-cover" src=""></div></div>
+            <div class="text-xl font-black" id="profileName">---</div>
+            <div class="text-gray-500 text-sm font-mono tracking-tight">ID: <span id="profileId">---</span></div>
+            <div class="flex justify-center gap-8 mt-6">
+              <div class="text-center"><div class="text-2xl font-black" id="pfPts">0</div><div class="text-[10px] text-gray-500 font-semibold uppercase tracking-wider">pts</div></div>
+              <div class="text-center"><div class="text-2xl font-black" id="pfLvl">1</div><div class="text-[10px] text-gray-500 font-semibold uppercase tracking-wider">niveau</div></div>
+              <div class="text-center"><div class="text-2xl font-black" id="pfBadges">0</div><div class="text-[10px] text-gray-500 font-semibold uppercase tracking-wider">badges</div></div>
+            </div>
           </div>
-        </div>
-        <div class="glass rounded-3xl p-6">
-          <h2 class="font-black text-lg mb-4">Top parrains</h2>
-          <div id="topReferrers" class="space-y-3 text-sm"></div>
+          <div class="card flex flex-col justify-center"><h2 class="font-bold text-lg mb-4">Progression</h2><div class="w-full bg-white/5 rounded-full h-3 mb-2 overflow-hidden"><div class="h-full rounded-full transition-all duration-1000" id="progBar" style="width:0%;background:linear-gradient(90deg,#8b5cf6,#c084fc,#e879f9);background-size:200% 100%;animation:shimmer 3s linear infinite"></div></div><div class="text-sm"><span id="progXp" class="font-bold text-violet-400">0</span><span class="text-gray-600"> / </span><span id="progXpMax" class="text-gray-400">120</span> XP</div></div>
         </div>
       </div>
     </div>
 
-    <!-- I.A. Assistant -->
-    <div id="tab-ia" class="tab-content p-6 max-w-4xl mx-auto">
-      <h1 class="text-3xl font-black mb-8"><i class="fas fa-robot text-purple-400 mr-3"></i>Assistant IA</h1>
-      <div class="glass rounded-3xl p-6">
-        <div id="chatMessages" class="space-y-4 mb-6 max-h-96 overflow-y-auto"></div>
-        <div class="flex gap-3">
-          <input id="chatInput" class="flex-1 bg-white/5 border border-white/10 rounded-full px-6 py-3 text-sm font-medium outline-none focus:border-purple-500 transition" placeholder="Pose une question..."/>
-          <button onclick="sendMessage()" class="btn-primary px-6 py-3 rounded-full text-xs font-black uppercase tracking-widest">Envoyer</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Analytics -->
-    <div id="tab-analytics" class="tab-content p-6 max-w-6xl mx-auto">
-      <h1 class="text-3xl font-black mb-8"><i class="fas fa-chart-line text-purple-400 mr-3"></i>Analytics</h1>
-      <div class="grid md:grid-cols-3 gap-4 mb-8">
-        <div class="stat-card"><div class="text-xs font-bold uppercase tracking-widest text-gray-400">Membres totaux</div><div class="stat-value" id="analyticsUsers">0</div></div>
-        <div class="stat-card"><div class="text-xs font-bold uppercase tracking-widest text-gray-400">Transactions</div><div class="stat-value" id="analyticsTx">0</div></div>
-        <div class="stat-card"><div class="text-xs font-bold uppercase tracking-widest text-gray-400">Tickets ouverts</div><div class="stat-value" id="analyticsTickets">0</div></div>
-      </div>
-      <div class="grid md:grid-cols-2 gap-8">
-        <div class="glass rounded-3xl p-6"><h2 class="font-black text-lg mb-4">Distribution Points</h2><canvas id="chartPoints" height="200"></canvas></div>
-        <div class="glass rounded-3xl p-6"><h2 class="font-black text-lg mb-4">Évolution des niveaux</h2><canvas id="chartLevels" height="200"></canvas></div>
-      </div>
-    </div>
-
-    <!-- Profile -->
-    <div id="tab-profile" class="tab-content p-6 max-w-4xl mx-auto">
-      <h1 class="text-3xl font-black mb-8"><i class="fas fa-user text-purple-400 mr-3"></i>Profil</h1>
-      <div class="grid md:grid-cols-2 gap-8">
-        <div class="glass rounded-3xl p-6 text-center">
-          <div class="w-24 h-24 rounded-full bg-purple-600/30 mx-auto mb-4 overflow-hidden"><img id="profileAvatar" class="w-full h-full object-cover" src="" alt=""></div>
-          <div class="text-xl font-black" id="profileUsername">---</div>
-          <div class="text-gray-400 font-medium text-sm">ID: <span id="profileId">---</span></div>
-          <div class="flex justify-center gap-6 mt-6">
-            <div><div class="text-2xl font-black" id="profilePoints">0</div><div class="text-xs text-gray-500 font-bold uppercase">pts</div></div>
-            <div><div class="text-2xl font-black" id="profileLevel">1</div><div class="text-xs text-gray-500 font-bold uppercase">niv.</div></div>
-            <div><div class="text-2xl font-black" id="profileBadges">0</div><div class="text-xs text-gray-500 font-bold uppercase">badges</div></div>
+    <!-- SUPPORT -->
+    <div class="tc" id="tab-support">
+      <div class="max-w-5xl mx-auto px-4 md:px-8 pt-6 md:pt-10 pb-24">
+        <h1 class="text-3xl font-black tracking-tight mb-10">Support</h1>
+        <div class="grid md:grid-cols-2 gap-6">
+          <div class="card"><h2 class="font-bold text-lg mb-5">Nouveau ticket</h2>
+            <input id="tSubject" class="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 mb-3 outline-none focus:border-violet-500 transition text-sm" placeholder="Sujet">
+            <textarea id="tMessage" class="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 mb-3 outline-none focus:border-violet-500 transition text-sm" rows="4" placeholder="Décris ton problème..."></textarea>
+            <select id="tCat" class="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 mb-4 outline-none focus:border-violet-500 transition text-sm"><option value="general">Général</option><option value="support">Support</option><option value="billing">Facturation</option><option value="bug">Bug</option><option value="feature">Suggestion</option></select>
+            <button onclick="createTicket()" class="btn-p">Créer le ticket</button>
+            <div id="ticketResult" class="mt-4 text-sm"></div>
           </div>
-        </div>
-        <div class="glass rounded-3xl p-6">
-          <h2 class="font-black text-lg mb-4">Progression niveau</h2>
-          <div class="w-full bg-white/5 rounded-full h-3 mb-2"><div class="h-3 rounded-full" style="background:linear-gradient(90deg,#8b5cf6,#ec4899);width:0%" id="progressBar"></div></div>
-          <div class="text-sm text-gray-400"><span id="progXp">0</span> / <span id="progXpMax">120</span> XP</div>
+          <div class="card"><h2 class="font-bold text-lg mb-5">Mes tickets</h2><div id="myTickets" class="space-y-2 text-sm max-h-96 overflow-y-auto"></div></div>
         </div>
       </div>
     </div>
 
-    <!-- Support -->
-    <div id="tab-support" class="tab-content p-6 max-w-5xl mx-auto">
-      <h1 class="text-3xl font-black mb-8"><i class="fas fa-headset text-purple-400 mr-3"></i>Support</h1>
-      <div class="grid md:grid-cols-2 gap-8">
-        <div class="glass rounded-3xl p-6">
-          <h2 class="font-black text-lg mb-4">Créer un ticket</h2>
-          <input id="ticketSubject" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm font-medium mb-4 outline-none focus:border-purple-500 transition" placeholder="Sujet">
-          <textarea id="ticketMessage" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm font-medium mb-4 outline-none focus:border-purple-500 transition" rows="4" placeholder="Décrit ton problème..."></textarea>
-          <select id="ticketCategory" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm font-medium mb-4 outline-none focus:border-purple-500 transition">
-            <option value="general">Général</option><option value="support">Support</option><option value="billing">Facturation</option><option value="bug">Bug</option><option value="feature">Suggestion</option>
-          </select>
-          <button onclick="createTicket()" class="btn-primary px-6 py-3 rounded-full text-xs font-black uppercase tracking-widest">Envoyer</button>
-          <div id="ticketResult" class="mt-4 text-sm"></div>
+    <!-- ADMIN -->
+    <div class="tc" id="tab-admin">
+      <div class="max-w-6xl mx-auto px-4 md:px-8 pt-6 md:pt-10 pb-24">
+        <div class="flex items-center gap-4 mb-10"><div class="w-10 h-10 rounded-xl bg-amber-500/20 flex items-center justify-center"><i class="fas fa-crown text-amber-400"></i></div><h1 class="text-3xl font-black tracking-tight">Administration</h1></div>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+          <div class="stat"><span class="text-xs font-semibold uppercase text-gray-500">Membres</span><div class="val2 text-2xl" id="adUsers">-</div></div>
+          <div class="stat"><span class="text-xs font-semibold uppercase text-gray-500">Points totaux</span><div class="val text-2xl" id="adPoints">-</div></div>
+          <div class="stat"><span class="text-xs font-semibold uppercase text-gray-500">Transactions</span><div class="val2 text-2xl" id="adTx">-</div></div>
+          <div class="stat"><span class="text-xs font-semibold uppercase text-gray-500">Tickets ouverts</span><div class="val2 text-2xl" id="adTickets">-</div></div>
         </div>
-        <div class="glass rounded-3xl p-6">
-          <h2 class="font-black text-lg mb-4">Mes tickets</h2>
-          <div id="myTickets" class="space-y-2 text-sm max-h-96 overflow-y-auto"></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Admin -->
-    <div id="tab-admin" class="tab-content p-6 max-w-6xl mx-auto">
-      <h1 class="text-3xl font-black mb-8"><i class="fas fa-crown text-yellow-400 mr-3"></i>Admin Panel</h1>
-      <div class="grid md:grid-cols-4 gap-4 mb-8">
-        <div class="stat-card"><div class="text-xs font-bold uppercase text-gray-400">Membres</div><div class="stat-value" id="adminUsers">0</div></div>
-        <div class="stat-card"><div class="text-xs font-bold uppercase text-gray-400">Points totaux</div><div class="stat-value" id="adminPoints">0</div></div>
-        <div class="stat-card"><div class="text-xs font-bold uppercase text-gray-400">Transactions</div><div class="stat-value" id="adminTx">0</div></div>
-        <div class="stat-card"><div class="text-xs font-bold uppercase text-gray-400">Tickets <span id="adminTicketsSpan">0</span></div></div>
-      </div>
-      <div class="grid md:grid-cols-2 gap-8">
-        <div class="glass rounded-3xl p-6">
-          <h2 class="font-black text-lg mb-4">Top 5 utilisateurs</h2>
-          <div id="adminTopUsers" class="space-y-3 text-sm"></div>
-        </div>
-        <div class="glass rounded-3xl p-6">
-          <h2 class="font-black text-lg mb-4">Gestion des tickets</h2>
-          <div id="adminTickets" class="space-y-2 text-sm max-h-96 overflow-y-auto"></div>
+        <div class="grid md:grid-cols-2 gap-6">
+          <div class="card"><h2 class="font-bold text-lg mb-5">Top utilisateurs</h2><div id="adTopUsers" class="space-y-3 text-sm"></div></div>
+          <div class="card"><h2 class="font-bold text-lg mb-5">Tickets récents</h2><div id="adRecentTickets" class="space-y-2 text-sm max-h-96 overflow-y-auto"></div></div>
         </div>
       </div>
     </div>
   </div>
 </div>
 
+<!-- Mobile Nav -->
+<div class="mn"></div>
+
+<!-- Toast notification -->
+<div class="toast flex items-center gap-3" id="toast">
+  <div class="toast-icon" id="toastIcon" style="background:rgba(16,185,129,.15);color:#10b981"><i class="fas fa-check"></i></div>
+  <div>
+    <div class="font-semibold text-sm" id="toastTitle">Succès</div>
+    <div class="text-xs text-gray-400" id="toastMsg">Action effectuée</div>
+  </div>
+</div>
+
 <script>
 const OWNER_ID = '1527668994210005002';
-let discordUser = {};
-let currentTab = 'home';
-let chartXp = null, chartPts = null, chartLvl = null;
+let u = {}, chXp = null, chPts = null, chLvls = null;
 
-function checkAuth() {
-  const d = localStorage.getItem('discord_user');
-  if (!d) { window.location.href = 'index.html'; return }
-  discordUser = JSON.parse(d);
-  document.querySelectorAll('.discord-username').forEach(e => e.textContent = discordUser.username);
-  let avatarUrl = discordUser.avatar ? `https://cdn.discordapp.com/avatars/${discordUser.id}/${discordUser.avatar}.png?size=256` : `https://cdn.discordapp.com/embed/avatars/${discordUser.discriminator % 5}.png`;
-  document.querySelectorAll('.avatar-img').forEach(e => e.src = avatarUrl);
-  document.getElementById('welcomeName').textContent = discordUser.username;
-  document.getElementById('profileUsername').textContent = discordUser.username;
-  document.getElementById('profileId').textContent = discordUser.id;
-  document.getElementById('profileAvatar').src = avatarUrl;
-
-  if (discordUser.id === OWNER_ID) {
-    document.getElementById('adminLink').classList.remove('!hidden');
+// Create floating particles
+function createParticles() {
+  const container = document.getElementById('particles');
+  if (!container) return;
+  
+  for (let i = 0; i < 30; i++) {
+    const particle = document.createElement('div');
+    particle.className = 'particle';
+    particle.style.left = Math.random() * 100 + '%';
+    particle.style.animationDelay = Math.random() * 15 + 's';
+    particle.style.animationDuration = (15 + Math.random() * 10) + 's';
+    particle.style.width = (2 + Math.random() * 4) + 'px';
+    particle.style.height = particle.style.width;
+    particle.style.opacity = 0.2 + Math.random() * 0.3;
+    container.appendChild(particle);
   }
-
-  loadAllData();
 }
 
-function loadAllData() {
-  loadUser();
-  loadLeaderboard();
-  loadAnalytics();
-  loadShop();
-  loadQuests();
-  loadBadges();
-  loadReferrals();
-  loadSupport();
-  if (discordUser.id === OWNER_ID) loadAdmin();
+function checkAuth(){
+  const d = localStorage.getItem('discord_user');
+  if(!d){window.location.href='index.html';return}
+  u = JSON.parse(d);
+  document.querySelectorAll('.discord-username').forEach(e=>e.textContent=u.username);
+  const a = u.avatar?`https://cdn.discordapp.com/avatars/${u.id}/${u.avatar}.png?size=256`:`https://cdn.discordapp.com/embed/avatars/${u.discriminator%5}.png`;
+  document.querySelectorAll('.avatar-img').forEach(e=>e.src=a);
+  document.getElementById('welcomeName').textContent=u.username;
+  document.getElementById('profileName').textContent=u.username;
+  document.getElementById('profileId').textContent=u.id;
+  document.getElementById('profileAvatar').src=a;
+  if(u.id===OWNER_ID) document.getElementById('adminLink').classList.remove('!hidden');
+  createParticles(); // Initialize particles
+  loadAll();
 }
 
-function api(path) {
-  return fetch(window.location.origin + '/api' + path).then(r => r.json());
+function loadAll(){ loadUser(); loadLeaderboard(); loadAnalytics(); loadShop(); loadQuests(); loadBadges(); loadReferrals(); loadSupport(); if(u.id===OWNER_ID) loadAdmin(); }
+
+function api(p){return fetch('/api'+p).then(r=>r.json())}
+function apiPost(p,d){return fetch('/api'+p,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(d)}).then(r=>r.json())}
+
+function toast(title,msg,icon='check',color='#10b981'){
+  const t=document.getElementById('toast'),ti=document.getElementById('toastIcon'),tt=document.getElementById('toastTitle'),tm=document.getElementById('toastMsg');
+  ti.style.background=color+'15';ti.style.color=color;ti.innerHTML='<i class="fas fa-'+icon+'"></i>';
+  tt.textContent=title;tm.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),3000);
 }
 
-function apiPost(path, data) {
-  return fetch(window.location.origin + '/api' + path, {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)}).then(r => r.json());
-}
-
-// USER
-async function loadUser() {
-  const id = discordUser.id;
-  const j = await api('/user/'+id);
-  if(!j.success) return;
-  const d = j.data;
-  document.querySelectorAll('#homePoints,#headerPoints,#profilePoints,#userPointsDisplay').forEach(e=>e.textContent=d.points.toLocaleString());
-  document.querySelectorAll('#homeLevel,#headerLevel,#profileLevel').forEach(e=>e.textContent=d.level);
+async function loadUser(){
+  const id=u.id;
+  const j=await api('/user/'+id);
+  if(!j.success)return;
+  const d=j.data;
+  ['#homePts','#sbPts','#shopPts','#pfPts'].forEach(s=>{const e=document.querySelector(s);if(e)e.textContent=d.points.toLocaleString()});
+  ['#homeLvl','#sbLvl','#pfLvl'].forEach(s=>{const e=document.querySelector(s);if(e)e.textContent=d.level});
   document.getElementById('homeStreak').textContent=d.dailyStreak;
   document.getElementById('homeTasks').textContent=d.tasksCompleted;
-  const xpForNext = d.level * 120;
-  const prog = ((d.xp / xpForNext)*100).toFixed(1);
-  document.getElementById('progressBar').style.width=prog+'%';
+  const xpN=d.level*120;
+  const pct=((d.xp/xpN)*100).toFixed(1);
+  document.getElementById('progBar').style.width=pct+'%';
   document.getElementById('progXp').textContent=d.xp;
-  document.getElementById('progXpMax').textContent=xpForNext;
-  const badgeCount = d.badges.filter(b=>b.unlocked).length;
-  document.getElementById('profileBadges').textContent=badgeCount;
-
-  // Recent activity
-  const recent = d.recentActivity || [];
-  const actEl = document.getElementById('recentActivity');
-  if (recent.length===0) actEl.innerHTML='<div class="text-gray-500">Aucune activité récente</div>';
-  else actEl.innerHTML = recent.map(a=>`<div class="flex items-center gap-3 p-3 glass rounded-xl"><div class="w-2 h-2 rounded-full bg-purple-400"></div><span class="text-gray-400">${a.text || ''}</span></div>`).join('');
-
-  // Charts
-  if (d.weeklyActivity && d.weeklyActivity.points) {
-    buildChart('chartXP', 'points', d.weeklyActivity.points);
-  }
-  // Purchases
-  api('/user/'+id+'/purchases').then(j=>{
-    if(!j.success) return;
-    document.getElementById('purchasesList').innerHTML = j.purchases.map(p =>
-      `<div class="flex justify-between items-center p-3 glass rounded-xl"><span>${p.item_name}</span><span class="text-gray-400">-${p.price} pts</span></div>`
-    ).join('') || 'Aucun achat';
-  });
-  // Transactions
-  api('/user/'+id+'/transactions').then(j=>{
-    if(!j.success) return;
-    document.getElementById('transactionsList').innerHTML = j.transactions.slice(0,20).map(t =>
-      `<div class="flex justify-between items-center p-2" style="border-bottom:1px solid rgba(255,255,255,.04)">
-        <span class="text-xs text-gray-400">${t.type === 'earn' ? '🟢' : '🔴'} ${t.description || ''}</span>
-        <span class="${t.amount > 0 ? 'text-green-400' : 'text-red-400'} font-bold">${t.amount > 0 ? '+' : ''}${t.amount}</span>
-      </div>`
-    ).join('') || '<div class="text-gray-500">Aucune transaction</div>';
-  });
+  document.getElementById('progXpMax').textContent=xpN;
+  const bc=d.badges.filter(b=>b.unlocked).length;
+  document.getElementById('pfBadges').textContent=bc;
+  const act=d.recentActivity||[];
+  document.getElementById('recentActivity').innerHTML=act.length?act.map(a=>`<div class="flex items-center gap-3 p-3 glass2 rounded-2xl"><div class="w-2 h-2 rounded-full bg-violet-400"></div><span class="text-gray-400 text-sm">${a.text||''}</span></div>`).join('') : '<div class="text-gray-600 text-sm">Aucune activité récente</div>';
+  if(d.weeklyActivity&&d.weeklyActivity.points) buildChart('chartXP',d.weeklyActivity.points);
+  api('/user/'+id+'/purchases').then(j=>{if(j.success)document.getElementById('purchasesList').innerHTML=j.purchases.length?j.purchases.map(p=>`<div class="flex justify-between items-center p-3 glass2 rounded-2xl"><span class="font-medium">${p.item_name}</span><span class="text-gray-400 font-mono">-${p.price} pts</span></div>`).join(''):'<div class="text-gray-600 text-sm">Aucun achat</div>'});
+  api('/user/'+id+'/transactions').then(j=>{if(j.success)document.getElementById('transactionsList').innerHTML=j.transactions.slice(0,30).map(t=>`<div class="flex justify-between items-center py-2 border-b border-white/5 last:border-0"><span class="text-xs text-gray-500">${t.type==='earn'?'🟢':'🔴'} ${t.description||''}</span><span class="font-mono text-xs ${t.amount>0?'text-emerald-400':'text-red-400'}">${t.amount>0?'+':''}${t.amount}</span></div>`).join('')||'<div class="text-gray-600 text-sm">Aucune transaction</div>'});
 }
 
-// LEADERBOARD
-async function loadLeaderboard() {
-  const {success,data} = await api('/leaderboard?limit=20');
-  if(!success) return;
-  document.getElementById('leaderboardList').innerHTML = data.map((u,i) => {
-    let badge = (i == 0 ? '🥇' : i == 1 ? '🥈' : i == 2 ? '🥉' : `#${i+1}`);
-    let isMe = u.id === discordUser.id;
-    return `<div class="flex items-center justify-between p-4 glass rounded-xl ${isMe ? 'border-purple-500/50' : ''}">
-      <div class="flex items-center gap-3"><span class="w-8 text-center font-black">${badge}</span>
-      <span class="font-bold ${isMe ? 'text-purple-300' : ''}">${u.username}</span></div>
-      <span class="text-gray-400 font-bold">${u.points.toLocaleString()} pts</span>
-    </div>`;
+async function loadLeaderboard(){
+  const {success,data}=await api('/leaderboard?limit=25');
+  if(!success)return;
+  document.getElementById('leaderboardList').innerHTML=data.map((x,i)=>{
+    const b=i==0?'🥇':i==1?'🥈':i==2?'🥉':`#${i+1}`;
+    const me=x.id===u.id;
+    return `<div class="flex items-center justify-between p-4 rounded-2xl transition-all ${me?'bg-violet-600/10 border border-violet-500/30':'hover:bg-white/5'}">
+      <div class="flex items-center gap-4"><span class="w-8 text-center font-black text-lg">${b}</span><div><span class="font-semibold ${me?'text-violet-300':''}">${x.username}</span>${me?'<span class="ml-2 text-[10px] bg-violet-600/20 text-violet-400 px-2 py-0.5 rounded-full font-bold">VOUS</span>':''}</div></div>
+      <span class="font-mono font-bold text-sm">${x.points.toLocaleString()} <span class="text-gray-600 font-normal">pts</span></span></div>`;
   }).join('');
 }
 
-// ANALYTICS
-async function loadAnalytics() {
-  const j = await api('/global-stats');
-  if(!j.success) return;
-  document.getElementById('analyticsUsers').textContent=j.totalUsers;
-  document.getElementById('analyticsTx').textContent=j.totalTransactions;
-  document.getElementById('analyticsTickets').textContent=j.ticketsOpen;
-  // Fake charts for analytics page
-  var data = [150,230,220,280,350,420,300,380,410,450,490,400];
-  createChart('chartPoints','bar',[200,180,240,260,300,350,320,290,370,410,450,380]);
-  createChart('chartLevels','line',[1,2,2,3,3,4,5,5,6,7,8,9]);
+async function loadAnalytics(){
+  const j=await api('/global-stats');
+  if(!j.success)return;
+  document.getElementById('anUsers').textContent=j.totalUsers;
+  document.getElementById('anTx').textContent=j.totalTransactions;
+  document.getElementById('anTickets').textContent=j.ticketsOpen;
+  createChart('chartPts','bar');
+  createChart('chartLvls','line');
 }
 
-function buildChart(id, label, data) {
-  var cvs = document.getElementById(id);
-  if (!cvs) return;
-  var ctx = cvs.getContext('2d');
-  if (chartXp) chartXp.destroy();
-  chartXp = new Chart(ctx, {
-    type: 'line',
-    data: { labels: ['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'], datasets: [{
-      label: label, data: data, borderColor: '#8b5cf6', backgroundColor: 'rgba(139,92,246,.1)', fill: true, tension: 0.4, pointRadius: 4
-    }]},
-    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } },
-      scales: { x: { ticks: { color: '#888' } }, y: { ticks: { color: '#888' } } } }
-  });
+function buildChart(id,data){
+  const c=document.getElementById(id);if(!c)return;
+  if(chXp)chXp.destroy();
+  chXp=new Chart(c.getContext('2d'),{type:'line',data:{labels:['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'],datasets:[{label:'XP',data:data||[0,0,0,0,0,0,0],borderColor:'#8b5cf6',backgroundColor:'rgba(139,92,246,.08)',fill:true,tension:.4,pointRadius:4,pointBackgroundColor:'#8b5cf6',borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#555',font:{size:10}}},y:{ticks:{color:'#555',font:{size:10}}}}}});
 }
 
-function createChart(id, type, data) {
-  var cvs = document.getElementById(id);
-  if(!cvs) return;
-  var ctx = cvs.getContext('2d');
-  var chart;
-  if (type === 'bar') chart = chartPts;
-  else chart = chartLvl;
-  if (chart) chart.destroy();
-  chart = new Chart(ctx, {
-    type: type,
-    data: { labels: ['Jan','Fev','Mar','Avr','Mai','Jui','Jul','Aoû','Sep','Oct','Nov','Dec'], datasets: [{
-      label: 'Valeur', data: data, borderColor: '#8b5cf6', backgroundColor: type==='bar'?'rgba(139,92,246,.2)':'rgba(139,92,246,.1)', fill: true, tension: 0.4, pointRadius: 3
-    }]},
-    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
-  });
-  if (type === 'bar') chartPts = chart;
-  else chartLvl = chart;
+function createChart(id,type){
+  const c=document.getElementById(id);if(!c)return;
+  const d=[120,180,140,220,280,240,300,260,310,350,290,400];
+  const l=['Jan','Fév','Mar','Avr','Mai','Jui','Jul','Aoû','Sep','Oct','Nov','Déc'];
+  let ch;
+  if(type=='bar'){if(chPts)chPts.destroy();chPts=ch=new Chart(c.getContext('2d'),{type:'bar',data:{labels:l,datasets:[{label:'Points',data:d,backgroundColor:'rgba(139,92,246,.3)',borderColor:'#8b5cf6',borderWidth:1,borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#555',font:{size:9}}},y:{ticks:{color:'#555',font:{size:9}}}}}});}
+  else{if(chLvls)chLvls.destroy();chLvls=ch=new Chart(c.getContext('2d'),{type:'line',data:{labels:l,datasets:[{label:'Niveaux',data:[1,2,2,3,4,5,5,6,7,8,9,10],borderColor:'#c084fc',backgroundColor:'rgba(192,132,252,.08)',fill:true,tension:.4,pointRadius:3,borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#555',font:{size:9}}},y:{ticks:{color:'#555',font:{size:9}}}}}});}
 }
 
-// SHOP
-async function loadShop() {
-  const {success,items} = await api('/shop');
-  if(!success) return;
-  document.getElementById('shopList').innerHTML = items.map(item => `
-    <div class="item-card">
-      <div class="w-14 h-14 rounded-xl bg-purple-600/20 flex items-center justify-center mb-4"><i class="fas fa-${item.type === 'role' ? 'user-tag' : 'gift'} text-xl text-purple-400"></i></div>
-      <h3 class="font-black text-lg mb-1">${item.name}</h3>
-      <p class="text-xs text-gray-500 mb-3">${item.description || ''}</p>
-      <div class="flex items-center justify-between">
-        <span class="font-black text-purple-400">${item.price.toLocaleString()} pts</span>
-        <button onclick="buyItem('${item.id}')" class="bg-purple-600/30 hover:bg-purple-600/50 px-3 py-1.5 rounded-full text-xs font-bold transition">Acheter</button>
-      </div>
-    </div>`).join('');
+async function loadShop(){
+  const {success,items}=await api('/shop');
+  if(!success)return;
+  document.getElementById('shopList').innerHTML=items.map(x=>{
+    const icons={'role':'fa-user-tag','code':'fa-key','digital':'fa-image','physical':'fa-cube'};
+    return `<div class="item"><div class="flex items-center gap-4 mb-4"><div class="w-12 h-12 rounded-2xl bg-violet-600/20 flex items-center justify-center"><i class="fas ${icons[x.type]||'fa-gift'} text-lg text-violet-400"></i></div><div class="flex-1"><h3 class="font-bold text-base">${x.name}</h3><p class="text-xs text-gray-500">${x.description||''}</p></div></div>
+    <div class="flex items-center justify-between"><span class="font-black font-mono text-violet-400">${x.price.toLocaleString()} <span class="text-xs font-normal text-gray-600">pts</span></span><button onclick='buyItem("${x.id}")' class="text-xs bg-violet-600/20 hover:bg-violet-600/40 px-4 py-2 rounded-xl font-semibold transition">Acheter</button></div></div>`;
+  }).join('');
 }
 
-function buyItem(itemId) {
-  apiPost('/buy', {userId: discordUser.id, itemId}).then(j => {
-    if (j.success) { alert('Achat réussi !'); loadUser(); loadShop(); }
-    else alert('Échec: ' + (j.error || 'points insuffisants'));
-  });
+function buyItem(i){apiPost('/buy',{userId:u.id,itemId:i}).then(j=>{if(j.success){toast('Achat réussi',j.item.name,'check','#10b981');loadUser();loadShop()}else toast('Échec',j.error||'Points insuffisants','times','#ef4444')})}
+
+async function loadQuests(){
+  const {success,quests}=await api('/quests');
+  if(!success)return;
+  document.getElementById('questsList').innerHTML=quests.length?quests.map(q=>{
+    const icons={'target':'fa-bullseye','gem':'fa-gem','users':'fa-users','flame':'fa-fire','cart':'fa-shopping-cart'};
+    return `<div class="item"><div class="flex items-start gap-4"><div class="w-12 h-12 rounded-2xl bg-violet-600/20 flex items-center justify-center"><i class="fas ${icons[q.icon]||'fa-star'} text-lg text-violet-400"></i></div><div class="flex-1"><h3 class="font-bold">${q.title}</h3><p class="text-xs text-gray-500 mt-1">${q.description||''} — Objectif: ${q.goal}</p></div><div class="text-right"><div class="font-black text-violet-400">${q.reward}</div><div class="text-[10px] text-gray-600">pts</div></div></div></div>`;
+  }).join('') : '<div class="text-gray-500 text-center py-12">Aucune quête disponible</div>';
 }
 
-// QUESTS
-async function loadQuests() {
-  const {success,quests} = await api('/quests');
-  if(!success) return;
-  if(quests.length === 0) {
-    document.getElementById('questsList').innerHTML = '<div class="text-gray-500 p-12 text-center">Aucune quête disponible pour le moment.</div>';
-    return;
+async function loadBadges(){
+  const {success,data}=await api('/user/'+u.id);
+  if(!success)return;
+  const bs=data.badges||[];
+  const ul=bs.filter(b=>b.unlocked),lk=bs.filter(b=>!b.unlocked);
+  document.getElementById('badgesList').innerHTML=ul.map(b=>`<div class="w-20 h-20 rounded-2xl bg-gradient-to-br from-violet-600/30 to-fuchsia-600/20 flex items-center justify-center flex-col border border-violet-500/20" title="${b.name}"><i class="fas fa-${b.icon} text-xl text-violet-300 mb-1"></i><span class="text-[9px] font-bold text-center leading-tight">${b.name}</span></div>`).join('')+lk.map(b=>`<div class="w-20 h-20 rounded-2xl bg-white/[0.03] flex items-center justify-center flex-col opacity-30 border border-white/5" title="${b.name}"><i class="fas fa-lock text-lg text-gray-600 mb-1"></i><span class="text-[9px] font-bold text-gray-600 text-center leading-tight">${b.name}</span></div>`).join('');
+}
+
+async function loadReferrals(){
+  const {success,code,stats}=await api('/referral/'+u.id);
+  if(success){
+    if(code){document.getElementById('refCode').textContent=code.code;document.getElementById('refCount').textContent=stats.count||0}
+    else{document.getElementById('refCode').textContent='Générer';document.getElementById('refCode').style.cursor='pointer';document.getElementById('refCode').onclick=()=>apiPost('/referral/generate',{userId:u.id}).then(()=>loadReferrals())}
   }
-  document.getElementById('questsList').innerHTML = quests.map(q => `
-    <div class="glass rounded-3xl p-6 flex items-center gap-4">
-      <div class="w-14 h-14 rounded-2xl bg-purple-600/20 flex items-center justify-center"><i class="fas fa-${q.icon} text-xl text-purple-400"></i></div>
-      <div class="flex-1">
-        <h3 class="font-bold text-base">${q.title}</h3>
-        <p class="text-xs text-gray-500">${q.description || ''} — Objectif: ${q.goal}</p>
-      </div>
-      <div class="text-right">
-        <div class="font-black text-purple-400">${q.reward} pts</div>
-        <button onclick="alert('Quête en cours de développement')" class="text-xs text-gray-500 underline mt-1">Réclamer</button>
-      </div>
-    </div>`).join('');
+  const {data}=await api('/referral/top');
+  if(data)document.getElementById('topReferrers').innerHTML=data.length?data.map((r,i)=>`<div class="flex justify-between items-center p-3 glass2 rounded-2xl"><span>${i+1}. ${r.username}</span><span class="text-gray-400 text-xs">${r.count} parrainages</span></div>`).join(''):'<div class="text-gray-600 text-center py-4">Aucun</div>';
 }
 
-// BADGES
-async function loadBadges() {
-  const {success,data} = await api('/user/'+discordUser.id);
-  if(!success) return;
-  const badges = data.badges || [];
-  const unlocked = badges.filter(b=>b.unlocked);
-  const locked = badges.filter(b=>!b.unlocked);
-  const el = document.getElementById('badgesList');
-  el.innerHTML = unlocked.map(b => `<div class="w-20 h-20 rounded-2xl bg-gradient-to-br from-purple-600/30 to-pink-600/20 flex items-center justify-center flex-col" title="${b.name} - ${b.description||''}"><i class="fas fa-${b.icon} text-xl text-purple-300 mb-1"></i><span class="text-xs font-bold text-center leading-tight">${b.name}</span></div>`).join('') +
-    '<div class="w-full mt-4"></div>' +
-    locked.map(b => `<div class="w-20 h-20 rounded-2xl bg-white/5 flex items-center justify-center flex-col opacity-30" title="${b.name}"><i class="fas fa-lock text-xl text-gray-600 mb-1"></i><span class="text-xs font-bold text-gray-600 text-center leading-tight">${b.name}</span></div>`).join('');
+async function loadSupport(){
+  const j=await api('/tickets?userId='+u.id);
+  if(!j.success)return;
+  document.getElementById('myTickets').innerHTML=j.tickets.length?j.tickets.map(t=>`<div class="p-4 glass2 rounded-2xl"><div class="flex justify-between items-start"><span class="font-semibold text-sm">${t.subject}</span><span class="text-[10px] font-bold px-2 py-1 rounded-full ${t.status==='open'?'bg-emerald-500/20 text-emerald-400':t.status==='in_progress'?'bg-amber-500/20 text-amber-400':'bg-gray-500/20 text-gray-400'}">${t.status}</span></div><p class="text-xs text-gray-600 mt-2 truncate">${t.message.substring(0,100)}...</p></div>`).join(''):'<div class="text-gray-600 text-sm">Aucun ticket</div>';
 }
 
-// REFERRALS
-async function loadReferrals() {
-  const {success,code,stats} = await api('/referral/'+discordUser.id);
-  if(success) {
-    if(code) {
-      document.getElementById('refCode').textContent = code.code;
-      document.getElementById('refCount').textContent = stats.count || 0;
-    } else {
-      document.getElementById('refCode').textContent = 'Générer';
-      document.getElementById('refCount').textContent = '0';
-      document.getElementById('refCode').style.cursor = 'pointer';
-      document.getElementById('refCode').onclick = generateReferral;
-    }
-  }
-  const {data} = await api('/referral/top');
-  if(data) {
-    document.getElementById('topReferrers').innerHTML = data.length ? data.map((r,i) =>
-      `<div class="flex justify-between items-center p-3 glass rounded-xl"><span>${i+1}. ${r.username}</span><span class="text-gray-400">${r.count} parrainages</span></div>`
-    ).join('') : '<div class="text-gray-500 text-center p-4">Aucun parrainage</div>';
-  }
+function createTicket(){
+  const sub=document.getElementById('tSubject').value,msg=document.getElementById('tMessage').value,cat=document.getElementById('tCat').value;
+  if(!sub||!msg){toast('Erreur','Remplis tous les champs','times','#ef4444');return}
+  apiPost('/tickets',{userId:u.id,subject:sub,message:msg,category:cat}).then(j=>{if(j.success){toast('Ticket créé !','Notre équipe va te répondre','check','#10b981');document.getElementById('tSubject').value='';document.getElementById('tMessage').value='';loadSupport()}});
 }
 
-function generateReferral() {
-  apiPost('/referral/generate', {userId: discordUser.id}).then(j => {
-    if (j.success) loadReferrals();
+async function loadAdmin(){
+  const j=await api('/admin/stats');
+  if(!j.success)return;
+  document.getElementById('adUsers').textContent=j.totalUsers;
+  document.getElementById('adPoints').textContent=j.totalPoints.toLocaleString();
+  document.getElementById('adTx').textContent=j.totalTransactions;
+  document.getElementById('adTickets').textContent=j.ticketsOpen;
+  if(j.topUsers)document.getElementById('adTopUsers').innerHTML=j.topUsers.map((x,i)=>`<div class="flex justify-between items-center p-3 glass2 rounded-2xl"><span>${i+1}. ${x.username}</span><span class="font-mono text-xs">${x.points.toLocaleString()} pts</span></div>`).join('');
+  if(j.recentTransactions)document.getElementById('adRecentTickets').innerHTML=j.recentTransactions.slice(0,10).map(t=>`<div class="flex justify-between py-2 border-b border-white/5 last:border-0"><span class="text-xs text-gray-500">${t.description||t.type}</span><span class="text-xs font-mono ${t.amount>0?'text-emerald-400':'text-red-400'}">${t.amount}</span></div>`).join('')||'<div class="text-gray-600 text-sm">Aucune transaction</div>';
+}
+
+function claimDaily(){
+  apiPost('/daily/claim',{userId:u.id}).then(j=>{
+    if(j.success){toast('+'+j.reward+' points','Streak: '+j.streak+' jours 🔥','check','#10b981');loadUser()}
+    else toast('Déjà réclamé','Reviens demain !','times','#ef4444');
   });
 }
 
-// SUPPORT
-async function loadSupport() {
-  const j = await api('/tickets?userId='+discordUser.id);
-  if(!j.success) return;
-  document.getElementById('myTickets').innerHTML = j.tickets.length
-    ? j.tickets.map(t => `<div class="p-3 glass rounded-xl">
-      <div class="flex justify-between items-start">
-        <span class="font-bold text-sm">${t.subject}</span>
-        <span class="ticket-badge ${t.status === 'open' ? 'bg-green-500/20 text-green-400' : t.status === 'in_progress' ? 'bg-yellow-500/20 text-yellow-400' : 'bg-gray-500/20 text-gray-400'}">${t.status}</span>
-      </div>
-      <p class="text-xs text-gray-500 truncate mt-1">${t.message.substring(0, 80)}...</p>
-    </div>`).join('')
-    : '<div class="text-gray-500">Aucun ticket</div>';
+function sendMessage(){
+  const inp=document.getElementById('chatInput'),msg=inp.value.trim();
+  if(!msg)return;
+  const el=document.getElementById('chatMessages');
+  el.innerHTML+=`<div class="flex items-start gap-3 justify-end"><div class="bg-violet-600/20 p-3 rounded-2xl text-sm max-w-[75%]">${msg}</div><div class="w-8 h-8 rounded-full bg-violet-600/30 overflow-hidden shrink-0"><img class="w-full h-full object-cover" src="${document.querySelector('.avatar-img').src}"></div></div>`;
+  inp.value='';
+  apiPost('/ia/chat',{message:msg,discordId:u.id}).then(j=>{el.innerHTML+=`<div class="flex items-start gap-3"><div class="w-8 h-8 rounded-xl bg-violet-600/30 flex items-center justify-center shrink-0"><i class="fas fa-robot text-xs text-violet-400"></i></div><div class="text-sm max-w-[80%]"><div class="font-bold text-violet-400 text-xs mb-1">GiftBot IA</div><div class="text-gray-400 bg-white/5 p-4 rounded-2xl">${j.reply||'Pas de réponse.'}</div></div></div>`;el.scrollTop=el.scrollHeight});
 }
 
-function createTicket() {
-  const subject = document.getElementById('ticketSubject').value;
-  const message = document.getElementById('ticketMessage').value;
-  const category = document.getElementById('ticketCategory').value;
-  if (!subject || !message) { alert('Remplis tous les champs'); return; }
-  apiPost('/tickets', {userId: discordUser.id, subject, message, category}).then(j => {
-    if (j.success) {
-      document.getElementById('ticketResult').textContent = '✅ Ticket créé !';
-      document.getElementById('ticketSubject').value = '';
-      document.getElementById('ticketMessage').value = '';
-      loadSupport();
-    }
-  });
-}
-
-// DAILY
-function claimDaily() {
-  apiPost('/daily/claim', {userId: discordUser.id}).then(j => {
-    const el = document.getElementById('dailyResult');
-    if (j.success) {
-      el.innerHTML = `<div class="text-green-400 font-bold">+${j.reward} points ! (Streak: ${j.streak} jours 🔥)</div>`;
-      loadUser();
-    } else {
-      el.innerHTML = '<div class="text-red-400">Déjà réclamé aujourd\'hui</div>';
-    }
-  });
-}
-
-// CHAT
-function sendMessage() {
-  const input = document.getElementById('chatInput');
-  const msg = input.value.trim();
-  if (!msg) return;
-  const chatEl = document.getElementById('chatMessages');
-  chatEl.innerHTML += `<div class="flex items-start gap-3 justify-end">
-    <div class="bg-purple-600/20 p-3 rounded-2xl text-sm max-w-[80%]">${msg}</div>
-    <div class="w-8 h-8 rounded-full bg-purple-600/30 overflow-hidden shrink-0"><img class="w-full h-full object-cover" src="${document.querySelector('.avatar-img').src}" alt=""></div>
-  </div>`;
-  input.value = '';
-  apiPost('/ia/chat', {message: msg, discordId: discordUser.id}).then(j => {
-    chatEl.innerHTML += `<div class="flex items-start gap-3">
-      <div class="w-8 h-8 rounded-lg bg-purple-600/30 flex items-center justify-center shrink-0"><i class="fas fa-robot text-xs text-purple-400"></i></div>
-      <div class="text-sm"><div class="font-bold text-purple-400 text-xs">GiftBot IA</div><div class="text-gray-400 mt-1 bg-white/5 p-3 rounded-2xl">${j.reply || 'Pas de réponse.'}</div></div>
-    </div>`;
-    chatEl.scrollTop = chatEl.scrollHeight;
-  });
-}
-
-// ADMIN
-async function loadAdmin() {
-  const j = await api('/admin/stats');
-  if(!j.success) return;
-  document.getElementById('adminUsers').textContent=j.totalUsers;
-  document.getElementById('adminPoints').textContent=j.totalPoints.toLocaleString();
-  document.getElementById('adminTx').textContent=j.totalTransactions;
-  document.getElementById('adminTicketsSpan').textContent=j.ticketsOpen;
-  if(j.topUsers) document.getElementById('adminTopUsers').innerHTML = j.topUsers.map((u,i) =>
-    `<div class="flex justify-between items-center p-3 glass rounded-xl"><span>${i+1}. ${u.username}</span><span>${u.points.toLocaleString()} pts</span></div>`
-  ).join('');
-  if(j.recentTransactions) document.getElementById('adminTickets').innerHTML = j.recentTransactions.slice(0,10).map(t =>
-    `<div class="flex justify-between p-2" style="border-bottom:1px solid rgba(255,255,255,.04)"><span class="text-xs text-gray-400">${t.description || t.type}</span><span class="text-xs font-bold ${t.amount > 0 ? 'text-green-400' : 'text-red-400'}">${t.amount}</span></div>`
-  ).join('');
-}
-
-// TABS
-function selectTab(tab) {
-  currentTab = tab;
-  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-  document.getElementById('tab-' + tab).classList.add('active');
-  document.querySelectorAll('.sidebar a[data-tab]').forEach(a => a.classList.remove('active'));
-  let link = document.querySelector('.sidebar a[data-tab="'+tab+'"]');
-  if(link) link.classList.add('active');
-  document.querySelectorAll('.tab-mobile').forEach(t => t.classList.remove('active-tab'));
-  if(tab === 'admin' && discordUser.id !== OWNER_ID) return;
-}
-
-// Attach sidebar tab clicks
-document.querySelectorAll('.sidebar a[data-tab]').forEach(a => {
-  a.addEventListener('click', function(e) {
-    e.preventDefault();
+// Navigation
+document.querySelectorAll('.sb-item[data-tab]').forEach(el=>{
+  el.addEventListener('click',function(){
     selectTab(this.dataset.tab);
-    document.getElementById('sidebar').classList.remove('open');
+    if(window.innerWidth<900)toggleSidebar();
   });
 });
 
-// MOBILE TOGGLE
-function toggleMobile() { document.getElementById('sidebar').classList.toggle('open') }
-
-// LOGOUT
-function logout() {
-  localStorage.removeItem('discord_user');
-  localStorage.removeItem('discord_token');
-  window.location.href = 'index.html';
+function selectTab(t){
+  document.querySelectorAll('.tc').forEach(e=>e.classList.remove('active'));
+  document.getElementById('tab-'+t).classList.add('active');
+  document.querySelectorAll('.sb-item').forEach(e=>e.classList.remove('active'));
+  const el=document.querySelector('.sb-item[data-tab="'+t+'"]');
+  if(el)el.classList.add('active');
+  document.querySelectorAll('.mn-btn').forEach(e=>e.classList.remove('active'));
+  const mb=document.querySelector('.mn-btn[data-tab="'+t+'"]');
+  if(mb)mb.classList.add('active');
 }
 
-// TOP BAR FOR MOBILE
-const topBar = document.createElement('div');
-topBar.className = 'mobile-nav fixed top-0 left-0 right-0 z-50 bg-black/95 border-b border-white/10 px-4 py-3 items-center justify-between';
-topBar.innerHTML = '<button onclick="toggleMobile()" class="text-white"><i class="fas fa-bars text-xl"></i></button><span class="font-black text-sm">GiftBlox</span><div class="w-8 h-8 rounded-full bg-purple-600/30 overflow-hidden"><img class="avatar-img w-full h-full object-cover" src=""/></div>';
-document.body.prepend(topBar);
+function toggleSidebar(){
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('overlay').classList.toggle('show');
+}
 
-// INIT
+function logout(){localStorage.removeItem('discord_user');localStorage.removeItem('discord_token');window.location.href='index.html'}
+
+// Mobile tabs
+['home','shop','quests','leaderboard','profile'].forEach(t=>{
+  const btn=document.createElement('button');
+  btn.className='mn-btn'+(t==='home'?' active':'');
+  btn.dataset.tab=t;
+  const icons={'home':'fa-home','shop':'fa-store','quests':'fa-tasks','leaderboard':'fa-trophy','profile':'fa-user'};
+  btn.innerHTML=`<i class="fas ${icons[t]}"></i><span>${t.charAt(0).toUpperCase()+t.slice(1)}</span>`;
+  btn.onclick=()=>selectTab(t);
+  document.querySelector('.mn').appendChild(btn);
+});
+
+// Init
 checkAuth();
 </script>
 </body>

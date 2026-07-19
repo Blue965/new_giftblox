@@ -120,6 +120,52 @@ async function init() {
     UNIQUE(user_id, week_start),
     FOREIGN KEY (user_id) REFERENCES users(id)
   )`);
+  
+  // New tables for enhanced features
+  db.run(`CREATE TABLE IF NOT EXISTS achievements (
+    id TEXT PRIMARY KEY, name TEXT NOT NULL, description TEXT, 
+    requirement_type TEXT NOT NULL, requirement_value INTEGER NOT NULL,
+    reward_points INTEGER DEFAULT 0, reward_xp INTEGER DEFAULT 0,
+    icon TEXT DEFAULT 'star', rarity TEXT DEFAULT 'common',
+    active INTEGER DEFAULT 1, created_at TEXT DEFAULT (datetime('now','localtime'))
+  )`);
+  
+  db.run(`CREATE TABLE IF NOT EXISTS user_achievements (
+    user_id TEXT NOT NULL, achievement_id TEXT NOT NULL,
+    progress INTEGER DEFAULT 0, completed INTEGER DEFAULT 0,
+    unlocked_at TEXT, notified INTEGER DEFAULT 0,
+    PRIMARY KEY (user_id, achievement_id),
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (achievement_id) REFERENCES achievements(id)
+  )`);
+  
+  db.run(`CREATE TABLE IF NOT EXISTS seasons (
+    id TEXT PRIMARY KEY, name TEXT NOT NULL, description TEXT,
+    start_date TEXT NOT NULL, end_date TEXT NOT NULL,
+    multiplier REAL DEFAULT 1.0, active INTEGER DEFAULT 1,
+    created_at TEXT DEFAULT (datetime('now','localtime'))
+  )`);
+  
+  db.run(`CREATE TABLE IF NOT EXISTS season_rewards (
+    id TEXT PRIMARY KEY, season_id TEXT NOT NULL, rank INTEGER NOT NULL,
+    reward_type TEXT NOT NULL, reward_value INTEGER NOT NULL,
+    FOREIGN KEY (season_id) REFERENCES seasons(id)
+  )`);
+  
+  db.run(`CREATE TABLE IF NOT EXISTS mini_games (
+    id TEXT PRIMARY KEY, name TEXT NOT NULL, description TEXT,
+    game_type TEXT NOT NULL, min_bet INTEGER DEFAULT 10, max_bet INTEGER DEFAULT 1000,
+    house_edge REAL DEFAULT 0.05, active INTEGER DEFAULT 1,
+    created_at TEXT DEFAULT (datetime('now','localtime'))
+  )`);
+  
+  db.run(`CREATE TABLE IF NOT EXISTS game_sessions (
+    id TEXT PRIMARY KEY, user_id TEXT NOT NULL, game_id TEXT NOT NULL,
+    bet_amount INTEGER NOT NULL, result_amount INTEGER NOT NULL,
+    outcome TEXT NOT NULL, played_at TEXT DEFAULT (datetime('now','localtime')),
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (game_id) REFERENCES mini_games(id)
+  )`);
 
   // Seed badges
   let count = db.exec("SELECT COUNT(*) as c FROM badges");
@@ -136,6 +182,43 @@ async function init() {
     ];
     const stmt = db.prepare("INSERT INTO badges (id, name, description, icon, color) VALUES (?, ?, ?, ?, ?)");
     for (const b of badges) stmt.run([uid(), b[0], b[1], b[2], b[3]]);
+  }
+  
+  // Seed achievements
+  let achCount = db.exec("SELECT COUNT(*) as c FROM achievements");
+  if (!achCount.length || !achCount[0].values[0][0]) {
+    const achievements = [
+      ['Débutant', 'Gagne 100 points', 'points', 100, 50, 10, 'star', 'common'],
+      ['Apprenti', 'Gagne 1000 points', 'points', 1000, 100, 25, 'star', 'common'],
+      ['Expert', 'Gagne 10000 points', 'points', 10000, 500, 100, 'star', 'rare'],
+      ['Maître', 'Gagne 100000 points', 'points', 100000, 2000, 500, 'crown', 'legendary'],
+      ['Niveau 5', 'Atteins le niveau 5', 'level', 5, 200, 50, 'arrow-up', 'common'],
+      ['Niveau 25', 'Atteins le niveau 25', 'level', 25, 1000, 250, 'arrow-up', 'rare'],
+      ['Niveau 50', 'Atteins le niveau 50', 'level', 50, 5000, 1000, 'arrow-up', 'legendary'],
+      ['Streak 3', '3 jours de streak', 'streak', 3, 100, 20, 'flame', 'common'],
+      ['Streak 14', '14 jours de streak', 'streak', 14, 500, 100, 'flame', 'rare'],
+      ['Streak 30', '30 jours de streak', 'streak', 30, 2000, 500, 'fire', 'legendary'],
+      ['Parrain 1', 'Parraine 1 personne', 'referrals', 1, 100, 25, 'user-plus', 'common'],
+      ['Parrain 10', 'Parraine 10 personnes', 'referrals', 10, 1000, 250, 'users', 'rare'],
+      ['Parrain 50', 'Parraine 50 personnes', 'referrals', 50, 5000, 1000, 'users', 'legendary'],
+      ['Quêtes 10', 'Complète 10 quêtes', 'quests', 10, 200, 50, 'tasks', 'common'],
+      ['Quêtes 100', 'Complète 100 quêtes', 'quests', 100, 2000, 500, 'tasks', 'rare'],
+    ];
+    const stmt = db.prepare("INSERT INTO achievements (id, name, description, requirement_type, requirement_value, reward_points, reward_xp, icon, rarity) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+    for (const a of achievements) stmt.run([uid(), a[0], a[1], a[2], a[3], a[4], a[5], a[6], a[7]]);
+  }
+  
+  // Seed mini games
+  let gameCount = db.exec("SELECT COUNT(*) as c FROM mini_games");
+  if (!gameCount.length || !gameCount[0].values[0][0]) {
+    const games = [
+      ['Roulette', 'Tourne la roulette et gagne gros !', 'roulette', 10, 1000, 0.05],
+      ['Pile ou Face', '50% de chance de doubler ta mise', 'coinflip', 5, 500, 0.02],
+      ['Dés', 'Lance les dés et teste ta chance', 'dice', 10, 500, 0.08],
+      ['Blackjack', 'Le classique du casino', 'blackjack', 25, 2000, 0.03],
+    ];
+    const stmt = db.prepare("INSERT INTO mini_games (id, name, description, game_type, min_bet, max_bet, house_edge) VALUES (?, ?, ?, ?, ?, ?, ?)");
+    for (const g of games) stmt.run([uid(), g[0], g[1], g[2], g[3], g[4], g[5]]);
   }
 
   // Seed shop items
@@ -366,6 +449,206 @@ function createNotification(userId, title, message, type) {
   return { id };
 }
 
+// Achievement functions
+function getAchievements() {
+  return all("SELECT * FROM achievements WHERE active = 1");
+}
+
+function getUserAchievements(userId) {
+  let allAch = all("SELECT * FROM achievements WHERE active = 1");
+  let userAch = all("SELECT * FROM user_achievements WHERE user_id = ?", [userId]);
+  let userAchMap = new Map(userAch.map(a => [a.achievement_id, a]));
+  return allAch.map(a => ({ ...a, ...userAchMap.get(a.id), unlocked: userAchMap.has(a.id) }));
+}
+
+function checkAndUnlockAchievements(userId) {
+  let user = get("SELECT * FROM users WHERE id = ?", [userId]);
+  if (!user) return;
+  
+  let achievements = all("SELECT * FROM achievements WHERE active = 1");
+  let userAch = all("SELECT achievement_id FROM user_achievements WHERE user_id = ?", [userId]);
+  let unlockedSet = new Set(userAch.map(a => a.achievement_id));
+  
+  for (let ach of achievements) {
+    if (unlockedSet.has(ach.id)) continue;
+    
+    let progress = 0;
+    let shouldUnlock = false;
+    
+    switch (ach.requirement_type) {
+      case 'points':
+        progress = user.points;
+        shouldUnlock = progress >= ach.requirement_value;
+        break;
+      case 'level':
+        progress = user.level;
+        shouldUnlock = progress >= ach.requirement_value;
+        break;
+      case 'streak':
+        progress = user.daily_streak;
+        shouldUnlock = progress >= ach.requirement_value;
+        break;
+      case 'referrals':
+        progress = user.invite_count;
+        shouldUnlock = progress >= ach.requirement_value;
+        break;
+      case 'quests':
+        progress = user.tasks_completed;
+        shouldUnlock = progress >= ach.requirement_value;
+        break;
+    }
+    
+    // Update progress
+    run("INSERT OR REPLACE INTO user_achievements (user_id, achievement_id, progress) VALUES (?, ?, ?)", 
+        [userId, ach.id, progress]);
+    
+    if (shouldUnlock) {
+      run("INSERT OR REPLACE INTO user_achievements (user_id, achievement_id, progress, completed, unlocked_at) VALUES (?, ?, ?, 1, datetime('now','localtime'))", 
+          [userId, ach.id, progress]);
+      
+      // Give rewards
+      if (ach.reward_points > 0) addPoints(userId, ach.reward_points, 'Achievement: ' + ach.name);
+      if (ach.reward_xp > 0) addXP(userId, ach.reward_xp);
+      
+      createNotification(userId, '🏆 Achievement Unlocked!', ach.name + ': ' + ach.description, 'achievement');
+    }
+  }
+}
+
+// Mini games functions
+function getMiniGames() {
+  return all("SELECT * FROM mini_games WHERE active = 1");
+}
+
+function playMiniGame(userId, gameId, betAmount) {
+  let user = get("SELECT * FROM users WHERE id = ?", [userId]);
+  let game = get("SELECT * FROM mini_games WHERE id = ?", [gameId]);
+  
+  if (!user || !game) return null;
+  if (betAmount < game.min_bet || betAmount > game.max_bet) return null;
+  if (user.points < betAmount) return null;
+  
+  let resultAmount = 0;
+  let outcome = 'loss';
+  
+  // Simple game logic based on type
+  switch (game.game_type) {
+    case 'coinflip':
+      if (Math.random() < 0.5 - game.house_edge) {
+        resultAmount = betAmount * 2;
+        outcome = 'win';
+      }
+      break;
+    case 'roulette':
+      const rouletteNum = Math.floor(Math.random() * 37);
+      if (rouletteNum === 0) {
+        // Zero - house wins
+      } else if (rouletteNum % 2 === 0) {
+        resultAmount = Math.floor(betAmount * (1 + (1 - game.house_edge)));
+        outcome = 'win';
+      }
+      break;
+    case 'dice':
+      const dice1 = Math.floor(Math.random() * 6) + 1;
+      const dice2 = Math.floor(Math.random() * 6) + 1;
+      if (dice1 + dice2 > 7) {
+        resultAmount = Math.floor(betAmount * (1 + (1 - game.house_edge)));
+        outcome = 'win';
+      }
+      break;
+    default:
+      // Random chance
+      if (Math.random() < 0.45) {
+        resultAmount = Math.floor(betAmount * 2);
+        outcome = 'win';
+      }
+  }
+  
+  // Deduct bet
+  addPoints(userId, -betAmount, 'Game bet: ' + game.name);
+  
+  // Add winnings
+  if (resultAmount > 0) {
+    addPoints(userId, resultAmount, 'Game win: ' + game.name);
+  }
+  
+  // Record session
+  let sessionId = uid();
+  run("INSERT INTO game_sessions (id, user_id, game_id, bet_amount, result_amount, outcome) VALUES (?, ?, ?, ?, ?, ?)", 
+      [sessionId, userId, gameId, betAmount, resultAmount, outcome]);
+  
+  return { sessionId, outcome, resultAmount, profit: resultAmount - betAmount };
+}
+
+function getUserGameHistory(userId, limit = 20) {
+  return all(`
+    SELECT gs.*, mg.name as game_name 
+    FROM game_sessions gs 
+    JOIN mini_games mg ON gs.game_id = mg.id 
+    WHERE gs.user_id = ? 
+    ORDER BY gs.played_at DESC 
+    LIMIT ?
+  `, [userId, limit]);
+}
+
+// Additional helper functions
+function searchUsers(query, limit = 20) {
+  return all("SELECT * FROM users WHERE username LIKE ? LIMIT ?", ['%' + query + '%', limit]);
+}
+
+function getWeeklyStats() {
+  const weekStart = new Date();
+  weekStart.setDate(weekStart.getDate() - 7);
+  return {
+    users: 0, // Simplified for now
+    points: 0,
+    activity: 0
+  };
+}
+
+function getMonthlyStats() {
+  const monthStart = new Date();
+  monthStart.setMonth(monthStart.getMonth() - 1);
+  return {
+    users: 0, // Simplified for now
+    points: 0,
+    activity: 0
+  };
+}
+
+function getActiveQuests() {
+  return all("SELECT * FROM quests WHERE active = 1");
+}
+
+function getUserQuests(userId) {
+  return all(`
+    SELECT q.*, uq.progress, uq.completed, uq.claimed 
+    FROM quests q 
+    LEFT JOIN user_quests uq ON q.id = uq.quest_id AND uq.user_id = ? 
+    WHERE q.active = 1
+  `, [userId]);
+}
+
+function completeQuest(userId, questId) {
+  const quest = get("SELECT * FROM quests WHERE id = ?", [questId]);
+  if (!quest) return null;
+  
+  run("INSERT OR REPLACE INTO user_quests (user_id, quest_id, progress, completed, completed_at) VALUES (?, ?, ?, 1, datetime('now','localtime'))", 
+      [userId, questId, quest.goal]);
+  
+  if (quest.reward_type === 'points') {
+    addPoints(userId, quest.reward, 'Quest: ' + quest.title);
+  } else if (quest.reward_type === 'xp') {
+    addXP(userId, quest.reward);
+  }
+  
+  return { success: true, reward: quest.reward, type: quest.reward_type };
+}
+
+function purchaseItem(userId, itemId) {
+  return buyItem(userId, itemId);
+}
+
 function markNotificationRead(notifId) {
   run("UPDATE notifications SET is_read = 1 WHERE id = ?", [notifId]);
 }
@@ -471,5 +754,10 @@ module.exports = {
   getUserNotifications, createNotification, markNotificationRead, markAllNotificationsRead,
   getWeeklyActivity, updateWeeklyActivity,
   getUserTransactions, getUserPurchases, getShopItems, buyItem,
-  claimDaily, getQuests, getRecentActivity, uid
+  claimDaily, getQuests, getRecentActivity, uid,
+  // New functions
+  getAchievements, getUserAchievements, checkAndUnlockAchievements,
+  getMiniGames, playMiniGame, getUserGameHistory,
+  searchUsers, getWeeklyStats, getMonthlyStats, getActiveQuests,
+  getUserQuests, completeQuest, purchaseItem
 };
