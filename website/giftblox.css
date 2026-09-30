@@ -247,16 +247,6 @@ nav a:hover::after{ transform:scaleX(1); }
 }
 #adminLink.active{ background:var(--yellow) !important; color:var(--line) !important; }
 
-.sb .bg-gradient-to-br,
-.top-bar .bg-violet-600\/30{
-  border:2.5px solid var(--line) !important;
-  box-shadow:0 3px 0 var(--line) !important;
-}
-.sb .rounded-full.bg-violet-600\/30,
-.top-bar .rounded-full.bg-violet-600\/30{
-  border:2.5px solid var(--line) !important;
-  box-shadow:none !important;
-}
 .ring-2{ --tw-ring-color:var(--line); box-shadow:0 0 0 2.5px var(--line); }
 
 .top-bar{
