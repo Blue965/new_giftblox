@@ -7,301 +7,66 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap');
-*{font-family:'Inter',sans-serif;letter-spacing:-.02em}
+/* ── Structure / layout uniquement.
+   Tout le style visuel (couleurs, contours, ombres) est dans giftblox.css ── */
 
-/* Animated Background */
-body{
-  background:#0a0a0f;
-  color:#fff;
-  overflow-x:hidden;
-  position:relative;
-  min-height:100vh
-}
+.sb{width:272px;flex-shrink:0;height:100vh;position:sticky;top:0;overflow-y:auto;z-index:50;padding:0 10px;display:flex;flex-direction:column}
+.sb::-webkit-scrollbar{width:6px}
+.sb::-webkit-scrollbar-thumb{background:#cdbff0;border-radius:10px}
+.sb::-webkit-scrollbar-track{background:transparent}
 
-body::before{
-  content:'';
-  position:fixed;
-  top:0;
-  left:0;
-  right:0;
-  bottom:0;
-  background:
-    radial-gradient(ellipse at 20% 20%, rgba(139,92,246,0.15) 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 80%, rgba(236,72,153,0.1) 0%, transparent 50%),
-    radial-gradient(ellipse at 50% 50%, rgba(139,92,246,0.05) 0%, transparent 70%);
-  pointer-events:none;
-  z-index:0;
-  animation:bgPulse 8s ease-in-out infinite
-}
+.sb-item i{width:20px;text-align:center;font-size:15px}
+.sb-item.mt-auto{margin-top:auto}
 
-@keyframes bgPulse{
-  0%,100%{opacity:1}
-  50%{opacity:0.7}
-}
+.tc{display:none}
+.tc.active{display:block}
 
-/* Floating Particles */
-.particles{
-  position:fixed;
-  top:0;
-  left:0;
-  right:0;
-  bottom:0;
-  pointer-events:none;
-  z-index:1;
-  overflow:hidden
-}
-
-.particle{
-  position:absolute;
-  width:4px;
-  height:4px;
-  background:rgba(139,92,246,0.3);
-  border-radius:50%;
-  animation:float 15s infinite
-}
-
-@keyframes float{
-  0%,100%{transform:translateY(100vh) rotate(0deg);opacity:0}
-  10%{opacity:1}
-  90%{opacity:1}
-  100%{transform:translateY(-100vh) rotate(720deg);opacity:0}
-}
-
-.glass{
-  background:linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01));
-  border:1px solid rgba(255,255,255,.06);
-  backdrop-filter:blur(24px)
-}
-
-.glass2{
-  background:rgba(255,255,255,.03);
-  border:1px solid rgba(255,255,255,.05)
-}
-
-.neon{
-  box-shadow:0 0 20px rgba(139,92,246,.15),0 0 60px rgba(139,92,246,.05)
-}
-
-.card{
-  background:linear-gradient(135deg,rgba(255,255,255,.03) 0%,rgba(139,92,246,.04) 100%);
-  border:1px solid rgba(139,92,246,.1);
-  border-radius:20px;
-  padding:24px;
-  transition:all .4s cubic-bezier(.175,.885,.32,1.275);
-  position:relative;
-  overflow:hidden
-}
-
-.card::before{
-  content:'';
-  position:absolute;
-  top:0;
-  left:-100%;
-  width:100%;
-  height:100%;
-  background:linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
-  transition:left 0.5s
-}
-
-.card:hover::before{
-  left:100%
-}
-
-.card:hover{
-  border-color:rgba(139,92,246,.25);
-  transform:translateY(-4px);
-  box-shadow:0 12px 50px rgba(139,92,246,.2)
-}
-
-.btn-p{
-  background:linear-gradient(135deg,#8b5cf6,#c084fc);
-  color:#fff;
-  font-weight:700;
-  border-radius:14px;
-  padding:12px 28px;
-  transition:all .3s;
-  font-size:13px;
-  border:none;
-  cursor:pointer;
-  position:relative;
-  overflow:hidden
-}
-
-.btn-p::after{
-  content:'';
-  position:absolute;
-  top:50%;
-  left:50%;
-  width:0;
-  height:0;
-  background:rgba(255,255,255,0.2);
-  border-radius:50%;
-  transform:translate(-50%, -50%);
-  transition:width 0.6s, height 0.6s
-}
-
-.btn-p:hover::after{
-  width:300px;
-  height:300px
-}
-
-.btn-p:hover{
-  transform:translateY(-2px);
-  box-shadow:0 8px 30px rgba(139,92,246,.35)
-}
-
-.btn-ghost{
-  background:rgba(139,92,246,.1);
-  color:#c084fc;
-  border-radius:12px;
-  padding:10px 20px;
-  font-weight:600;
-  font-size:13px;
-  transition:all .2s;
-  border:none;
-  cursor:pointer
-}
-
-.btn-ghost:hover{
-  background:rgba(139,92,246,.2);
-  transform:scale(1.05)
-}
-
-.val{
-  font-family:'JetBrains Mono',monospace;
-  font-weight:700;
-  font-size:28px;
-  background:linear-gradient(135deg,#fff,#a78bfa);
-  -webkit-background-clip:text;
-  background-clip:text;
-  -webkit-text-fill-color:transparent;
-  animation:shimmer 3s infinite
-}
-
-@keyframes shimmer{
-  0%,100%{filter:brightness(1)}
-  50%{filter:brightness(1.2)}
-}
-
-.val2{
-  font-weight:700;
-  font-size:28px;
-  color:#fff
-}
-
-.stat{
-  background:linear-gradient(135deg,rgba(139,92,246,.08),rgba(236,72,153,.04));
-  border:1px solid rgba(139,92,246,.1);
-  border-radius:18px;
-  padding:20px;
-  transition:all .3s;
-  position:relative;
-  overflow:hidden
-}
-
-.stat::before{
-  content:'';
-  position:absolute;
-  top:-50%;
-  left:-50%;
-  width:200%;
-  height:200%;
-  background:conic-gradient(from 0deg, transparent, rgba(139,92,246,0.1), transparent 30%);
-  animation:rotate 4s linear infinite;
-  opacity:0;
-  transition:opacity 0.3s
-}
-
-.stat:hover::before{
-  opacity:1
-}
-
-@keyframes rotate{
-  100%{transform:rotate(360deg)}
-}
-
-.stat:hover{
-  border-color:rgba(139,92,246,.25);
-  transform:scale(1.02)
-}
-
-/* Sidebar premium */
-.sb{width:270px;flex-shrink:0;height:100vh;position:sticky;top:0;overflow-y:auto;z-index:50;background:rgba(10,10,15,.98);border-right:1px solid rgba(255,255,255,.05);padding:0 10px}
-.sb::-webkit-scrollbar{width:4px}.sb::-webkit-scrollbar-thumb{background:rgba(139,92,246,.3);border-radius:10px}
-.sb-item{display:flex;align-items:center;gap:12px;padding:12px 16px;border-radius:12px;margin:2px 0;font-size:13px;font-weight:500;color:#888;transition:all .2s;cursor:pointer;text-decoration:none}
-.sb-item:hover{background:rgba(139,92,246,.08);color:#fff;transform:translateX(3px)}
-.sb-item.active{background:linear-gradient(135deg,rgba(139,92,246,.15),rgba(139,92,246,.05));color:#fff;border:1px solid rgba(139,92,246,.15);font-weight:600}
-.sb-item i{width:20px;text-align:center;font-size:14px}
-
-.tc{display:none}.tc.active{display:block;animation:fadeIn .4s ease}
-@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-
-/* Dropdown custom */
 .dropdown{position:relative;display:inline-block}
-.dropdown-menu{position:absolute;top:100%;right:0;margin-top:8px;min-width:220px;background:rgba(20,20,30,.98);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:8px;backdrop-filter:blur(24px);opacity:0;visibility:hidden;transform:translateY(-8px);transition:all .25s cubic-bezier(.175,.885,.32,1.275);z-index:200}
-.dropdown.open .dropdown-menu{opacity:1;visibility:visible;transform:translateY(0)}
-.dropdown-item{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:10px;font-size:13px;font-weight:500;color:#aaa;transition:all .15s;cursor:pointer}
-.dropdown-item:hover{background:rgba(139,92,246,.12);color:#fff}
-.dropdown-item.danger:hover{background:rgba(239,68,68,.12);color:#ef4444}
-.dropdown-hr{border:none;border-top:1px solid rgba(255,255,255,.06);margin:6px 0}
+.dropdown-menu{position:absolute;top:100%;right:0;margin-top:10px;min-width:220px;padding:8px;opacity:0;visibility:hidden;transform:translateY(-8px) scale(.96);transform-origin:top right;transition:opacity .2s, transform .25s cubic-bezier(.34,1.56,.64,1), visibility .2s;z-index:200}
+.dropdown.open .dropdown-menu{opacity:1;visibility:visible;transform:translateY(0) scale(1)}
+.dropdown-item{display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:12px;font-size:14px;cursor:pointer;transition:background .15s}
+.dropdown-item.danger:hover{background:var(--red-l);color:var(--red)}
+.dropdown-hr{border:none;border-top:2.5px solid rgba(43,36,64,.12);margin:6px 0}
 
-/* Tabs mobile */
-.mn{display:none;position:fixed;bottom:0;left:0;right:0;z-index:100;background:rgba(10,10,15,.98);border-top:1px solid rgba(255,255,255,.06);padding:6px 8px env(safe-area-inset-bottom);backdrop-filter:blur(20px)}
-.mn-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:10px 6px;border-radius:14px;font-size:10px;font-weight:600;color:#666;transition:all .3s cubic-bezier(.175,.885,.32,1.275);background:none;border:none;cursor:pointer}
-.mn-btn i{font-size:20px;transition:transform .3s}.mn-btn:hover{transform:translateY(-2px)}.mn-btn.active{color:#c084fc;background:linear-gradient(135deg,rgba(139,92,246,.15),rgba(139,92,246,.05));border:1px solid rgba(139,92,246,.15)}.mn-btn.active i{transform:scale(1.1)}
+.top-bar{display:none;position:fixed;top:0;left:0;right:0;z-index:100;padding:12px 16px;align-items:center;justify-content:space-between;box-shadow:0 3px 0 rgba(43,36,64,.08)}
 
-/* Enhanced mobile responsiveness */
-@media(max-width:900px){
-  .sb{position:fixed;left:-300px;width:300px;transition:left .4s cubic-bezier(.165,.84,.44,1);z-index:200;background:rgba(10,10,15,.99);backdrop-filter:blur(30px)}.sb.open{left:0}
-  .mn{display:flex}.content{padding-bottom:100px;padding-top:70px}
+.mn{display:none;position:fixed;bottom:0;left:0;right:0;z-index:100;padding:6px 8px env(safe-area-inset-bottom)}
+.mn-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 6px;border-radius:14px;font-size:10px;background:none;border:2.5px solid transparent;cursor:pointer;transition:transform .2s cubic-bezier(.34,1.56,.64,1)}
+.mn-btn i{font-size:19px;transition:transform .25s cubic-bezier(.34,1.56,.64,1)}
+.mn-btn:hover{transform:translateY(-2px)}
+.mn-btn.active i{transform:scale(1.15) translateY(-1px)}
+
+.overlay{position:fixed;inset:0;z-index:150;display:none}
+.overlay.show{display:block}
+
+.toast{position:fixed;bottom:24px;right:24px;z-index:999;padding:14px 18px;min-width:300px;display:flex;align-items:center;gap:13px;transform:translateY(24px) scale(.9);opacity:0;transition:all .35s cubic-bezier(.34,1.56,.64,1);pointer-events:none}
+.toast.show{transform:translateY(0) scale(1);opacity:1;pointer-events:all}
+.toast-icon{width:38px;height:38px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+
+.val{font-size:30px;line-height:1.1}
+.val2{font-size:30px;line-height:1.1}
+
+@media (hover:none) and (pointer:coarse){
+  .card:hover,.item:hover,.stat:hover{transform:none}
+  .btn-p:active,.btn-ghost:active{transform:translateY(4px)}
+}
+
+@media (max-width:900px){
+  .sb{position:fixed;left:-320px;width:320px;transition:left .35s cubic-bezier(.165,.84,.44,1);z-index:200;box-shadow:none}
+  .sb.open{left:0;box-shadow:8px 0 0 rgba(43,36,64,.12)}
+  .mn{display:flex}
+  .content{padding-bottom:100px;padding-top:70px}
   .top-bar{display:flex!important}
-  .card{padding:16px;border-radius:16px}
-  .stat{padding:16px;border-radius:14px}
-  .grid-cols-2{grid-template-columns:repeat(2,1fr)!important}
-  .grid-cols-4{grid-template-columns:repeat(2,1fr)!important}
-  .grid-cols-3{grid-template-columns:repeat(2,1fr)!important}
+  .grid-cols-3,.grid-cols-4{grid-template-columns:repeat(2,1fr)!important}
 }
-
-@media(max-width:600px){
-  .grid-cols-2{grid-template-columns:1fr!important}
-  .grid-cols-4{grid-template-columns:1fr!important}
-  .grid-cols-3{grid-template-columns:1fr!important}
-  .card{padding:14px;border-radius:14px}
-  .val{font-size:22px}
-  .val2{font-size:22px}
-  .btn-p{padding:10px 20px;font-size:12px}
-  .top-bar{padding:10px 12px}
+@media (max-width:600px){
+  .grid-cols-2,.grid-cols-3,.grid-cols-4{grid-template-columns:1fr!important}
+  .toast{left:14px;right:14px;bottom:88px;min-width:0}
 }
-
-.top-bar{display:none;position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(10,10,15,.98);border-bottom:1px solid rgba(255,255,255,.06);padding:12px 16px;align-items:center;justify-content:space-between;backdrop-filter:blur(20px)}
-
-/* Touch-friendly interactions */
-@media(hover:none) and (pointer:coarse){
-  .card:hover{transform:none}
-  .stat:hover{transform:none}
-  .btn-ghost:hover{transform:none}
-  .sb-item:hover{transform:none}
-  .card:active{transform:scale(0.98)}
-  .btn-p:active{transform:scale(0.95)}
-}
-
-/* Shop items */
-.item{background:linear-gradient(135deg,rgba(255,255,255,.03),rgba(139,92,246,.03));border:1px solid rgba(139,92,246,.08);border-radius:20px;padding:20px;transition:all .4s cubic-bezier(.175,.885,.32,1.275);cursor:pointer}
-.item:hover{transform:translateY(-6px);border-color:rgba(139,92,246,.25);box-shadow:0 12px 50px rgba(139,92,246,.15)}
-
-/* Toast */
-.toast{position:fixed;bottom:24px;right:24px;z-index:999;background:rgba(20,20,30,.98);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:16px 20px;min-width:300px;backdrop-filter:blur(24px);transform:translateY(20px);opacity:0;transition:all .4s cubic-bezier(.175,.885,.32,1.275);pointer-events:none}
-.toast.show{transform:translateY(0);opacity:1;pointer-events:all}
-.toast-icon{width:36px;height:36px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
-
-/* Toggle sidebar overlay */
-.overlay{position:fixed;inset:0;z-index:150;background:rgba(0,0,0,.5);display:none}.overlay.show{display:block}
 </style>
+<link rel="stylesheet" href="giftblox.css">
 </head>
 <body>
-<!-- Floating Particles -->
-<div class="particles" id="particles"></div>
 
 <div class="flex min-h-screen relative z-10">
   <!-- Overlay mobile -->
@@ -309,16 +74,16 @@ body::before{
 
   <!-- Sidebar -->
   <div class="sb" id="sidebar">
-    <div class="flex items-center gap-3 pt-6 pb-4 px-4 mb-2 border-b border-white/5">
-      <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-600 to-fuchsia-600 flex items-center justify-center shadow-lg shadow-violet-600/20"><span class="text-white font-black text-sm tracking-tight">G</span></div>
-      <div><span class="font-black text-base tracking-tight">GiftBlox</span><div class="text-[10px] font-semibold text-violet-400">PREMIUM</div></div>
+    <div class="flex items-center gap-3 pt-5 pb-4 px-3 mb-2" style="border-bottom:2.5px solid #2b2440">
+      <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-violet-500 to-fuchsia-500 flex items-center justify-center" style="box-shadow:0 4px 0 #2b2440"><span class="text-white font-black text-base">G</span></div>
+      <div><span class="font-black text-lg">GiftBlox</span><div class="text-[10px] font-extrabold uppercase tracking-wide" style="color:#ff5c9d">Premium</div></div>
     </div>
-    <div class="px-2 mb-6">
-      <div class="flex items-center gap-3 rounded-2xl p-3 glass2">
-        <div class="w-10 h-10 rounded-full bg-violet-600/30 flex items-center justify-center overflow-hidden ring-2 ring-violet-500/30"><img class="avatar-img w-full h-full object-cover" src=""></div>
+    <div class="px-1 mb-5 mt-4">
+      <div class="flex items-center gap-3 rounded-2xl p-3" style="background:#fff;border:2.5px solid #2b2440;box-shadow:0 4px 0 #2b2440">
+        <div class="w-11 h-11 rounded-full bg-violet-600/30 flex items-center justify-center overflow-hidden" style="border:2.5px solid #2b2440"><img class="avatar-img w-full h-full object-cover" src=""></div>
         <div class="flex-1 min-w-0">
-          <div class="font-semibold text-sm truncate discord-username">...</div>
-          <div class="flex items-center gap-2 text-xs"><span class="text-violet-400 font-semibold" id="sbPts">0</span><span class="text-gray-600">·</span><span class="text-gray-500">Nv.</span><span class="text-violet-400 font-semibold" id="sbLvl">1</span></div>
+          <div class="font-extrabold text-sm truncate discord-username">...</div>
+          <div class="flex items-center gap-1.5 text-xs font-bold"><span class="font-black" style="color:#5b32c9" id="sbPts">0</span><span style="color:#8b83a3">pts</span><span style="color:#8b83a3">·</span><span style="color:#8b83a3">Nv.</span><span class="font-black" style="color:#5b32c9" id="sbLvl">1</span></div>
         </div>
       </div>
     </div>
@@ -336,36 +101,69 @@ body::before{
       <div class="sb-item" data-tab="support"><i class="fas fa-headset"></i>Support</div>
       <div class="sb-item !hidden" data-tab="admin" id="adminLink"><i class="fas fa-crown" style="color:#fbbf24"></i>Admin <span class="ml-auto text-[10px] bg-amber-500/20 text-amber-400 px-2 py-0.5 rounded-full font-bold">!</span></div>
     </nav>
-    <div class="mt-auto pt-4 border-t border-white/5 px-4 py-4">
+    <div class="mt-auto pt-4 px-1 pb-4" style="border-top:2.5px solid #2b2440">
       <div class="sb-item" onclick="logout()"><i class="fas fa-sign-out-alt"></i>Déconnexion</div>
     </div>
   </div>
 
   <!-- Main Content -->
-  <div class="flex-1 content" style="background:radial-gradient(ellipse at 20% 50%,rgba(139,92,246,.04) 0%,transparent 60%),radial-gradient(ellipse at 80% 20%,rgba(236,72,153,.03) 0%,transparent 50%)">
+  <div class="flex-1 content">
     
     <!-- Top Bar mobile -->
     <div class="top-bar">
-      <button onclick="toggleSidebar()" class="text-white bg-transparent border-none text-xl cursor-pointer"><i class="fas fa-bars"></i></button>
-      <div class="flex items-center gap-2"><div class="w-7 h-7 rounded-full bg-violet-600/30 overflow-hidden"><img class="avatar-img w-full h-full object-cover" src=""></div><span class="font-bold text-sm">GiftBlox</span></div>
+      <button onclick="toggleSidebar()" class="bg-transparent border-none text-xl cursor-pointer" style="color:#2b2440"><i class="fas fa-bars"></i></button>
+      <div class="flex items-center gap-2">
+        <div class="w-9 h-9 rounded-full overflow-hidden" style="border:2.5px solid #2b2440"><img class="avatar-img w-full h-full object-cover" src=""></div>
+        <span class="font-black text-sm">GiftBlox</span>
+      </div>
+      <div class="w-7"></div>
     </div>
 
     <!-- HOME -->
     <div class="tc active" id="tab-home">
       <div class="max-w-7xl mx-auto px-4 md:px-8 pt-6 md:pt-10 pb-24">
-        <div class="flex items-center justify-between mb-10">
-          <div><h1 class="text-3xl md:text-4xl font-black tracking-tight">Bienvenue, <span id="welcomeName" class="bg-gradient-to-r from-violet-400 to-fuchsia-400 bg-clip-text text-transparent">...</span></h1><p class="text-gray-500 font-medium mt-1">Prêt à gagner ?</p></div>
-          <div class="flex items-center gap-3"><button onclick="selectTab('profile')" class="btn-ghost hidden md:flex"><i class="fas fa-user mr-2"></i>Profil</button></div>
+        <div class="flex items-center justify-between mb-8">
+          <div>
+            <h1 class="text-3xl md:text-4xl font-black">Bienvenue, <span id="welcomeName" style="color:#5b32c9">...</span> 👋</h1>
+            <p class="font-bold mt-1" style="color:#8b83a3">Prêt à gagner des points aujourd'hui ?</p>
+          </div>
+          <button onclick="selectTab('rewards')" class="btn-p hidden md:inline-flex"><i class="fas fa-calendar-day"></i>Récompense du jour</button>
         </div>
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
-          <div class="stat"><div class="flex items-center gap-2 mb-2"><i class="fas fa-coins text-violet-400 text-sm"></i><span class="text-xs font-semibold uppercase text-gray-500 tracking-wider">Points</span></div><div class="val" id="homePts">0</div></div>
-          <div class="stat"><div class="flex items-center gap-2 mb-2"><i class="fas fa-star text-emerald-400 text-sm"></i><span class="text-xs font-semibold uppercase text-gray-500 tracking-wider">Niveau</span></div><div class="val2" id="homeLvl">1</div></div>
-          <div class="stat"><div class="flex items-center gap-2 mb-2"><i class="fas fa-fire text-orange-400 text-sm"></i><span class="text-xs font-semibold uppercase text-gray-500 tracking-wider">Streak</span></div><div class="val2" id="homeStreak">0</div></div>
-          <div class="stat"><div class="flex items-center gap-2 mb-2"><i class="fas fa-check-circle text-sky-400 text-sm"></i><span class="text-xs font-semibold uppercase text-gray-500 tracking-wider">Tâches</span></div><div class="val2" id="homeTasks">0</div></div>
+
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+          <div class="stat">
+            <div class="flex items-center gap-2 mb-2"><i class="fas fa-coins" style="color:#5b32c9"></i><span class="text-[10px] font-extrabold uppercase" style="color:#5b5273">Points</span></div>
+            <div class="val" id="homePts">0</div>
+          </div>
+          <div class="stat">
+            <div class="flex items-center gap-2 mb-2"><i class="fas fa-star" style="color:#12a37c"></i><span class="text-[10px] font-extrabold uppercase" style="color:#5b5273">Niveau</span></div>
+            <div class="val2" id="homeLvl">1</div>
+          </div>
+          <div class="stat">
+            <div class="flex items-center gap-2 mb-2"><i class="fas fa-fire" style="color:#e06a12"></i><span class="text-[10px] font-extrabold uppercase" style="color:#5b5273">Streak</span></div>
+            <div class="val2" id="homeStreak">0</div>
+          </div>
+          <div class="stat">
+            <div class="flex items-center gap-2 mb-2"><i class="fas fa-check-circle" style="color:#1c7fc7"></i><span class="text-[10px] font-extrabold uppercase" style="color:#5b5273">Tâches</span></div>
+            <div class="val2" id="homeTasks">0</div>
+          </div>
         </div>
+
         <div class="grid md:grid-cols-2 gap-6">
-          <div class="card"><div class="flex items-center justify-between mb-5"><h2 class="font-bold text-lg">Activité récente</h2><i class="fas fa-sync-alt text-gray-600 text-sm cursor-pointer hover:text-white" onclick="loadAll()"></i></div><div id="recentActivity" class="space-y-3 text-sm"></div></div>
-          <div class="card"><div class="flex items-center justify-between mb-5"><h2 class="font-bold text-lg">XP Hebdo</h2><span class="text-xs text-gray-500">7 jours</span></div><canvas id="chartXP" height="180"></canvas></div>
+          <div class="card">
+            <div class="flex items-center justify-between mb-5">
+              <h2 class="font-bold text-lg">Activité récente</h2>
+              <button onclick="loadAll()" class="p-2 rounded-xl" style="background:#ede4ff;border:2.5px solid #2b2440;box-shadow:0 3px 0 #2b2440"><i class="fas fa-sync-alt" style="color:#5b32c9"></i></button>
+            </div>
+            <div id="recentActivity" class="space-y-3 text-sm"></div>
+          </div>
+          <div class="card">
+            <div class="flex items-center justify-between mb-5">
+              <h2 class="font-bold text-lg">XP cette semaine</h2>
+              <span class="text-xs font-extrabold px-3 py-1 rounded-full" style="background:#fff3d1;border:2.5px solid #2b2440">7 jours</span>
+            </div>
+            <canvas id="chartXP" height="200"></canvas>
+          </div>
         </div>
       </div>
     </div>
@@ -373,7 +171,10 @@ body::before{
     <!-- QUESTS -->
     <div class="tc" id="tab-quests">
       <div class="max-w-5xl mx-auto px-4 md:px-8 pt-6 md:pt-10 pb-24">
-        <div class="mb-10"><h1 class="text-3xl font-black tracking-tight">Quêtes</h1><p class="text-gray-500 font-medium mt-1">Complète des défis pour gagner des récompenses</p></div>
+        <div class="mb-8">
+          <h1 class="text-3xl md:text-4xl font-black">Quêtes</h1>
+          <p class="font-bold mt-1" style="color:#8b83a3">Complète des défis pour gagner des récompenses</p>
+        </div>
         <div id="questsList" class="grid md:grid-cols-2 gap-4"></div>
       </div>
     </div>
@@ -381,8 +182,9 @@ body::before{
     <!-- SHOP -->
     <div class="tc" id="tab-shop">
       <div class="max-w-6xl mx-auto px-4 md:px-8 pt-6 md:pt-10 pb-24">
-        <div class="flex items-center justify-between mb-10">
-          <div><h1 class="text-3xl font-black tracking-tight">Boutique</h1><p class="text-gray-500 font-medium mt-1"><span id="shopPts">0</span> points disponibles</p></div>
+        <div class="mb-8">
+          <h1 class="text-3xl md:text-4xl font-black">Boutique</h1>
+          <p class="font-bold mt-1"><span id="shopPts" class="font-black" style="color:#5b32c9">0</span> <span style="color:#8b83a3">points disponibles</span></p>
         </div>
         <div id="shopList" class="grid md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
       </div>
@@ -391,7 +193,7 @@ body::before{
     <!-- VAULT -->
     <div class="tc" id="tab-vault">
       <div class="max-w-5xl mx-auto px-4 md:px-8 pt-6 md:pt-10 pb-24">
-        <h1 class="text-3xl font-black tracking-tight mb-10">Vault</h1>
+        <h1 class="text-3xl md:text-4xl font-black mb-8">Vault</h1>
         <div class="grid md:grid-cols-2 gap-6">
           <div class="card"><h2 class="font-bold text-lg mb-5">Achats</h2><div id="purchasesList" class="space-y-3 text-sm"></div></div>
           <div class="card"><h2 class="font-bold text-lg mb-5">Transactions</h2><div id="transactionsList" class="space-y-2 text-sm max-h-96 overflow-y-auto"></div></div>
@@ -402,16 +204,24 @@ body::before{
     <!-- REWARDS -->
     <div class="tc" id="tab-rewards">
       <div class="max-w-5xl mx-auto px-4 md:px-8 pt-6 md:pt-10 pb-24">
-        <h1 class="text-3xl font-black tracking-tight mb-3">Récompenses</h1>
-        <div class="card mb-6"><h2 class="font-bold text-lg mb-5">Badges</h2><div id="badgesList" class="flex flex-wrap gap-4"></div></div>
-        <div class="card"><h2 class="font-bold text-lg mb-5">Quotidienne</h2><button onclick="claimDaily()" class="btn-p"><i class="fas fa-calendar-day mr-2"></i>Réclamer</button><div id="dailyResult" class="mt-4 text-sm"></div></div>
+        <h1 class="text-3xl md:text-4xl font-black mb-8">Récompenses</h1>
+        <div class="card mb-6">
+          <h2 class="font-bold text-lg mb-5">Badges</h2>
+          <div id="badgesList" class="flex flex-wrap gap-4"></div>
+        </div>
+        <div class="card">
+          <h2 class="font-bold text-lg mb-2">Récompense quotidienne</h2>
+          <p class="text-sm font-bold mb-5" style="color:#8b83a3">Reviens chaque jour pour garder ton streak.</p>
+          <button onclick="claimDaily()" class="btn-p"><i class="fas fa-calendar-day"></i>Réclamer</button>
+          <div id="dailyResult" class="mt-4 text-sm"></div>
+        </div>
       </div>
     </div>
 
     <!-- LEADERBOARD -->
     <div class="tc" id="tab-leaderboard">
       <div class="max-w-4xl mx-auto px-4 md:px-8 pt-6 md:pt-10 pb-24">
-        <h1 class="text-3xl font-black tracking-tight mb-10">Classement</h1>
+        <h1 class="text-3xl md:text-4xl font-black mb-8">Classement</h1>
         <div class="card !p-3" id="leaderboardList"></div>
       </div>
     </div>
@@ -419,10 +229,17 @@ body::before{
     <!-- INVITES -->
     <div class="tc" id="tab-invites">
       <div class="max-w-4xl mx-auto px-4 md:px-8 pt-6 md:pt-10 pb-24">
-        <h1 class="text-3xl font-black tracking-tight mb-10">Parrainage</h1>
+        <h1 class="text-3xl md:text-4xl font-black mb-8">Parrainage</h1>
         <div class="grid md:grid-cols-2 gap-6">
-          <div class="card text-center"><h2 class="font-bold text-lg mb-4">Ton code</h2><div class="text-4xl font-black tracking-widest bg-gradient-to-r from-violet-400 to-fuchsia-400 bg-clip-text text-transparent my-4" id="refCode">---</div><p class="text-gray-500 text-sm"><span id="refCount" class="font-bold text-white">0</span> utilisations</p></div>
-          <div class="card"><h2 class="font-bold text-lg mb-4">Top Parrains</h2><div id="topReferrers" class="space-y-3 text-sm"></div></div>
+          <div class="card text-center">
+            <h2 class="font-bold text-lg mb-4">Ton code</h2>
+            <div class="inline-block text-3xl md:text-4xl font-black tracking-widest px-5 py-3 my-4 rounded-2xl text-white" id="refCode" style="background:linear-gradient(180deg,#9a72ff,#7a4ff2);border:2.5px solid #2b2440;box-shadow:0 5px 0 #2b2440">---</div>
+            <p class="text-sm font-bold" style="color:#8b83a3"><span id="refCount" class="font-black" style="color:#5b32c9">0</span> utilisations</p>
+          </div>
+          <div class="card">
+            <h2 class="font-bold text-lg mb-4">Top Parrains</h2>
+            <div id="topReferrers" class="space-y-3 text-sm"></div>
+          </div>
         </div>
       </div>
     </div>
@@ -430,10 +247,16 @@ body::before{
     <!-- I.A. -->
     <div class="tc" id="tab-ia">
       <div class="max-w-4xl mx-auto px-4 md:px-8 pt-6 md:pt-10 pb-24">
-        <h1 class="text-3xl font-black tracking-tight mb-10">Assistant IA</h1>
+        <div class="mb-8">
+          <h1 class="text-3xl md:text-4xl font-black">Assistant IA</h1>
+          <p class="font-bold mt-1" style="color:#8b83a3">Propulsé par Groq · répond gratuitement à tes questions</p>
+        </div>
         <div class="card">
           <div id="chatMessages" class="space-y-4 mb-6 max-h-[500px] overflow-y-auto"></div>
-          <div class="flex gap-3"><input id="chatInput" class="flex-1 bg-white/5 border border-white/10 rounded-2xl px-5 py-3 outline-none focus:border-violet-500 transition text-sm" placeholder="Pose une question..."><button onclick="sendMessage()" class="btn-p">Envoyer</button></div>
+          <div class="flex gap-3">
+            <input id="chatInput" class="flex-1 px-5 py-3 text-sm" placeholder="Pose une question..." onkeydown="if(event.key==='Enter')sendMessage()">
+            <button onclick="sendMessage()" class="btn-p"><i class="fas fa-paper-plane"></i><span class="hidden sm:inline">Envoyer</span></button>
+          </div>
         </div>
       </div>
     </div>
@@ -441,32 +264,47 @@ body::before{
     <!-- ANALYTICS -->
     <div class="tc" id="tab-analytics">
       <div class="max-w-6xl mx-auto px-4 md:px-8 pt-6 md:pt-10 pb-24">
-        <h1 class="text-3xl font-black tracking-tight mb-10">Analytics</h1>
+        <h1 class="text-3xl md:text-4xl font-black mb-8">Analytics</h1>
         <div class="grid md:grid-cols-3 gap-4 mb-8">
-          <div class="stat"><span class="text-xs font-semibold uppercase text-gray-500 tracking-wider">Membres</span><div class="val" id="anUsers">-</div></div>
-          <div class="stat"><span class="text-xs font-semibold uppercase text-gray-500 tracking-wider">Transactions</span><div class="val" id="anTx">-</div></div>
-          <div class="stat"><span class="text-xs font-semibold uppercase text-gray-500 tracking-wider">Tickets</span><div class="val" id="anTickets">-</div></div>
+          <div class="stat"><span class="text-[10px] font-extrabold uppercase" style="color:#5b5273">Membres</span><div class="val" id="anUsers">-</div></div>
+          <div class="stat"><span class="text-[10px] font-extrabold uppercase" style="color:#5b5273">Transactions</span><div class="val" id="anTx">-</div></div>
+          <div class="stat"><span class="text-[10px] font-extrabold uppercase" style="color:#5b5273">Tickets</span><div class="val" id="anTickets">-</div></div>
         </div>
-        <div class="grid md:grid-cols-2 gap-6"><div class="card"><h2 class="font-bold text-lg mb-4">Distribution Points</h2><canvas id="chartPts" height="200"></canvas></div><div class="card"><h2 class="font-bold text-lg mb-4">Niveaux</h2><canvas id="chartLvls" height="200"></canvas></div></div>
+        <div class="grid md:grid-cols-2 gap-6">
+          <div class="card"><h2 class="font-bold text-lg mb-4">Distribution des points</h2><canvas id="chartPts" height="220"></canvas></div>
+          <div class="card"><h2 class="font-bold text-lg mb-4">Niveaux</h2><canvas id="chartLvls" height="220"></canvas></div>
+        </div>
       </div>
     </div>
 
     <!-- PROFILE -->
     <div class="tc" id="tab-profile">
       <div class="max-w-4xl mx-auto px-4 md:px-8 pt-6 md:pt-10 pb-24">
-        <h1 class="text-3xl font-black tracking-tight mb-10">Profil</h1>
+        <h1 class="text-3xl md:text-4xl font-black mb-8">Profil</h1>
         <div class="grid md:grid-cols-2 gap-6">
           <div class="card text-center">
-            <div class="w-20 h-20 rounded-full bg-gradient-to-br from-violet-600 to-fuchsia-600 mx-auto mb-4 p-1"><div class="w-full h-full rounded-full overflow-hidden bg-black/50"><img id="profileAvatar" class="w-full h-full object-cover" src=""></div></div>
-            <div class="text-xl font-black" id="profileName">---</div>
-            <div class="text-gray-500 text-sm font-mono tracking-tight">ID: <span id="profileId">---</span></div>
-            <div class="flex justify-center gap-8 mt-6">
-              <div class="text-center"><div class="text-2xl font-black" id="pfPts">0</div><div class="text-[10px] text-gray-500 font-semibold uppercase tracking-wider">pts</div></div>
-              <div class="text-center"><div class="text-2xl font-black" id="pfLvl">1</div><div class="text-[10px] text-gray-500 font-semibold uppercase tracking-wider">niveau</div></div>
-              <div class="text-center"><div class="text-2xl font-black" id="pfBadges">0</div><div class="text-[10px] text-gray-500 font-semibold uppercase tracking-wider">badges</div></div>
+            <div class="w-28 h-28 rounded-full mx-auto mb-4 p-1.5" style="background:linear-gradient(180deg,#9a72ff,#ff5c9d);border:2.5px solid #2b2440;box-shadow:0 5px 0 #2b2440">
+              <div class="w-full h-full rounded-full overflow-hidden" style="background:#ede4ff;border:2.5px solid #2b2440"><img id="profileAvatar" class="w-full h-full object-cover" src=""></div>
+            </div>
+            <div class="text-2xl font-black" id="profileName">---</div>
+            <div class="text-xs font-bold mt-1" style="color:#8b83a3">ID : <span id="profileId">---</span></div>
+            <div class="flex justify-center gap-3 mt-6">
+              <div class="flex-1 p-3 rounded-2xl" style="background:#ede4ff;border:2.5px solid #2b2440;box-shadow:0 3px 0 #2b2440"><div class="text-2xl font-black" style="color:#5b32c9" id="pfPts">0</div><div class="text-[10px] font-extrabold uppercase" style="color:#5b5273">pts</div></div>
+              <div class="flex-1 p-3 rounded-2xl" style="background:#dcfaf0;border:2.5px solid #2b2440;box-shadow:0 3px 0 #2b2440"><div class="text-2xl font-black" style="color:#12a37c" id="pfLvl">1</div><div class="text-[10px] font-extrabold uppercase" style="color:#5b5273">niveau</div></div>
+              <div class="flex-1 p-3 rounded-2xl" style="background:#fff3d1;border:2.5px solid #2b2440;box-shadow:0 3px 0 #2b2440"><div class="text-2xl font-black" style="color:#e06a12" id="pfBadges">0</div><div class="text-[10px] font-extrabold uppercase" style="color:#5b5273">badges</div></div>
             </div>
           </div>
-          <div class="card flex flex-col justify-center"><h2 class="font-bold text-lg mb-4">Progression</h2><div class="w-full bg-white/5 rounded-full h-3 mb-2 overflow-hidden"><div class="h-full rounded-full transition-all duration-1000" id="progBar" style="width:0%;background:linear-gradient(90deg,#8b5cf6,#c084fc,#e879f9);background-size:200% 100%;animation:shimmer 3s linear infinite"></div></div><div class="text-sm"><span id="progXp" class="font-bold text-violet-400">0</span><span class="text-gray-600"> / </span><span id="progXpMax" class="text-gray-400">120</span> XP</div></div>
+          <div class="card flex flex-col justify-center">
+            <h2 class="font-bold text-lg mb-4">Progression</h2>
+            <div class="h-5 rounded-full mb-2 overflow-hidden" style="background:#e9e2f5;border:2.5px solid #2b2440">
+              <div class="h-full rounded-full transition-all duration-1000" id="progBar" style="width:0%;background:linear-gradient(90deg,#7a4ff2,#ff5c9d)"></div>
+            </div>
+            <div class="text-sm font-bold">
+              <span id="progXp" class="font-black" style="color:#5b32c9">0</span>
+              <span style="color:#8b83a3"> / </span>
+              <span style="color:#5b5273" id="progXpMax">120</span> XP
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -474,13 +312,20 @@ body::before{
     <!-- SUPPORT -->
     <div class="tc" id="tab-support">
       <div class="max-w-5xl mx-auto px-4 md:px-8 pt-6 md:pt-10 pb-24">
-        <h1 class="text-3xl font-black tracking-tight mb-10">Support</h1>
+        <h1 class="text-3xl md:text-4xl font-black mb-8">Support</h1>
         <div class="grid md:grid-cols-2 gap-6">
-          <div class="card"><h2 class="font-bold text-lg mb-5">Nouveau ticket</h2>
-            <input id="tSubject" class="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 mb-3 outline-none focus:border-violet-500 transition text-sm" placeholder="Sujet">
-            <textarea id="tMessage" class="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 mb-3 outline-none focus:border-violet-500 transition text-sm" rows="4" placeholder="Décris ton problème..."></textarea>
-            <select id="tCat" class="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 mb-4 outline-none focus:border-violet-500 transition text-sm"><option value="general">Général</option><option value="support">Support</option><option value="billing">Facturation</option><option value="bug">Bug</option><option value="feature">Suggestion</option></select>
-            <button onclick="createTicket()" class="btn-p">Créer le ticket</button>
+          <div class="card">
+            <h2 class="font-bold text-lg mb-5">Nouveau ticket</h2>
+            <input id="tSubject" class="w-full px-4 py-3 mb-3 text-sm" placeholder="Sujet">
+            <textarea id="tMessage" class="w-full px-4 py-3 mb-3 text-sm" rows="4" placeholder="Décris ton problème..."></textarea>
+            <select id="tCat" class="w-full px-4 py-3 mb-4 text-sm">
+              <option value="general">Général</option>
+              <option value="support">Support</option>
+              <option value="billing">Facturation</option>
+              <option value="bug">Bug</option>
+              <option value="feature">Suggestion</option>
+            </select>
+            <button onclick="createTicket()" class="btn-p"><i class="fas fa-paper-plane"></i>Créer le ticket</button>
             <div id="ticketResult" class="mt-4 text-sm"></div>
           </div>
           <div class="card"><h2 class="font-bold text-lg mb-5">Mes tickets</h2><div id="myTickets" class="space-y-2 text-sm max-h-96 overflow-y-auto"></div></div>
@@ -491,16 +336,19 @@ body::before{
     <!-- ADMIN -->
     <div class="tc" id="tab-admin">
       <div class="max-w-6xl mx-auto px-4 md:px-8 pt-6 md:pt-10 pb-24">
-        <div class="flex items-center gap-4 mb-10"><div class="w-10 h-10 rounded-xl bg-amber-500/20 flex items-center justify-center"><i class="fas fa-crown text-amber-400"></i></div><h1 class="text-3xl font-black tracking-tight">Administration</h1></div>
+        <div class="flex items-center gap-4 mb-8">
+          <div class="w-14 h-14 rounded-2xl flex items-center justify-center" style="background:#ffc93c;border:2.5px solid #2b2440;box-shadow:0 4px 0 #2b2440"><i class="fas fa-crown" style="color:#2b2440"></i></div>
+          <div><h1 class="text-3xl md:text-4xl font-black">Administration</h1><p class="font-bold" style="color:#8b83a3">Vue réservée au propriétaire</p></div>
+        </div>
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <div class="stat"><span class="text-xs font-semibold uppercase text-gray-500">Membres</span><div class="val2 text-2xl" id="adUsers">-</div></div>
-          <div class="stat"><span class="text-xs font-semibold uppercase text-gray-500">Points totaux</span><div class="val text-2xl" id="adPoints">-</div></div>
-          <div class="stat"><span class="text-xs font-semibold uppercase text-gray-500">Transactions</span><div class="val2 text-2xl" id="adTx">-</div></div>
-          <div class="stat"><span class="text-xs font-semibold uppercase text-gray-500">Tickets ouverts</span><div class="val2 text-2xl" id="adTickets">-</div></div>
+          <div class="stat"><span class="text-[10px] font-extrabold uppercase" style="color:#5b5273">Membres</span><div class="val2" id="adUsers">-</div></div>
+          <div class="stat"><span class="text-[10px] font-extrabold uppercase" style="color:#5b5273">Points totaux</span><div class="val" id="adPoints">-</div></div>
+          <div class="stat"><span class="text-[10px] font-extrabold uppercase" style="color:#5b5273">Transactions</span><div class="val2" id="adTx">-</div></div>
+          <div class="stat"><span class="text-[10px] font-extrabold uppercase" style="color:#5b5273">Tickets ouverts</span><div class="val2" id="adTickets">-</div></div>
         </div>
         <div class="grid md:grid-cols-2 gap-6">
           <div class="card"><h2 class="font-bold text-lg mb-5">Top utilisateurs</h2><div id="adTopUsers" class="space-y-3 text-sm"></div></div>
-          <div class="card"><h2 class="font-bold text-lg mb-5">Tickets récents</h2><div id="adRecentTickets" class="space-y-2 text-sm max-h-96 overflow-y-auto"></div></div>
+          <div class="card"><h2 class="font-bold text-lg mb-5">Transactions récentes</h2><div id="adRecentTickets" class="space-y-2 text-sm max-h-96 overflow-y-auto"></div></div>
         </div>
       </div>
     </div>
@@ -511,35 +359,17 @@ body::before{
 <div class="mn"></div>
 
 <!-- Toast notification -->
-<div class="toast flex items-center gap-3" id="toast">
-  <div class="toast-icon" id="toastIcon" style="background:rgba(16,185,129,.15);color:#10b981"><i class="fas fa-check"></i></div>
+<div class="toast" id="toast">
+  <div class="toast-icon" id="toastIcon" style="background:#dcfaf0;color:#12a37c"><i class="fas fa-check"></i></div>
   <div>
-    <div class="font-semibold text-sm" id="toastTitle">Succès</div>
-    <div class="text-xs text-gray-400" id="toastMsg">Action effectuée</div>
+    <div class="font-extrabold text-sm" id="toastTitle">Succès</div>
+    <div class="text-xs font-bold" style="color:#5b5273" id="toastMsg">Action effectuée</div>
   </div>
 </div>
 
 <script>
 const OWNER_ID = '1527668994210005002';
 let u = {}, chXp = null, chPts = null, chLvls = null;
-
-// Create floating particles
-function createParticles() {
-  const container = document.getElementById('particles');
-  if (!container) return;
-  
-  for (let i = 0; i < 30; i++) {
-    const particle = document.createElement('div');
-    particle.className = 'particle';
-    particle.style.left = Math.random() * 100 + '%';
-    particle.style.animationDelay = Math.random() * 15 + 's';
-    particle.style.animationDuration = (15 + Math.random() * 10) + 's';
-    particle.style.width = (2 + Math.random() * 4) + 'px';
-    particle.style.height = particle.style.width;
-    particle.style.opacity = 0.2 + Math.random() * 0.3;
-    container.appendChild(particle);
-  }
-}
 
 function checkAuth(){
   const d = localStorage.getItem('discord_user');
@@ -553,7 +383,6 @@ function checkAuth(){
   document.getElementById('profileId').textContent=u.id;
   document.getElementById('profileAvatar').src=a;
   if(u.id===OWNER_ID) document.getElementById('adminLink').classList.remove('!hidden');
-  createParticles(); // Initialize particles
   loadAll();
 }
 
@@ -562,12 +391,15 @@ function loadAll(){ loadUser(); loadLeaderboard(); loadAnalytics(); loadShop(); 
 function api(p){return fetch('/api'+p).then(r=>r.json())}
 function apiPost(p,d){return fetch('/api'+p,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(d)}).then(r=>r.json())}
 
-function toast(title,msg,icon='check',color='#10b981'){
+function toast(title,msg,icon='check',color='#12a37c'){
   const t=document.getElementById('toast'),ti=document.getElementById('toastIcon'),tt=document.getElementById('toastTitle'),tm=document.getElementById('toastMsg');
-  ti.style.background=color+'15';ti.style.color=color;ti.innerHTML='<i class="fas fa-'+icon+'"></i>';
+  ti.style.background=color+'22';ti.style.color=color;ti.innerHTML='<i class="fas fa-'+icon+'"></i>';
   tt.textContent=title;tm.textContent=msg;t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'),3000);
+  clearTimeout(t._tm); t._tm=setTimeout(()=>t.classList.remove('show'),3000);
 }
+
+const ROW = 'display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;border:2.5px solid #2b2440;border-radius:16px;background:#fdf6ec;box-shadow:0 3px 0 #2b2440;font-weight:700';
+const EMPTY = 'text-center py-10 text-sm;font-weight:700;color:#8b83a3';
 
 async function loadUser(){
   const id=u.id;
@@ -586,21 +418,26 @@ async function loadUser(){
   const bc=d.badges.filter(b=>b.unlocked).length;
   document.getElementById('pfBadges').textContent=bc;
   const act=d.recentActivity||[];
-  document.getElementById('recentActivity').innerHTML=act.length?act.map(a=>`<div class="flex items-center gap-3 p-3 glass2 rounded-2xl"><div class="w-2 h-2 rounded-full bg-violet-400"></div><span class="text-gray-400 text-sm">${a.text||''}</span></div>`).join('') : '<div class="text-gray-600 text-sm">Aucune activité récente</div>';
+  document.getElementById('recentActivity').innerHTML=act.length?act.map(a=>`<div style="${ROW};justify-content:flex-start"><div style="width:12px;height:12px;border-radius:50%;background:#7a4ff2;border:2.5px solid #2b2440;flex-shrink:0"></div><span style="font-size:14px;font-weight:700;color:#5b5273">${a.text||''}</span></div>`).join('') : `<div class="${EMPTY}">Aucune activité récente</div>`;
   if(d.weeklyActivity&&d.weeklyActivity.points) buildChart('chartXP',d.weeklyActivity.points);
-  api('/user/'+id+'/purchases').then(j=>{if(j.success)document.getElementById('purchasesList').innerHTML=j.purchases.length?j.purchases.map(p=>`<div class="flex justify-between items-center p-3 glass2 rounded-2xl"><span class="font-medium">${p.item_name}</span><span class="text-gray-400 font-mono">-${p.price} pts</span></div>`).join(''):'<div class="text-gray-600 text-sm">Aucun achat</div>'});
-  api('/user/'+id+'/transactions').then(j=>{if(j.success)document.getElementById('transactionsList').innerHTML=j.transactions.slice(0,30).map(t=>`<div class="flex justify-between items-center py-2 border-b border-white/5 last:border-0"><span class="text-xs text-gray-500">${t.type==='earn'?'🟢':'🔴'} ${t.description||''}</span><span class="font-mono text-xs ${t.amount>0?'text-emerald-400':'text-red-400'}">${t.amount>0?'+':''}${t.amount}</span></div>`).join('')||'<div class="text-gray-600 text-sm">Aucune transaction</div>'});
+  api('/user/'+id+'/purchases').then(j=>{if(j.success)document.getElementById('purchasesList').innerHTML=j.purchases.length?j.purchases.map(p=>`<div style="${ROW}"><span>${p.item_name}</span><span style="font-weight:900;color:#d92d2d">−${p.price} pts</span></div>`).join(''):`<div class="${EMPTY}">Aucun achat</div>`});
+  api('/user/'+id+'/transactions').then(j=>{if(j.success)document.getElementById('transactionsList').innerHTML=j.transactions.slice(0,30).map(t=>`<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 12px;border-bottom:2.5px solid rgba(43,36,64,.1)"><span style="font-size:13px;font-weight:700;color:#5b5273">${t.description||t.type}</span><span style="font-weight:900;font-size:13px;color:${t.amount>0?'#12a37c':'#d92d2d'}">${t.amount>0?'+':''}${t.amount}</span></div>`).join('')||`<div class="${EMPTY}">Aucune transaction</div>`});
 }
 
 async function loadLeaderboard(){
   const {success,data}=await api('/leaderboard?limit=25');
   if(!success)return;
+  const podium=[['#ffc93c','#2b2440'],['#e3dcf0','#2b2440'],['#ffd9a8','#2b2440']];
   document.getElementById('leaderboardList').innerHTML=data.map((x,i)=>{
-    const b=i==0?'🥇':i==1?'🥈':i==2?'🥉':`#${i+1}`;
     const me=x.id===u.id;
-    return `<div class="flex items-center justify-between p-4 rounded-2xl transition-all ${me?'bg-violet-600/10 border border-violet-500/30':'hover:bg-white/5'}">
-      <div class="flex items-center gap-4"><span class="w-8 text-center font-black text-lg">${b}</span><div><span class="font-semibold ${me?'text-violet-300':''}">${x.username}</span>${me?'<span class="ml-2 text-[10px] bg-violet-600/20 text-violet-400 px-2 py-0.5 rounded-full font-bold">VOUS</span>':''}</div></div>
-      <span class="font-mono font-bold text-sm">${x.points.toLocaleString()} <span class="text-gray-600 font-normal">pts</span></span></div>`;
+    const bg=me?'background:#fff3d1':(i<3?podium[i][0]:'#fdf6ec');
+    return `<div style="${ROW};background:${bg};box-shadow:0 3px 0 #2b2440;${me?'border-width:3px':''}">
+      <div style="display:flex;align-items:center;gap:14px">
+        <span style="width:38px;height:38px;display:flex;align-items:center;justify-content:center;border-radius:12px;font-weight:800;font-size:${i<3?'20px':'15px'};background:#fff;border:2.5px solid #2b2440;box-shadow:0 3px 0 #2b2440">${i<3?['🥇','🥈','🥉'][i]:'#'+(i+1)}</span>
+        <div style="font-weight:800">${x.username}${me?' <span style="background:#7a4ff2;color:#fff;border:2.5px solid #2b2440;padding:1px 8px;border-radius:999px;font-size:10px;letter-spacing:.05em">VOUS</span>':''}</div>
+      </div>
+      <span style="font-weight:900;font-size:15px">${x.points.toLocaleString()} <span style="font-size:11px;font-weight:700;color:#8b83a3">pts</span></span>
+    </div>`;
   }).join('');
 }
 
@@ -614,48 +451,97 @@ async function loadAnalytics(){
   createChart('chartLvls','line');
 }
 
+const CHART_FONT = {family:"'Nunito',sans-serif",weight:'700'};
+const chartOpts = (tickSize)=>({
+  responsive:true,
+  maintainAspectRatio:false,
+  plugins:{legend:{display:false}},
+  scales:{
+    x:{grid:{display:false},border:{color:'#2b2440'},ticks:{color:'#8b83a3',font:{...CHART_FONT,size:tickSize}}},
+    y:{grid:{color:'rgba(43,36,64,.08)'},border:{display:false},ticks:{color:'#8b83a3',font:{...CHART_FONT,size:tickSize}}}
+  }
+});
+
 function buildChart(id,data){
   const c=document.getElementById(id);if(!c)return;
   if(chXp)chXp.destroy();
-  chXp=new Chart(c.getContext('2d'),{type:'line',data:{labels:['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'],datasets:[{label:'XP',data:data||[0,0,0,0,0,0,0],borderColor:'#8b5cf6',backgroundColor:'rgba(139,92,246,.08)',fill:true,tension:.4,pointRadius:4,pointBackgroundColor:'#8b5cf6',borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#555',font:{size:10}}},y:{ticks:{color:'#555',font:{size:10}}}}}});
+  chXp=new Chart(c.getContext('2d'),{
+    type:'line',
+    data:{labels:['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'],datasets:[{
+      label:'XP',data:data||[0,0,0,0,0,0,0],
+      borderColor:'#7a4ff2',backgroundColor:'rgba(122,79,242,.15)',fill:true,tension:.4,
+      pointRadius:6,pointBackgroundColor:'#fff',pointBorderColor:'#2b2440',pointBorderWidth:2.5,borderWidth:3
+    }]},
+    options:chartOpts(11)
+  });
 }
 
 function createChart(id,type){
   const c=document.getElementById(id);if(!c)return;
-  const d=[120,180,140,220,280,240,300,260,310,350,290,400];
   const l=['Jan','Fév','Mar','Avr','Mai','Jui','Jul','Aoû','Sep','Oct','Nov','Déc'];
-  let ch;
-  if(type=='bar'){if(chPts)chPts.destroy();chPts=ch=new Chart(c.getContext('2d'),{type:'bar',data:{labels:l,datasets:[{label:'Points',data:d,backgroundColor:'rgba(139,92,246,.3)',borderColor:'#8b5cf6',borderWidth:1,borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#555',font:{size:9}}},y:{ticks:{color:'#555',font:{size:9}}}}}});}
-  else{if(chLvls)chLvls.destroy();chLvls=ch=new Chart(c.getContext('2d'),{type:'line',data:{labels:l,datasets:[{label:'Niveaux',data:[1,2,2,3,4,5,5,6,7,8,9,10],borderColor:'#c084fc',backgroundColor:'rgba(192,132,252,.08)',fill:true,tension:.4,pointRadius:3,borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#555',font:{size:9}}},y:{ticks:{color:'#555',font:{size:9}}}}}});}
+  if(type=='bar'){
+    if(chPts)chPts.destroy();
+    chPts=new Chart(c.getContext('2d'),{
+      type:'bar',
+      data:{labels:l,datasets:[{label:'Points',data:[120,180,140,220,280,240,300,260,310,350,290,400],
+        backgroundColor:['#7a4ff2','#9a72ff','#ff5c9d','#ff8a3d','#ffc93c','#23c99a'],
+        borderColor:'#2b2440',borderWidth:2,borderRadius:10}]},
+      options:chartOpts(9)
+    });
+  }else{
+    if(chLvls)chLvls.destroy();
+    chLvls=new Chart(c.getContext('2d'),{
+      type:'line',
+      data:{labels:l,datasets:[{label:'Niveaux',data:[1,2,2,3,4,5,5,6,7,8,9,10],
+        borderColor:'#ff5c9d',backgroundColor:'rgba(255,92,157,.15)',fill:true,tension:.4,
+        pointRadius:5,pointBackgroundColor:'#fff',pointBorderColor:'#2b2440',pointBorderWidth:2.5,borderWidth:3}]},
+      options:chartOpts(9)
+    });
+  }
 }
+
+const TILE = 'width:52px;height:52px;display:flex;align-items:center;justify-content:center;border-radius:16px;background:#ede4ff;border:2.5px solid #2b2440;box-shadow:0 3px 0 #2b2440;font-size:18px;color:#5b32c9;flex-shrink:0';
 
 async function loadShop(){
   const {success,items}=await api('/shop');
   if(!success)return;
   document.getElementById('shopList').innerHTML=items.map(x=>{
     const icons={'role':'fa-user-tag','code':'fa-key','digital':'fa-image','physical':'fa-cube'};
-    return `<div class="item"><div class="flex items-center gap-4 mb-4"><div class="w-12 h-12 rounded-2xl bg-violet-600/20 flex items-center justify-center"><i class="fas ${icons[x.type]||'fa-gift'} text-lg text-violet-400"></i></div><div class="flex-1"><h3 class="font-bold text-base">${x.name}</h3><p class="text-xs text-gray-500">${x.description||''}</p></div></div>
-    <div class="flex items-center justify-between"><span class="font-black font-mono text-violet-400">${x.price.toLocaleString()} <span class="text-xs font-normal text-gray-600">pts</span></span><button onclick='buyItem("${x.id}")' class="text-xs bg-violet-600/20 hover:bg-violet-600/40 px-4 py-2 rounded-xl font-semibold transition">Acheter</button></div></div>`;
+    return `<div class="item"><div class="flex items-start gap-4 mb-4">
+      <div style="${TILE}"><i class="fas ${icons[x.type]||'fa-gift'}"></i></div>
+      <div class="flex-1"><h3 class="font-bold text-base leading-tight">${x.name}</h3><p class="text-xs mt-1" style="color:#8b83a3;font-weight:700">${x.description||''}</p></div>
+    </div>
+    <div class="flex items-center justify-between">
+      <span class="font-black text-lg" style="color:#5b32c9">${x.price.toLocaleString()}<span class="text-[11px] font-bold ml-1" style="color:#8b83a3">pts</span></span>
+      <button onclick='buyItem("${x.id}")' class="text-sm px-5 py-2.5 rounded-xl font-extrabold" style="background:#7a4ff2;color:#fff;border:2.5px solid #2b2440;box-shadow:0 3px 0 #2b2440;cursor:pointer">Acheter</button>
+    </div></div>`;
   }).join('');
 }
 
-function buyItem(i){apiPost('/buy',{userId:u.id,itemId:i}).then(j=>{if(j.success){toast('Achat réussi',j.item.name,'check','#10b981');loadUser();loadShop()}else toast('Échec',j.error||'Points insuffisants','times','#ef4444')})}
+function buyItem(i){apiPost('/buy',{userId:u.id,itemId:i}).then(j=>{if(j.success){toast('Achat réussi',j.item.name,'check','#12a37c');loadUser();loadShop()}else toast('Échec',j.error||'Points insuffisants','times','#d92d2d')})}
 
 async function loadQuests(){
   const {success,quests}=await api('/quests');
   if(!success)return;
   document.getElementById('questsList').innerHTML=quests.length?quests.map(q=>{
     const icons={'target':'fa-bullseye','gem':'fa-gem','users':'fa-users','flame':'fa-fire','cart':'fa-shopping-cart'};
-    return `<div class="item"><div class="flex items-start gap-4"><div class="w-12 h-12 rounded-2xl bg-violet-600/20 flex items-center justify-center"><i class="fas ${icons[q.icon]||'fa-star'} text-lg text-violet-400"></i></div><div class="flex-1"><h3 class="font-bold">${q.title}</h3><p class="text-xs text-gray-500 mt-1">${q.description||''} — Objectif: ${q.goal}</p></div><div class="text-right"><div class="font-black text-violet-400">${q.reward}</div><div class="text-[10px] text-gray-600">pts</div></div></div></div>`;
-  }).join('') : '<div class="text-gray-500 text-center py-12">Aucune quête disponible</div>';
+    return `<div class="item"><div class="flex items-start gap-4">
+      <div style="${TILE}"><i class="fas ${icons[q.icon]||'fa-star'}"></i></div>
+      <div class="flex-1"><h3 class="font-bold leading-tight">${q.title}</h3><p class="text-xs mt-1" style="color:#8b83a3;font-weight:700">${q.description||''} · Objectif : ${q.goal}</p></div>
+      <div class="text-right flex-shrink-0"><div class="font-black text-lg" style="color:#12a37c">+${q.reward}</div><div class="text-[10px] font-extrabold" style="color:#8b83a3">PTS</div></div>
+    </div></div>`;
+  }).join('') : `<div class="${EMPTY}">Aucune quête disponible</div>`;
 }
 
 async function loadBadges(){
   const {success,data}=await api('/user/'+u.id);
   if(!success)return;
   const bs=data.badges||[];
-  const ul=bs.filter(b=>b.unlocked),lk=bs.filter(b=>!b.unlocked);
-  document.getElementById('badgesList').innerHTML=ul.map(b=>`<div class="w-20 h-20 rounded-2xl bg-gradient-to-br from-violet-600/30 to-fuchsia-600/20 flex items-center justify-center flex-col border border-violet-500/20" title="${b.name}"><i class="fas fa-${b.icon} text-xl text-violet-300 mb-1"></i><span class="text-[9px] font-bold text-center leading-tight">${b.name}</span></div>`).join('')+lk.map(b=>`<div class="w-20 h-20 rounded-2xl bg-white/[0.03] flex items-center justify-center flex-col opacity-30 border border-white/5" title="${b.name}"><i class="fas fa-lock text-lg text-gray-600 mb-1"></i><span class="text-[9px] font-bold text-gray-600 text-center leading-tight">${b.name}</span></div>`).join('');
+  const cell=(b,on)=>`<div title="${b.name}" style="width:88px;height:88px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;border-radius:18px;border:2.5px solid #2b2440;box-shadow:0 4px 0 #2b2440;background:${on?'linear-gradient(180deg,#c9b4ff,#ede4ff)':'#efe9f7'};opacity:${on?1:.55}">
+    <i class="fas ${on?'fa-'+b.icon:'fa-lock'}" style="font-size:20px;color:${on?'#5b32c9':'#a89fc0'}"></i>
+    <span style="font-size:9px;font-weight:800;text-align:center;line-height:1.2;color:${on?'#2b2440':'#a89fc0'}">${b.name}</span></div>`;
+  document.getElementById('badgesList').innerHTML=bs.map(b=>cell(b,b.unlocked)).join('')
+    || `<div class="${EMPTY}">Aucun badge pour l'instant</div>`;
 }
 
 async function loadReferrals(){
@@ -665,19 +551,30 @@ async function loadReferrals(){
     else{document.getElementById('refCode').textContent='Générer';document.getElementById('refCode').style.cursor='pointer';document.getElementById('refCode').onclick=()=>apiPost('/referral/generate',{userId:u.id}).then(()=>loadReferrals())}
   }
   const {data}=await api('/referral/top');
-  if(data)document.getElementById('topReferrers').innerHTML=data.length?data.map((r,i)=>`<div class="flex justify-between items-center p-3 glass2 rounded-2xl"><span>${i+1}. ${r.username}</span><span class="text-gray-400 text-xs">${r.count} parrainages</span></div>`).join(''):'<div class="text-gray-600 text-center py-4">Aucun</div>';
+  if(data)document.getElementById('topReferrers').innerHTML=data.length?data.map((r,i)=>`<div style="${ROW}"><span>${i+1}. ${r.username}</span><span class="text-xs font-extrabold" style="color:#5b32c9">${r.count} parrainages</span></div>`).join(''):`<div class="${EMPTY}">Aucun</div>`;
 }
+
+const STATUS = {open:['#23c99a','OUVERT'],in_progress:['#ffc93c','EN COURS'],closed:['#ded8ea','FERMÉ'],resolved:['#3fa9f5','RÉSOLU']};
 
 async function loadSupport(){
   const j=await api('/tickets?userId='+u.id);
   if(!j.success)return;
-  document.getElementById('myTickets').innerHTML=j.tickets.length?j.tickets.map(t=>`<div class="p-4 glass2 rounded-2xl"><div class="flex justify-between items-start"><span class="font-semibold text-sm">${t.subject}</span><span class="text-[10px] font-bold px-2 py-1 rounded-full ${t.status==='open'?'bg-emerald-500/20 text-emerald-400':t.status==='in_progress'?'bg-amber-500/20 text-amber-400':'bg-gray-500/20 text-gray-400'}">${t.status}</span></div><p class="text-xs text-gray-600 mt-2 truncate">${t.message.substring(0,100)}...</p></div>`).join(''):'<div class="text-gray-600 text-sm">Aucun ticket</div>';
+  document.getElementById('myTickets').innerHTML=j.tickets.length?j.tickets.map(t=>{
+    const st=STATUS[t.status]||[t.status,t.status];
+    return `<div style="display:flex;flex-direction:column;gap:6px;padding:14px;border:2.5px solid #2b2440;border-radius:16px;background:#fdf6ec;box-shadow:0 3px 0 #2b2440">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px">
+        <span class="font-extrabold text-sm">${t.subject}</span>
+        <span style="flex-shrink:0;background:${st[0]};color:${st[0]==='#ded8ea'?'#2b2440':'#2b2440'};border:2.5px solid #2b2440;padding:2px 9px;border-radius:999px;font-size:9px;font-weight:800;letter-spacing:.05em">${st[1]}</span>
+      </div>
+      <p class="text-xs truncate" style="color:#8b83a3;font-weight:700">${t.message.substring(0,100)}…</p>
+    </div>`;
+  }).join(''):`<div class="${EMPTY}">Aucun ticket</div>`;
 }
 
 function createTicket(){
   const sub=document.getElementById('tSubject').value,msg=document.getElementById('tMessage').value,cat=document.getElementById('tCat').value;
-  if(!sub||!msg){toast('Erreur','Remplis tous les champs','times','#ef4444');return}
-  apiPost('/tickets',{userId:u.id,subject:sub,message:msg,category:cat}).then(j=>{if(j.success){toast('Ticket créé !','Notre équipe va te répondre','check','#10b981');document.getElementById('tSubject').value='';document.getElementById('tMessage').value='';loadSupport()}});
+  if(!sub||!msg){toast('Erreur','Remplis tous les champs','times','#d92d2d');return}
+  apiPost('/tickets',{userId:u.id,subject:sub,message:msg,category:cat}).then(j=>{if(j.success){toast('Ticket créé !','Notre équipe va te répondre','check','#12a37c');document.getElementById('tSubject').value='';document.getElementById('tMessage').value='';loadSupport()}});
 }
 
 async function loadAdmin(){
@@ -687,14 +584,14 @@ async function loadAdmin(){
   document.getElementById('adPoints').textContent=j.totalPoints.toLocaleString();
   document.getElementById('adTx').textContent=j.totalTransactions;
   document.getElementById('adTickets').textContent=j.ticketsOpen;
-  if(j.topUsers)document.getElementById('adTopUsers').innerHTML=j.topUsers.map((x,i)=>`<div class="flex justify-between items-center p-3 glass2 rounded-2xl"><span>${i+1}. ${x.username}</span><span class="font-mono text-xs">${x.points.toLocaleString()} pts</span></div>`).join('');
-  if(j.recentTransactions)document.getElementById('adRecentTickets').innerHTML=j.recentTransactions.slice(0,10).map(t=>`<div class="flex justify-between py-2 border-b border-white/5 last:border-0"><span class="text-xs text-gray-500">${t.description||t.type}</span><span class="text-xs font-mono ${t.amount>0?'text-emerald-400':'text-red-400'}">${t.amount}</span></div>`).join('')||'<div class="text-gray-600 text-sm">Aucune transaction</div>';
+  if(j.topUsers)document.getElementById('adTopUsers').innerHTML=j.topUsers.map((x,i)=>`<div style="${ROW}"><span>${i+1}. ${x.username}</span><span class="font-black text-sm" style="color:#5b32c9">${x.points.toLocaleString()} pts</span></div>`).join('');
+  if(j.recentTransactions)document.getElementById('adRecentTickets').innerHTML=j.recentTransactions.slice(0,10).map(t=>`<div style="display:flex;justify-content:space-between;gap:10px;padding:10px 12px;border-bottom:2.5px solid rgba(43,36,64,.1)"><span class="text-xs font-bold" style="color:#5b5273">${t.description||t.type}</span><span class="text-xs font-black" style="color:${t.amount>0?'#12a37c':'#d92d2d'}">${t.amount>0?'+':''}${t.amount}</span></div>`).join('')||`<div class="${EMPTY}">Aucune transaction</div>`;
 }
 
 function claimDaily(){
   apiPost('/daily/claim',{userId:u.id}).then(j=>{
-    if(j.success){toast('+'+j.reward+' points','Streak: '+j.streak+' jours 🔥','check','#10b981');loadUser()}
-    else toast('Déjà réclamé','Reviens demain !','times','#ef4444');
+    if(j.success){toast('+'+j.reward+' points','Streak : '+j.streak+' jours 🔥','check','#12a37c');loadUser()}
+    else toast('Déjà réclamé','Reviens demain !','times','#d92d2d');
   });
 }
 
@@ -702,10 +599,23 @@ function sendMessage(){
   const inp=document.getElementById('chatInput'),msg=inp.value.trim();
   if(!msg)return;
   const el=document.getElementById('chatMessages');
-  el.innerHTML+=`<div class="flex items-start gap-3 justify-end"><div class="bg-violet-600/20 p-3 rounded-2xl text-sm max-w-[75%]">${msg}</div><div class="w-8 h-8 rounded-full bg-violet-600/30 overflow-hidden shrink-0"><img class="w-full h-full object-cover" src="${document.querySelector('.avatar-img').src}"></div></div>`;
+  const av=document.querySelector('.avatar-img').src;
+  el.innerHTML+=`<div style="display:flex;align-items:flex-start;gap:10px;justify-content:flex-end">
+    <div style="max-width:75%;padding:12px 16px;border-radius:16px;font-size:14px;font-weight:700;background:#7a4ff2;color:#fff;border:2.5px solid #2b2440;box-shadow:0 3px 0 #2b2440">${esc(msg)}</div>
+    <div style="width:36px;height:36px;border-radius:50%;overflow:hidden;border:2.5px solid #2b2440;flex-shrink:0"><img class="w-full h-full object-cover" src="${av}"></div>
+  </div>`;
   inp.value='';
-  apiPost('/ia/chat',{message:msg,discordId:u.id}).then(j=>{el.innerHTML+=`<div class="flex items-start gap-3"><div class="w-8 h-8 rounded-xl bg-violet-600/30 flex items-center justify-center shrink-0"><i class="fas fa-robot text-xs text-violet-400"></i></div><div class="text-sm max-w-[80%]"><div class="font-bold text-violet-400 text-xs mb-1">GiftBot IA</div><div class="text-gray-400 bg-white/5 p-4 rounded-2xl">${j.reply||'Pas de réponse.'}</div></div></div>`;el.scrollTop=el.scrollHeight});
+  el.scrollTop=el.scrollHeight;
+  apiPost('/ia/chat',{message:msg,discordId:u.id}).then(j=>{el.innerHTML+=`<div style="display:flex;align-items:flex-start;gap:10px">
+    <div style="width:36px;height:36px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:#ede4ff;border:2.5px solid #2b2440;box-shadow:0 3px 0 #2b2440;flex-shrink:0"><i class="fas fa-robot" style="color:#5b32c9;font-size:14px"></i></div>
+    <div style="max-width:80%">
+      <div class="font-extrabold text-xs mb-1" style="color:#5b32c9">GiftBot IA</div>
+      <div style="font-size:14px;font-weight:700;line-height:1.6;padding:14px 16px;border-radius:16px;background:#fdf6ec;border:2.5px solid #2b2440;box-shadow:0 3px 0 #2b2440">${j.reply||'Pas de réponse.'}</div>
+    </div>
+  </div>`;el.scrollTop=el.scrollHeight});
 }
+
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 
 // Navigation
 document.querySelectorAll('.sb-item[data-tab]').forEach(el=>{
@@ -734,12 +644,13 @@ function toggleSidebar(){
 function logout(){localStorage.removeItem('discord_user');localStorage.removeItem('discord_token');window.location.href='index.html'}
 
 // Mobile tabs
-['home','shop','quests','leaderboard','profile'].forEach(t=>{
+const MOBILE = {home:'Accueil',shop:'Boutique',quests:'Quêtes',leaderboard:'Classement',profile:'Profil'};
+const M_ICON = {home:'fa-home',shop:'fa-store',quests:'fa-tasks',leaderboard:'fa-trophy',profile:'fa-user'};
+Object.keys(MOBILE).forEach(t=>{
   const btn=document.createElement('button');
   btn.className='mn-btn'+(t==='home'?' active':'');
   btn.dataset.tab=t;
-  const icons={'home':'fa-home','shop':'fa-store','quests':'fa-tasks','leaderboard':'fa-trophy','profile':'fa-user'};
-  btn.innerHTML=`<i class="fas ${icons[t]}"></i><span>${t.charAt(0).toUpperCase()+t.slice(1)}</span>`;
+  btn.innerHTML=`<i class="fas ${M_ICON[t]}"></i><span>${MOBILE[t]}</span>`;
   btn.onclick=()=>selectTab(t);
   document.querySelector('.mn').appendChild(btn);
 });

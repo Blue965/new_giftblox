@@ -1,214 +1,370 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>GiftBlox — L'écosystème de fidélité Discord</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>GiftBlox — Le bot Discord qui fidélise ta communauté</title>
+<meta name="description" content="GiftBlox transforme ton serveur Discord en machine à engagement : points, niveaux, boutique, quêtes, badges et analytics. 100% gratuit.">
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
-*{font-family:'Inter',sans-serif;letter-spacing:-.02em;margin:0;padding:0;box-sizing:border-box}
-html{scroll-behavior:smooth}
-body{background:#0a0a0f;color:#fff;overflow-x:hidden}
-.glass{background:linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01));border:1px solid rgba(255,255,255,.06);backdrop-filter:blur(24px)}.glass2{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.05)}
-.btn-p{background:linear-gradient(135deg,#8b5cf6,#c084fc);color:#fff;font-weight:700;border-radius:14px;padding:14px 32px;transition:all .3s;font-size:14px;border:none;cursor:pointer;display:inline-flex;align-items:center;gap:10px;text-decoration:none}
-.btn-p:hover{transform:translateY(-2px);box-shadow:0 8px 40px rgba(139,92,246,.35)}.btn-p-sm{font-size:12px;padding:10px 20px;border-radius:10px}
-.btn-ghost{background:rgba(255,255,255,.06);color:#fff;border-radius:14px;padding:14px 32px;font-weight:600;transition:all .2s;border:1px solid rgba(255,255,255,.1);cursor:pointer;display:inline-flex;align-items:center;gap:10px;text-decoration:none}
-.btn-ghost:hover{background:rgba(255,255,255,.1)}
-.s-glow{text-shadow:0 0 40px rgba(139,92,246,.3)}
-.card-h{background:linear-gradient(135deg,rgba(255,255,255,.03) 0%,rgba(139,92,246,.04) 100%);border:1px solid rgba(139,92,246,.1);border-radius:24px;padding:32px;transition:all .4s cubic-bezier(.175,.885,.32,1.275)}
-.card-h:hover{border-color:rgba(139,92,246,.25);transform:translateY(-4px);box-shadow:0 12px 50px rgba(139,92,246,.1)}
-.bg-dots{background-image:radial-gradient(rgba(139,92,246,.1) 1px,transparent 1px);background-size:30px 30px}
-.floating{animation:float 6s ease-in-out infinite}
-@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-20px)}}
-.pulse-glow{animation:pulseGlow 3s ease-in-out infinite}
-@keyframes pulseGlow{0%,100%{box-shadow:0 0 20px rgba(139,92,246,.15)}50%{box-shadow:0 0 50px rgba(139,92,246,.3)}}
-.num{font-size:48px;font-weight:900;background:linear-gradient(135deg,#8b5cf6,#ec4899);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-</style>
+<link rel="stylesheet" href="giftblox.css">
 </head>
 <body>
-<!-- Nav -->
-<nav class="fixed top-0 w-full z-50 glass" style="background:rgba(10,10,15,.9)">
-  <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-    <div class="flex items-center gap-3">
-      <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-600 to-fuchsia-600 flex items-center justify-center shadow-lg shadow-violet-600/20"><span class="text-white font-black text-sm">G</span></div>
-      <span class="font-black text-lg">GiftBlox</span>
+
+<!-- ================= NAV ================= -->
+<nav class="glass fixed top-0 w-full z-50">
+  <div class="max-w-7xl mx-auto px-5 md:px-8 py-3.5 flex items-center justify-between">
+    <a href="#" class="flex items-center gap-2.5">
+      <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-violet-500 to-fuchsia-500 flex items-center justify-center" style="box-shadow:0 4px 0 #2b2440">
+        <span class="text-white font-black text-lg" style="font-family:'Fredoka'">G</span>
+      </div>
+      <span class="font-black text-xl" style="font-family:'Fredoka'">GiftBlox</span>
+    </a>
+
+    <div class="hidden lg:flex items-center gap-7 text-sm">
+      <a href="#features">Fonctionnalités</a>
+      <a href="#how">Comment ça marche</a>
+      <a href="#stats">Impact</a>
+      <a href="#pricing">Tarifs</a>
+      <a href="#faq">FAQ</a>
     </div>
-    <div class="hidden md:flex items-center gap-8 text-sm font-semibold">
-      <a href="#features" class="hover:text-violet-400 transition">Fonctionnalités</a>
-      <a href="#how" class="hover:text-violet-400 transition">Comment ça marche</a>
-      <a href="#stats" class="hover:text-violet-400 transition">Impact</a>
-      <a href="#pricing" class="hover:text-violet-400 transition">Tarifs</a>
-      <a href="#faq" class="hover:text-violet-400 transition">FAQ</a>
-    </div>
-    <div class="flex items-center gap-3">
-      <button onclick="login()" class="btn-p btn-p-sm hidden md:flex"><i class="fab fa-discord"></i>Connexion</button>
-      <a href="https://discord.com/oauth2/authorize?client_id=1513281082626281472&permissions=8&scope=bot%20applications.commands" target="_blank" class="btn-ghost btn-p-sm"><i class="fas fa-plus"></i>Ajouter au serveur</a>
+
+    <div class="flex items-center gap-2.5">
+      <button onclick="login()" class="btn-p btn-p-sm hidden sm:inline-flex"><i class="fab fa-discord"></i>Connexion</button>
+      <a href="https://discord.com/oauth2/authorize?client_id=1513281082626281472&permissions=8&scope=bot%20applications.commands" target="_blank" class="btn-ghost btn-p-sm">
+        <i class="fas fa-plus"></i><span class="hidden sm:inline">Ajouter</span><span class="sm:hidden">Bot</span>
+      </a>
     </div>
   </div>
 </nav>
 
-<!-- Hero -->
-<section class="relative min-h-screen flex items-center pt-24 overflow-hidden">
-  <div class="absolute inset-0 bg-dots opacity-50"></div>
-  <div class="absolute top-1/4 -left-32 w-[500px] h-[500px] bg-violet-600/10 rounded-full blur-[120px]"></div>
-  <div class="absolute bottom-1/4 -right-32 w-[400px] h-[400px] bg-fuchsia-600/10 rounded-full blur-[100px]"></div>
-  <div class="max-w-7xl mx-auto px-6 relative z-10">
-    <div class="grid md:grid-cols-2 gap-12 items-center">
+<!-- ================= HERO ================= -->
+<section class="relative min-h-screen flex items-center pt-28 pb-16 overflow-hidden">
+  <div class="max-w-7xl mx-auto px-5 md:px-8 w-full">
+    <div class="grid lg:grid-cols-2 gap-14 items-center">
+
       <div>
-        <div class="inline-flex items-center gap-2 bg-violet-600/10 border border-violet-500/20 rounded-full px-4 py-2 text-xs font-semibold text-violet-400 mb-6"><i class="fas fa-bolt"></i>Plateforme n°1 de fidélité Discord</div>
-        <h1 class="text-5xl md:text-7xl font-black leading-[1.1] mb-6">Transforme ta <span class="bg-gradient-to-r from-violet-400 to-fuchsia-400 bg-clip-text text-transparent">communauté</span> en machine à engagement</h1>
-        <p class="text-lg text-gray-400 leading-relaxed mb-8 max-w-lg">Le bot Discord ultime pour récompenser, fidéliser et développer ta communauté. Points, niveaux, boutique, quêtes et analytics en temps réel.</p>
-        <div class="flex flex-wrap gap-4">
-          <button onclick="login()" class="btn-p text-base"><i class="fab fa-discord"></i>Connexion avec Discord</button>
-          <a href="https://discord.com/oauth2/authorize?client_id=1513281082626281472&permissions=8&scope=bot%20applications.commands" target="_blank" class="btn-ghost text-base"><i class="fas fa-robot"></i>Ajouter le Bot</a>
+        <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-extrabold mb-6"
+             style="background:#fff3d1;border:2.5px solid #2b2440;box-shadow:0 4px 0 #2b2440">
+          <i class="fas fa-bolt" style="color:#ff8a3d"></i>
+          <span>100% gratuit · sans abonnement</span>
         </div>
-        <div class="flex items-center gap-6 mt-10">
-          <div class="flex -space-x-2"><div class="w-8 h-8 rounded-full bg-violet-600/30 border-2 border-[#0a0a0f]"></div><div class="w-8 h-8 rounded-full bg-fuchsia-600/30 border-2 border-[#0a0a0f]"></div><div class="w-8 h-8 rounded-full bg-emerald-600/30 border-2 border-[#0a0a0f]"></div><div class="w-8 h-8 rounded-full bg-amber-600/30 border-2 border-[#0a0a0f]"></div></div>
-          <div><span class="font-bold text-sm">+500 utilisateurs</span><div class="text-xs text-gray-500">et en pleine croissance</div></div>
+
+        <h1 class="text-4xl md:text-6xl font-black leading-[1.05] mb-6">
+          Transforme ta communauté en
+          <span class="inline-block px-3 py-1 rounded-2xl text-white" style="background:linear-gradient(180deg,#9a72ff,#7a4ff2);border:2.5px solid #2b2440;box-shadow:0 5px 0 #2b2440;transform:rotate(-1.5deg)">machine à engagement</span>
+        </h1>
+
+        <p class="text-lg md:text-xl leading-relaxed mb-8" style="color:#5b5273;font-weight:600">
+          Points, niveaux, boutique, quêtes, badges et analytics : tout ce qu'il te faut
+          pour que tes membres restent, participent et s'amusent.
+        </p>
+
+        <div class="flex flex-wrap gap-4 mb-10">
+          <a href="https://discord.com/oauth2/authorize?client_id=1513281082626281472&permissions=8&scope=bot%20applications.commands" target="_blank" class="btn-p">
+            <i class="fas fa-robot"></i>Ajouter le bot à mon serveur
+          </a>
+          <button onclick="login()" class="btn-ghost"><i class="fab fa-discord"></i>Voir mon dashboard</button>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-x-8 gap-y-4">
+          <div class="flex items-center gap-3">
+            <div class="flex -space-x-2.5">
+              <div class="w-9 h-9 rounded-full" style="background:#ede4ff;border:2.5px solid #2b2440"></div>
+              <div class="w-9 h-9 rounded-full" style="background:#ffe4ef;border:2.5px solid #2b2440"></div>
+              <div class="w-9 h-9 rounded-full" style="background:#dcfaf0;border:2.5px solid #2b2440"></div>
+              <div class="w-9 h-9 rounded-full" style="background:#fff3d1;border:2.5px solid #2b2440"></div>
+            </div>
+            <div class="text-sm">
+              <div class="font-extrabold">+500 membres actifs</div>
+              <div style="color:#8b83a3;font-weight:700">et la communauté grandit</div>
+            </div>
+          </div>
+          <div class="flex items-center gap-2 text-sm font-extrabold">
+            <i class="fas fa-star" style="color:#ffc93c"></i>
+            <i class="fas fa-star" style="color:#ffc93c"></i>
+            <i class="fas fa-star" style="color:#ffc93c"></i>
+            <i class="fas fa-star" style="color:#ffc93c"></i>
+            <i class="fas fa-star" style="color:#ffc93c"></i>
+            <span style="color:#5b5273">noté 5/5</span>
+          </div>
         </div>
       </div>
-      <div class="hidden md:flex justify-center">
-        <div class="relative floating">
-          <div class="w-[400px] h-[500px] rounded-3xl glass pulse-glow p-6">
-            <div class="flex items-center gap-3 mb-6"><div class="w-10 h-10 rounded-full bg-violet-600/30"></div><div><div class="w-24 h-3 rounded bg-white/10"></div><div class="w-16 h-2 rounded bg-white/5 mt-1"></div></div></div>
-            <div class="space-y-4">
-              <div class="h-4 rounded bg-violet-600/20 w-full"></div>
-              <div class="h-4 rounded bg-violet-600/15 w-3/4"></div>
-              <div class="h-4 rounded bg-violet-600/10 w-5/6"></div>
-              <div class="grid grid-cols-2 gap-3 mt-6">
-                <div class="h-20 rounded-2xl bg-gradient-to-br from-violet-600/20 to-fuchsia-600/10"></div>
-                <div class="h-20 rounded-2xl bg-gradient-to-br from-emerald-600/20 to-emerald-600/10"></div>
+
+      <!-- carte vitrine -->
+      <div class="flex justify-center lg:justify-end">
+        <div class="floating w-full max-w-sm">
+          <div class="p-6" style="background:#fff;border:3px solid #2b2440;border-radius:26px;box-shadow:10px 12px 0 #2b2440">
+            <div class="flex items-center gap-3 mb-5 pb-5" style="border-bottom:2.5px solid #2b2440">
+              <div class="w-12 h-12 rounded-2xl flex items-center justify-center" style="background:#ede4ff;border:2.5px solid #2b2440;box-shadow:0 3px 0 #2b2440">
+                <i class="fas fa-gift" style="color:#5b32c9"></i>
               </div>
-              <div class="flex items-center gap-2 mt-4"><div class="w-6 h-6 rounded-full bg-violet-600/30"></div><div class="w-32 h-3 rounded bg-white/10"></div></div>
+              <div>
+                <div class="font-extrabold text-sm">Blue965</div>
+                <div class="text-xs" style="color:#8b83a3;font-weight:700">Niveau 12 · 4 250 pts</div>
+              </div>
+              <div class="ml-auto text-xs font-extrabold px-2.5 py-1 rounded-full" style="background:#dcfaf0;border:2.5px solid #2b2440">Nv.12</div>
+            </div>
+
+            <div class="space-y-3">
+              <div class="p-3 rounded-2xl flex items-center gap-3" style="background:#fff3d1;border:2.5px solid #2b2440;box-shadow:0 3px 0 #2b2440">
+                <i class="fas fa-fire" style="color:#ff8a3d"></i>
+                <span class="text-sm font-extrabold">Streak quotidien</span>
+                <span class="ml-auto font-black text-sm">7 🔥</span>
+              </div>
+              <div class="p-3 rounded-2xl flex items-center gap-3" style="background:#ede4ff;border:2.5px solid #2b2440;box-shadow:0 3px 0 #2b2440">
+                <i class="fas fa-trophy" style="color:#5b32c9"></i>
+                <span class="text-sm font-extrabold">Quête complétée</span>
+                <span class="ml-auto font-black text-sm" style="color:#5b32c9">+250</span>
+              </div>
+              <div class="p-3 rounded-2xl flex items-center gap-3" style="background:#dcfaf0;border:2.5px solid #2b2440;box-shadow:0 3px 0 #2b2440">
+                <i class="fas fa-store" style="color:#12a37c"></i>
+                <span class="text-sm font-extrabold">Badge débloqué</span>
+                <span class="ml-auto font-black text-sm" style="color:#12a37c">+100</span>
+              </div>
+            </div>
+
+            <div class="mt-5">
+              <div class="flex justify-between text-xs font-extrabold mb-2">
+                <span style="color:#5b5273">Prochain niveau</span><span style="color:#5b32c9">68%</span>
+              </div>
+              <div class="h-4 rounded-full overflow-hidden" style="background:#e9e2f5;border:2.5px solid #2b2440">
+                <div class="h-full rounded-full" style="width:68%;background:linear-gradient(90deg,#7a4ff2,#ff5c9d)"></div>
+              </div>
             </div>
           </div>
         </div>
       </div>
+
     </div>
   </div>
 </section>
 
-<!-- Stats -->
-<section id="stats" class="py-20 px-6">
-  <div class="max-w-5xl mx-auto">
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
-      <div class="text-center card-h"><div class="num">50K+</div><div class="text-gray-400 font-medium mt-2">Points distribués</div></div>
-      <div class="text-center card-h"><div class="num">500+</div><div class="text-gray-400 font-medium mt-2">Membres</div></div>
-      <div class="text-center card-h"><div class="num">1.2K</div><div class="text-gray-400 font-medium mt-2">Transactions</div></div>
-      <div class="text-center card-h"><div class="num">99%</div><div class="text-gray-400 font-medium mt-2">Uptime</div></div>
+<!-- ================= STATS ================= -->
+<section id="stats" class="py-14 px-5 md:px-8">
+  <div class="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-5">
+    <div class="stat text-center p-6">
+      <div class="num text-4xl md:text-5xl">50K+</div>
+      <div class="text-sm font-extrabold mt-1" style="color:#5b5273">Points distribués</div>
+    </div>
+    <div class="stat text-center p-6">
+      <div class="num text-4xl md:text-5xl">500+</div>
+      <div class="text-sm font-extrabold mt-1" style="color:#5b5273">Membres</div>
+    </div>
+    <div class="stat text-center p-6">
+      <div class="num text-4xl md:text-5xl">1.2K</div>
+      <div class="text-sm font-extrabold mt-1" style="color:#5b5273">Transactions</div>
+    </div>
+    <div class="stat text-center p-6">
+      <div class="num text-4xl md:text-5xl">99%</div>
+      <div class="text-sm font-extrabold mt-1" style="color:#5b5273">Uptime</div>
     </div>
   </div>
 </section>
 
-<!-- Features -->
-<section id="features" class="py-20 px-6">
+<!-- ================= FEATURES ================= -->
+<section id="features" class="py-16 px-5 md:px-8">
   <div class="max-w-7xl mx-auto">
-    <div class="text-center mb-16"><h2 class="text-4xl md:text-5xl font-black mb-4">Tout ce qu'il te faut pour <span class="bg-gradient-to-r from-violet-400 to-fuchsia-400 bg-clip-text text-transparent">fidéliser</span></h2><p class="text-gray-400 text-lg max-w-2xl mx-auto">Un écosystème complet de gamification pour ta communauté Discord</p></div>
-    <div class="grid md:grid-cols-3 gap-6">
-      <div class="card-h text-center"><div class="w-16 h-16 rounded-2xl bg-violet-600/20 flex items-center justify-center mx-auto mb-5"><i class="fas fa-coins text-2xl text-violet-400"></i></div><h3 class="font-bold text-xl mb-3">Système de Points</h3><p class="text-gray-400 leading-relaxed">Les membres gagnent des points en étant actifs. Classement, récompenses, et compétition saine.</p></div>
-      <div class="card-h text-center"><div class="w-16 h-16 rounded-2xl bg-fuchsia-600/20 flex items-center justify-center mx-auto mb-5"><i class="fas fa-store text-2xl text-fuchsia-400"></i></div><h3 class="font-bold text-xl mb-3">Boutique Intégrée</h3><p class="text-gray-400 leading-relaxed">Échange tes points contre des rôles, des codes (Robux, Steam, Nitro) ou des récompenses exclusives.</p></div>
-      <div class="card-h text-center"><div class="w-16 h-16 rounded-2xl bg-emerald-600/20 flex items-center justify-center mx-auto mb-5"><i class="fas fa-chart-line text-2xl text-emerald-400"></i></div><h3 class="font-bold text-xl mb-3">Dashboard Analytics</h3><p class="text-gray-400 leading-relaxed">Suis l'activité de ta communauté en temps réel avec des graphiques et des statistiques détaillées.</p></div>
-      <div class="card-h text-center"><div class="w-16 h-16 rounded-2xl bg-amber-600/20 flex items-center justify-center mx-auto mb-5"><i class="fas fa-tasks text-2xl text-amber-400"></i></div><h3 class="font-bold text-xl mb-3">Quêtes & Défis</h3><p class="text-gray-400 leading-relaxed">Crée des objectifs quotidiens et hebdomadaires pour garder ta communauté engagée.</p></div>
-      <div class="card-h text-center"><div class="w-16 h-16 rounded-2xl bg-sky-600/20 flex items-center justify-center mx-auto mb-5"><i class="fas fa-robot text-2xl text-sky-400"></i></div><h3 class="font-bold text-xl mb-3">IA Assistant</h3><p class="text-gray-400 leading-relaxed">Un assistant intelligent propulsé par Groq pour répondre aux questions de tes membres.</p></div>
-      <div class="card-h text-center"><div class="w-16 h-16 rounded-2xl bg-rose-600/20 flex items-center justify-center mx-auto mb-5"><i class="fas fa-trophy text-2xl text-rose-400"></i></div><h3 class="font-bold text-xl mb-3">Badges & Parrainage</h3><p class="text-gray-400 leading-relaxed">Système de badges à débloquer + programme de parrainage pour faire grandir ta communauté.</p></div>
+    <div class="text-center mb-14">
+      <h2 class="text-3xl md:text-5xl font-black mb-4">Tout pour <span class="text-white px-3 py-1 rounded-2xl inline-block" style="background:#ff5c9d;border:2.5px solid #2b2440;box-shadow:0 5px 0 #2b2440;transform:rotate(-1deg)">fidéliser</span></h2>
+      <p class="text-lg" style="color:#5b5273;font-weight:600">Un écosystème de gamification complet pour ta communauté Discord</p>
     </div>
-  </div>
-</section>
 
-<!-- How it works -->
-<!-- Pricing -->
-<section id="pricing" class="py-20 px-6">
-  <div class="max-w-6xl mx-auto">
-    <div class="text-center mb-16"><h2 class="text-4xl md:text-5xl font-black mb-4">Un seul plan, <span class="bg-gradient-to-r from-violet-400 to-fuchsia-400 bg-clip-text text-transparent">100% gratuit</span></h2><p class="text-gray-400 text-lg max-w-xl mx-auto">Pas d'abonnement, pas de limite cachée. GiftBlox est et restera gratuit.</p></div>
-    <div class="max-w-lg mx-auto">
-      <div class="card-h text-center p-8 md:p-12 relative overflow-hidden pulse-glow">
-        <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-violet-600 via-fuchsia-600 to-violet-600"></div>
-        <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-violet-600/30 to-fuchsia-600/20 flex items-center justify-center mx-auto mb-6"><i class="fas fa-gem text-3xl text-violet-400"></i></div>
-        <h3 class="text-2xl font-black mb-2">GiftBlox Gratuit</h3>
-        <div class="flex items-baseline justify-center gap-1 mb-2"><span class="text-6xl font-black bg-gradient-to-r from-violet-400 to-fuchsia-400 bg-clip-text text-transparent">0€</span><span class="text-gray-500 font-medium">/ à vie</span></div>
-        <p class="text-gray-500 text-sm mb-8">Pour tous les serveurs, sans exception</p>
-        <ul class="space-y-4 text-left mb-8">
-          <li class="flex items-start gap-3"><i class="fas fa-check-circle text-emerald-400 mt-1"></i><div><span class="font-semibold">Points & Niveaux</span><div class="text-sm text-gray-500">Système complet de gamification</div></div></li>
-          <li class="flex items-start gap-3"><i class="fas fa-check-circle text-emerald-400 mt-1"></i><div><span class="font-semibold">Boutique & Récompenses</span><div class="text-sm text-gray-500">Achète des rôles et des codes avec tes points</div></div></li>
-          <li class="flex items-start gap-3"><i class="fas fa-check-circle text-emerald-400 mt-1"></i><div><span class="font-semibold">Dashboard Analytics</span><div class="text-sm text-gray-500">Statistiques en temps réel</div></div></li>
-          <li class="flex items-start gap-3"><i class="fas fa-check-circle text-emerald-400 mt-1"></i><div><span class="font-semibold">Quêtes & Défis</span><div class="text-sm text-gray-500">Objectifs quotidiens/hebdomadaires</div></div></li>
-          <li class="flex items-start gap-3"><i class="fas fa-check-circle text-emerald-400 mt-1"></i><div><span class="font-semibold">IA Assistant</span><div class="text-sm text-gray-500">Propulsé par Groq</div></div></li>
-          <li class="flex items-start gap-3"><i class="fas fa-check-circle text-emerald-400 mt-1"></i><div><span class="font-semibold">Badges & Parrainage</span><div class="text-sm text-gray-500">Système de badges + programme de parrainage</div></div></li>
-          <li class="flex items-start gap-3"><i class="fas fa-check-circle text-emerald-400 mt-1"></i><div><span class="font-semibold">Mises à jour à vie</span><div class="text-sm text-gray-500">Nouvelles fonctionnalités régulièrement</div></div></li>
-        </ul>
-        <button onclick="login()" class="btn-p w-full justify-center text-base"><i class="fab fa-discord"></i>Commencer gratuitement</button>
-        <p class="text-xs text-gray-600 mt-4">Aucune carte bancaire. Aucun engagement.</p>
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div class="card-h">
+        <div class="w-16 h-16 rounded-2xl flex items-center justify-center mb-5" style="background:#ede4ff;border:2.5px solid #2b2440;box-shadow:0 4px 0 #2b2440"><i class="fas fa-coins text-2xl" style="color:#5b32c9"></i></div>
+        <h3 class="text-xl font-bold mb-3">Système de points</h3>
+        <p style="color:#5b5273;font-weight:600;line-height:1.7">Tes membres gagnent des points en étant actifs. Classement, niveaux et compétition saine pour motiver tout le monde.</p>
+      </div>
+      <div class="card-h">
+        <div class="w-16 h-16 rounded-2xl flex items-center justify-center mb-5" style="background:#ffe4ef;border:2.5px solid #2b2440;box-shadow:0 4px 0 #2b2440"><i class="fas fa-store text-2xl" style="color:#e0367f"></i></div>
+        <h3 class="text-xl font-bold mb-3">Boutique intégrée</h3>
+        <p style="color:#5b5273;font-weight:600;line-height:1.7">Échange les points contre des rôles, des codes Robux, Steam, Nitro ou des récompenses exclusives.</p>
+      </div>
+      <div class="card-h">
+        <div class="w-16 h-16 rounded-2xl flex items-center justify-center mb-5" style="background:#dcfaf0;border:2.5px solid #2b2440;box-shadow:0 4px 0 #2b2440"><i class="fas fa-chart-line text-2xl" style="color:#12a37c"></i></div>
+        <h3 class="text-xl font-bold mb-3">Analytics en direct</h3>
+        <p style="color:#5b5273;font-weight:600;line-height:1.7">Suis l'activité de ta communauté en temps réel avec des graphiques lisibles et des stats clés.</p>
+      </div>
+      <div class="card-h">
+        <div class="w-16 h-16 rounded-2xl flex items-center justify-center mb-5" style="background:#fff3d1;border:2.5px solid #2b2440;box-shadow:0 4px 0 #2b2440"><i class="fas fa-tasks text-2xl" style="color:#e06a12"></i></div>
+        <h3 class="text-xl font-bold mb-3">Quêtes &amp; défis</h3>
+        <p style="color:#5b5273;font-weight:600;line-height:1.7">Des objectifs quotidiens et hebdomadaires pour garder tout le monde engagé, jour après jour.</p>
+      </div>
+      <div class="card-h">
+        <div class="w-16 h-16 rounded-2xl flex items-center justify-center mb-5" style="background:#e0f2ff;border:2.5px solid #2b2440;box-shadow:0 4px 0 #2b2440"><i class="fas fa-robot text-2xl" style="color:#1c7fc7"></i></div>
+        <h3 class="text-xl font-bold mb-3">Assistant IA</h3>
+        <p style="color:#5b5273;font-weight:600;line-height:1.7">Un assistant propulsé par Groq qui répond aux questions de tes membres 24h/24, gratuitement.</p>
+      </div>
+      <div class="card-h">
+        <div class="w-16 h-16 rounded-2xl flex items-center justify-center mb-5" style="background:#ffe3e3;border:2.5px solid #2b2440;box-shadow:0 4px 0 #2b2440"><i class="fas fa-trophy text-2xl" style="color:#d92d2d"></i></div>
+        <h3 class="text-xl font-bold mb-3">Badges &amp; parrainage</h3>
+        <p style="color:#5b5273;font-weight:600;line-height:1.7">Des badges à débloquer et un programme de parrainage pour faire grandir ta communauté organiquement.</p>
       </div>
     </div>
   </div>
 </section>
 
-<section id="how" class="py-20 px-6">
-  <div class="max-w-7xl mx-auto">
-    <div class="text-center mb-16"><h2 class="text-4xl md:text-5xl font-black mb-4">Comment <span class="bg-gradient-to-r from-violet-400 to-fuchsia-400 bg-clip-text text-transparent">ça marche</span> ?</h2></div>
+<!-- ================= HOW ================= -->
+<section id="how" class="py-16 px-5 md:px-8">
+  <div class="max-w-6xl mx-auto">
+    <div class="text-center mb-14">
+      <h2 class="text-3xl md:text-5xl font-black mb-4">Comment ça marche ?</h2>
+      <p style="color:#5b5273;font-weight:600">Trois étapes, moins de deux minutes.</p>
+    </div>
+
     <div class="grid md:grid-cols-3 gap-8">
-      <div class="text-center"><div class="w-20 h-20 rounded-full bg-violet-600/20 flex items-center justify-center mx-auto mb-6 text-2xl font-black text-violet-400">1</div><h3 class="font-bold text-xl mb-3">Ajoute le Bot</h3><p class="text-gray-400 leading-relaxed">Invite GiftBlox sur ton serveur Discord avec un clic. Aucune configuration complexe.</p></div>
-      <div class="text-center"><div class="w-20 h-20 rounded-full bg-fuchsia-600/20 flex items-center justify-center mx-auto mb-6 text-2xl font-black text-fuchsia-400">2</div><h3 class="font-bold text-xl mb-3">Connecte-toi</h3><p class="text-gray-400 leading-relaxed">Connecte ton compte Discord au dashboard pour voir tes stats et gérer ta communauté.</p></div>
-      <div class="text-center"><div class="w-20 h-20 rounded-full bg-emerald-600/20 flex items-center justify-center mx-auto mb-6 text-2xl font-black text-emerald-400">3</div><h3 class="font-bold text-xl mb-3">Joue et Gagne</h3><p class="text-gray-400 leading-relaxed">Les membres gagnent des points, montent en niveau, débloquent des badges et achètent des récompenses.</p></div>
+      <div class="text-center">
+        <div class="w-24 h-24 rounded-3xl mx-auto mb-6 flex items-center justify-center text-4xl font-black text-white" style="background:linear-gradient(180deg,#9a72ff,#7a4ff2);border:3px solid #2b2440;box-shadow:0 7px 0 #2b2440;transform:rotate(-4deg)">1</div>
+        <h3 class="text-xl font-bold mb-3">Ajoute le bot</h3>
+        <p style="color:#5b5273;font-weight:600;line-height:1.7">Clique sur « Ajouter le bot », choisis ton serveur, et c'est réglé. Aucune configuration complexe.</p>
+      </div>
+      <div class="text-center">
+        <div class="w-24 h-24 rounded-3xl mx-auto mb-6 flex items-center justify-center text-4xl font-black text-white" style="background:linear-gradient(180deg,#ff8fb8,#ff5c9d);border:3px solid #2b2440;box-shadow:0 7px 0 #2b2440;transform:rotate(3deg)">2</div>
+        <h3 class="text-xl font-bold mb-3">Connecte ton compte</h3>
+        <p style="color:#5b5273;font-weight:600;line-height:1.7">Connecte-toi avec Discord via OAuth pour accéder à ton dashboard et suivre tes statistiques.</p>
+      </div>
+      <div class="text-center">
+        <div class="w-24 h-24 rounded-3xl mx-auto mb-6 flex items-center justify-center text-4xl font-black text-white" style="background:linear-gradient(180deg,#5fe0bd,#23c99a);border:3px solid #2b2440;box-shadow:0 7px 0 #2b2440;transform:rotate(-2deg)">3</div>
+        <h3 class="text-xl font-bold mb-3">Tes membres jouent</h3>
+        <p style="color:#5b5273;font-weight:600;line-height:1.7">Ils gagnent des points, montent en niveau, débloquent des badges et dépensent en boutique.</p>
+      </div>
     </div>
   </div>
 </section>
 
-<!-- CTA Dashboard -->
-<section class="py-20 px-6">
-  <div class="max-w-4xl mx-auto text-center glass rounded-3xl p-12 md:p-16 pulse-glow border-violet-500/10">
-    <h2 class="text-3xl md:text-5xl font-black mb-6">Prêt à <span class="bg-gradient-to-r from-violet-400 to-fuchsia-400 bg-clip-text text-transparent">passer au niveau supérieur</span> ?</h2>
-    <p class="text-gray-400 text-lg mb-8 max-w-xl mx-auto">Rejoins les serveurs qui utilisent GiftBlox pour engager leur communauté.</p>
+<!-- ================= PRICING ================= -->
+<section id="pricing" class="py-16 px-5 md:px-8">
+  <div class="max-w-6xl mx-auto">
+    <div class="text-center mb-14">
+      <h2 class="text-3xl md:text-5xl font-black mb-4">Un seul plan. <span class="text-white px-3 py-1 rounded-2xl inline-block" style="background:#23c99a;border:2.5px solid #2b2440;box-shadow:0 5px 0 #2b2440;transform:rotate(1.5deg)">100% gratuit</span></h2>
+      <p class="text-lg" style="color:#5b5273;font-weight:600">Pas d'abonnement. Pas de limite cachée. Pas de carte bancaire.</p>
+    </div>
+
+    <div class="max-w-lg mx-auto">
+      <div class="text-center p-8 md:p-10 relative" style="background:#fff;border:3px solid #2b2440;border-radius:28px;box-shadow:12px 14px 0 #2b2440">
+        <div class="absolute -top-5 left-1/2 -translate-x-1/2 px-4 py-1.5 text-xs font-extrabold rounded-full" style="background:#ffc93c;border:2.5px solid #2b2440;box-shadow:0 3px 0 #2b2440">LE PLUS POPULAIRE</div>
+
+        <div class="w-20 h-20 rounded-3xl mx-auto mb-5 flex items-center justify-center" style="background:linear-gradient(180deg,#9a72ff,#7a4ff2);border:3px solid #2b2440;box-shadow:0 5px 0 #2b2440"><i class="fas fa-gem text-3xl text-white"></i></div>
+        <h3 class="text-2xl font-black mb-2">GiftBlox Gratuit</h3>
+        <div class="flex items-baseline justify-center gap-2 mb-1">
+          <span class="text-6xl font-black" style="color:#5b32c9">0€</span>
+          <span class="font-bold" style="color:#8b83a3">/ à vie</span>
+        </div>
+        <p class="text-sm mb-7" style="color:#8b83a3;font-weight:700">Pour tous les serveurs, sans exception</p>
+
+        <ul class="space-y-3 text-left mb-8">
+          <li class="flex items-start gap-3 p-3 rounded-2xl" style="background:#fdf6ec;border:2.5px solid #2b2440;box-shadow:0 3px 0 #2b2440"><i class="fas fa-check-circle mt-1" style="color:#23c99a"></i><div><div class="font-extrabold text-sm">Points &amp; Niveaux</div><div class="text-xs" style="color:#8b83a3;font-weight:700">Système de gamification complet</div></div></li>
+          <li class="flex items-start gap-3 p-3 rounded-2xl" style="background:#fdf6ec;border:2.5px solid #2b2440;box-shadow:0 3px 0 #2b2440"><i class="fas fa-check-circle mt-1" style="color:#23c99a"></i><div><div class="font-extrabold text-sm">Boutique &amp; Récompenses</div><div class="text-xs" style="color:#8b83a3;font-weight:700">Rôles et codes avec tes points</div></div></li>
+          <li class="flex items-start gap-3 p-3 rounded-2xl" style="background:#fdf6ec;border:2.5px solid #2b2440;box-shadow:0 3px 0 #2b2440"><i class="fas fa-check-circle mt-1" style="color:#23c99a"></i><div><div class="font-extrabold text-sm">Dashboard Analytics</div><div class="text-xs" style="color:#8b83a3;font-weight:700">Statistiques en temps réel</div></div></li>
+          <li class="flex items-start gap-3 p-3 rounded-2xl" style="background:#fdf6ec;border:2.5px solid #2b2440;box-shadow:0 3px 0 #2b2440"><i class="fas fa-check-circle mt-1" style="color:#23c99a"></i><div><div class="font-extrabold text-sm">Quêtes &amp; Défis</div><div class="text-xs" style="color:#8b83a3;font-weight:700">Objectifs quotidiens et hebdo</div></div></li>
+          <li class="flex items-start gap-3 p-3 rounded-2xl" style="background:#fdf6ec;border:2.5px solid #2b2440;box-shadow:0 3px 0 #2b2440"><i class="fas fa-check-circle mt-1" style="color:#23c99a"></i><div><div class="font-extrabold text-sm">Assistant IA</div><div class="text-xs" style="color:#8b83a3;font-weight:700">Propulsé par Groq</div></div></li>
+          <li class="flex items-start gap-3 p-3 rounded-2xl" style="background:#fdf6ec;border:2.5px solid #2b2440;box-shadow:0 3px 0 #2b2440"><i class="fas fa-check-circle mt-1" style="color:#23c99a"></i><div><div class="font-extrabold text-sm">Badges &amp; Parrainage</div><div class="text-xs" style="color:#8b83a3;font-weight:700">Badges à débloquer + programme</div></div></li>
+          <li class="flex items-start gap-3 p-3 rounded-2xl" style="background:#fdf6ec;border:2.5px solid #2b2440;box-shadow:0 3px 0 #2b2440"><i class="fas fa-check-circle mt-1" style="color:#23c99a"></i><div><div class="font-extrabold text-sm">Mises à jour à vie</div><div class="text-xs" style="color:#8b83a3;font-weight:700">Nouvelles fonctionnalités régulières</div></div></li>
+        </ul>
+
+        <a href="https://discord.com/oauth2/authorize?client_id=1513281082626281472&permissions=8&scope=bot%20applications.commands" target="_blank" class="btn-p w-full">
+          <i class="fas fa-rocket"></i>Commencer gratuitement
+        </a>
+        <p class="text-xs mt-4" style="color:#8b83a3;font-weight:700">Aucune carte bancaire. Aucun engagement.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= CTA ================= -->
+<section class="py-16 px-5 md:px-8">
+  <div class="max-w-4xl mx-auto text-center p-10 md:p-14" style="background:linear-gradient(180deg,#9a72ff,#7a4ff2);border:3px solid #2b2440;border-radius:30px;box-shadow:12px 14px 0 #2b2440">
+    <h2 class="text-3xl md:text-4xl font-black text-white mb-4">Prêt à faire décoller ton serveur ?</h2>
+    <p class="text-white mb-8 text-lg" style="font-weight:700;opacity:.95">Ajoute GiftBlox en un clic. C'est gratuit, ça prend 30 secondes.</p>
     <div class="flex flex-wrap justify-center gap-4">
-      <button onclick="login()" class="btn-p text-base"><i class="fab fa-discord"></i>Connexion avec Discord</button>
-      <a href="https://discord.com/oauth2/authorize?client_id=1513281082626281472&permissions=8&scope=bot%20applications.commands" target="_blank" class="btn-ghost text-base"><i class="fas fa-robot"></i>Ajouter le Bot</a>
+      <a href="https://discord.com/oauth2/authorize?client_id=1513281082626281472&permissions=8&scope=bot%20applications.commands" target="_blank" class="btn-ghost"><i class="fas fa-robot"></i>Ajouter le bot</a>
+      <button onclick="login()" class="btn-p" style="background:#fff;color:#2b2440"><i class="fab fa-discord"></i>Connexion</button>
     </div>
   </div>
 </section>
 
-<!-- FAQ -->
-<section id="faq" class="py-20 px-6">
+<!-- ================= FAQ ================= -->
+<section id="faq" class="py-16 px-5 md:px-8">
   <div class="max-w-3xl mx-auto">
-    <h2 class="text-4xl font-black text-center mb-12">Questions <span class="bg-gradient-to-r from-violet-400 to-fuchsia-400 bg-clip-text text-transparent">fréquentes</span></h2>
+    <h2 class="text-3xl md:text-4xl font-black text-center mb-12">Questions fréquentes</h2>
     <div class="space-y-4">
-      <div class="card-h cursor-pointer" onclick="toggleFaq(this)"><div class="flex items-center justify-between"><h3 class="font-bold text-lg">C'est gratuit ?</h3><i class="fas fa-chevron-down text-gray-500 transition"></i></div><div class="mt-4 text-gray-400 leading-relaxed hidden">Oui ! GiftBlox est totalement gratuit. Pas de limite, pas de paywall. On veut juste rendre les communautés meilleures.</div></div>
-      <div class="card-h cursor-pointer" onclick="toggleFaq(this)"><div class="flex items-center justify-between"><h3 class="font-bold text-lg">Comment les membres gagnent des points ?</h3><i class="fas fa-chevron-down text-gray-500 transition"></i></div><div class="mt-4 text-gray-400 leading-relaxed hidden">Via la récompense quotidienne `/daily`, le parrainage, les quêtes et bientôt via l'activité sur le serveur.</div></div>
-      <div class="card-h cursor-pointer" onclick="toggleFaq(this)"><div class="flex items-center justify-between"><h3 class="font-bold text-lg">Puis-je personnaliser la boutique ?</h3><i class="fas fa-chevron-down text-gray-500 transition"></i></div><div class="mt-4 text-gray-400 leading-relaxed hidden">Actuellement les articles sont prédéfinis, mais la personnalisation via le panel admin arrive bientôt.</div></div>
-      <div class="card-h cursor-pointer" onclick="toggleFaq(this)"><div class="flex items-center justify-between"><h3 class="font-bold text-lg">Mes données sont-elles sécurisées ?</h3><i class="fas fa-chevron-down text-gray-500 transition"></i></div><div class="mt-4 text-gray-400 leading-relaxed hidden">Absolument. Connexion via OAuth Discord, base de données chiffrée, et aucun partage de données avec des tiers.</div></div>
+      <div class="card-h cursor-pointer" onclick="toggleFaq(this)">
+        <div class="flex items-center justify-between gap-4">
+          <h3 class="text-lg font-bold">C'est vraiment gratuit ?</h3>
+          <i class="fas fa-chevron-down transition-transform" style="color:#8b83a3"></i>
+        </div>
+        <div class="faq-body hidden mt-4" style="color:#5b5273;font-weight:600;line-height:1.7">Oui, 100 %. GiftBlox est gratuit et le restera. Pas de paywall, pas de fonction "premium", pas de limitation cachée.</div>
+      </div>
+      <div class="card-h cursor-pointer" onclick="toggleFaq(this)">
+        <div class="flex items-center justify-between gap-4">
+          <h3 class="text-lg font-bold">Comment mes membres gagnent des points ?</h3>
+          <i class="fas fa-chevron-down transition-transform" style="color:#8b83a3"></i>
+        </div>
+        <div class="faq-body hidden mt-4" style="color:#5b5273;font-weight:600;line-height:1.7">Via la commande <code class="px-1.5 py-0.5 rounded" style="background:#ede4ff;border:2px solid #2b2440;font-size:.85em">/daily</code>, le programme de parrainage, les quêtes, et bientôt selon leur activité sur le serveur.</div>
+      </div>
+      <div class="card-h cursor-pointer" onclick="toggleFaq(this)">
+        <div class="flex items-center justify-between gap-4">
+          <h3 class="text-lg font-bold">Puis-je personnaliser la boutique ?</h3>
+          <i class="fas fa-chevron-down transition-transform" style="color:#8b83a3"></i>
+        </div>
+        <div class="faq-body hidden mt-4" style="color:#5b5273;font-weight:600;line-height:1.7">Les articles sont prédéfinis pour le moment. L'éditeur de boutique depuis le panel admin arrive bientôt.</div>
+      </div>
+      <div class="card-h cursor-pointer" onclick="toggleFaq(this)">
+        <div class="flex items-center justify-between gap-4">
+          <h3 class="text-lg font-bold">Mes données sont-elles en sécurité ?</h3>
+          <i class="fas fa-chevron-down transition-transform" style="color:#8b83a3"></i>
+        </div>
+        <div class="faq-body hidden mt-4" style="color:#5b5273;font-weight:600;line-height:1.7">Connexion par OAuth Discord (on ne voit jamais ton mot de passe), données stockées en base locale, et aucun partage avec des tiers.</div>
+      </div>
     </div>
   </div>
 </section>
 
-<!-- Footer -->
-<footer class="border-t border-white/5 py-12 px-6">
-  <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
-    <div class="flex items-center gap-3"><div class="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-600 to-fuchsia-600 flex items-center justify-center"><span class="text-white font-black text-xs">G</span></div><span class="font-bold">GiftBlox</span></div>
-    <div class="flex items-center gap-6 text-sm text-gray-500">
-      <a href="#" class="hover:text-white transition">Conditions d'utilisation</a>
-      <a href="#" class="hover:text-white transition">Politique de confidentialité</a>
-      <a href="https://discord.gg/giftblox" target="_blank" class="hover:text-white transition">Serveur Discord</a>
+<!-- ================= FOOTER ================= -->
+<footer class="py-10 px-5 md:px-8" style="border-top:3px solid #2b2440;background:#fff8ee">
+  <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-5">
+    <div class="flex items-center gap-2.5">
+      <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-violet-500 to-fuchsia-500 flex items-center justify-center" style="box-shadow:0 3px 0 #2b2440"><span class="text-white font-black text-sm" style="font-family:'Fredoka'">G</span></div>
+      <span class="font-black" style="font-family:'Fredoka'">GiftBlox</span>
     </div>
-    <div class="text-sm text-gray-600">© 2026 GiftBlox. Tous droits réservés.</div>
+    <div class="flex items-center gap-6 text-sm font-bold" style="color:#5b5273">
+      <a href="#features" class="hover:underline">Fonctionnalités</a>
+      <a href="#pricing" class="hover:underline">Tarifs</a>
+      <a href="#faq" class="hover:underline">FAQ</a>
+    </div>
+    <div class="text-sm" style="color:#8b83a3;font-weight:700">© 2026 GiftBlox</div>
   </div>
 </footer>
 
 <script>
 const CLIENT_ID = '1513281082626281472';
-const REDIRECT = 'https://new-giftblox.vercel.app/callback.html';
+const REDIRECT  = 'https://new-giftblox.vercel.app/callback.html';
+
 function login(){
-  const p = new URLSearchParams({client_id:CLIENT_ID,redirect_uri:REDIRECT,response_type:'token',scope:'identify email'});
+  const p = new URLSearchParams({
+    client_id: CLIENT_ID,
+    redirect_uri: REDIRECT,
+    response_type: 'token',
+    scope: 'identify email'
+  });
   window.location.href = 'https://discord.com/api/oauth2/authorize?' + p.toString();
 }
+
 function toggleFaq(el){
-  const content = el.querySelector('div:last-child');
-  const icon = el.querySelector('i');
-  content.classList.toggle('hidden');
-  icon.style.transform = content.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(180deg)';
+  const body  = el.querySelector('.faq-body');
+  const icon  = el.querySelector('i');
+  const open  = !body.classList.contains('hidden');
+  document.querySelectorAll('.faq-body').forEach(b => b.classList.add('hidden'));
+  document.querySelectorAll('.card-h i').forEach(i => i.style.transform = 'rotate(0deg)');
+  if(!open){
+    body.classList.remove('hidden');
+    icon.style.transform = 'rotate(180deg)';
+  }
 }
-// Redirect si déjà connecté
-const u = localStorage.getItem('discord_user');
-if(u) window.location.href = 'dashboard.html';
+
+// Déjà connecté -> dashboard
+if(localStorage.getItem('discord_user')) window.location.href = 'dashboard.html';
 </script>
 </body>
 </html>

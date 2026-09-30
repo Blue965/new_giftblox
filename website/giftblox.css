@@ -1,0 +1,379 @@
+/* ============================================================
+   GiftBlox — Design System "Roblox Cartoony"
+   Chargé APRÈS tailwind cdn => il gagne sur les utilitaires
+   Tailwind de même spécificité. Pas de !important partout.
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800;900&display=swap');
+
+/* ---------- 1. TOKENS ---------- */
+:root{
+  --ink:        #2b2440;   /* texte principal  */
+  --ink-soft:   #5b5273;
+  --muted:      #8b83a3;
+  --paper:      #fdf6ec;   /* fond clair chaud  */
+  --paper-2:    #fffaf2;
+  --card:       #ffffff;
+
+  --purple:     #7a4ff2;
+  --purple-d:   #5b32c9;
+  --purple-l:   #ede4ff;
+  --pink:       #ff5c9d;
+  --pink-l:     #ffe4ef;
+  --yellow:     #ffc93c;
+  --yellow-l:   #fff3d1;
+  --mint:       #23c99a;
+  --mint-l:     #dcfaf0;
+  --sky:        #3fa9f5;
+  --sky-l:      #e0f2ff;
+  --red:        #ff4d4d;
+  --red-l:      #ffe3e3;
+  --orange:     #ff8a3d;
+
+  --line:       #2b2440;   /* contour "sticker" */
+  --shadow-sm:  3px 3px 0 var(--line);
+  --shadow:     5px 5px 0 var(--line);
+  --shadow-lg:  8px 8px 0 var(--line);
+  --shadow-xl:  12px 12px 0 var(--line);
+}
+
+/* ---------- 2. RESET / BASE ---------- */
+*,*::before,*::after{ box-sizing:border-box; }
+
+body{
+  font-family:'Nunito',system-ui,sans-serif !important;
+  font-weight:600;
+  letter-spacing:0 !important;
+  color:var(--ink) !important;
+  background-color:var(--paper) !important;
+  background-image:
+    radial-gradient(circle at 12% 8%,  var(--yellow-l) 0 90px,  transparent 91px),
+    radial-gradient(circle at 88% 14%, var(--sky-l)    0 120px, transparent 121px),
+    radial-gradient(circle at 78% 82%, var(--pink-l)   0 150px, transparent 151px),
+    radial-gradient(circle at 20% 78%, var(--mint-l)   0 100px, transparent 101px),
+    radial-gradient(var(--purple) 1.4px, transparent 1.4px) !important;
+  background-size:auto,auto,auto,auto,20px 20px !important;
+  background-attachment:fixed,fixed,fixed,fixed,fixed !important;
+}
+
+/* On écrase le dégradé sombre inline du dashboard */
+body::before{ display:none !important; }
+
+h1,h2,h3,h4,.font-black,.font-extrabold,.font-bold{
+  font-family:'Fredoka','Nunito',sans-serif !important;
+  color:var(--ink);
+  letter-spacing:-.01em;
+}
+
+a{ color:inherit; text-decoration:none; }
+button{ font-family:inherit; }
+
+/* Les dégradés de texte « bg-clip-text » deviennent remplissage plein */
+.bg-clip-text{
+  -webkit-text-fill-color:currentColor;
+  background-image:none !important;
+  color:var(--purple-d) !important;
+  -webkit-background-clip:initial !important;
+  background-clip:initial !important;
+}
+
+/* On vire les blobs lumineux / particules dark */
+.particles{ display:none !important; }
+.absolute.inset-0.bg-dots{ display:none !important; }
+[class*="blur-["]{ filter:blur(0) !important; }
+div[class*="bg-violet-600/10"][class*="rounded-full"],
+div[class*="bg-fuchsia-600/10"][class*="rounded-full"]{ display:none !important; }
+.glass > .h-4.rounded,.glass > .h-20.rounded-2xl{ background:var(--purple-l) !important; }
+
+/* ---------- 3. SURFACES ---------- */
+.glass,.glass2,.card,.item,.stat{
+  background:var(--card) !important;
+  border:2.5px solid var(--line) !important;
+  border-radius:22px !important;
+  box-shadow:var(--shadow) !important;
+  color:var(--ink);
+}
+.glass,.glass2{ border-radius:18px; }
+
+.card,.item,.stat{
+  transition:transform .22s cubic-bezier(.34,1.56,.64,1), box-shadow .22s ease;
+}
+.card:hover,.item:hover{
+  transform:translate(-3px,-6px) rotate(-.5deg);
+  box-shadow:9px 11px 0 var(--line) !important;
+}
+.card::before{ display:none !important; }
+
+/* Variantes colorées par position (cartes de stats) */
+.stat:nth-child(1),.stat.violet{ background:var(--purple-l) !important; }
+.stat:nth-child(2),.stat.mint  { background:var(--mint-l)   !important; }
+.stat:nth-child(3),.stat.peach { background:var(--yellow-l)  !important; }
+.stat:nth-child(4),.stat.sky   { background:var(--sky-l)     !important; }
+.stat:nth-child(5),.stat.pink  { background:var(--pink-l)    !important; }
+
+/* ---------- 4. BOUTONS ---------- */
+.btn-p,.btn-ghost{
+  position:relative;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:.6rem;
+  font-family:'Fredoka',sans-serif !important;
+  font-weight:600 !important;
+  font-size:1rem;
+  line-height:1;
+  padding:1rem 1.9rem;
+  border-radius:16px;
+  border:2.5px solid var(--line);
+  cursor:pointer;
+  white-space:nowrap;
+  transition:transform .12s ease, box-shadow .12s ease, filter .18s ease;
+}
+.btn-p{
+  background:linear-gradient(180deg,#9a72ff,var(--purple));
+  color:#fff;
+  box-shadow:0 6px 0 var(--line);
+  text-shadow:0 2px 0 rgba(0,0,0,.18);
+}
+.btn-ghost{
+  background:var(--card);
+  color:var(--ink);
+  box-shadow:0 5px 0 var(--line);
+}
+.btn-p:hover,.btn-ghost:hover{ transform:translateY(-2px); filter:brightness(1.05); }
+.btn-p:active,.btn-ghost:active{ transform:translateY(5px); box-shadow:0 1px 0 var(--line); }
+.btn-p-sm,.btn-ghost.btn-p-sm{ font-size:.85rem; padding:.7rem 1.15rem; border-radius:13px; }
+
+/* ---------- 5. LANDING ---------- */
+nav.glass{
+  background:rgba(253,246,236,.94) !important;
+  backdrop-filter:blur(14px) saturate(1.3);
+  border-width:0 0 3px !important;
+  border-color:var(--line) !important;
+  box-shadow:0 4px 0 rgba(43,36,64,.08) !important;
+}
+nav a{
+  position:relative;
+  font-weight:800;
+  color:var(--ink-soft);
+  padding:.35rem 0;
+  transition:color .2s;
+}
+nav a:hover{ color:var(--purple-d); }
+nav a::after{
+  content:'';
+  position:absolute; left:0; right:0; bottom:-2px;
+  height:3px; border-radius:3px;
+  background:var(--pink);
+  transform:scaleX(0);
+  transition:transform .25s cubic-bezier(.34,1.56,.64,1);
+}
+nav a:hover::after{ transform:scaleX(1); }
+
+.card-h{
+  background:var(--card) !important;
+  border:2.5px solid var(--line) !important;
+  border-radius:24px !important;
+  box-shadow:var(--shadow) !important;
+  padding:2rem;
+  transition:transform .22s cubic-bezier(.34,1.56,.64,1), box-shadow .22s ease;
+}
+.card-h:hover{
+  transform:translate(-3px,-7px) rotate(-.6deg);
+  box-shadow:10px 12px 0 var(--line) !important;
+}
+.card-h:nth-child(3n+1):hover{ transform:translate(-3px,-7px) rotate(.7deg); }
+.card-h:nth-child(3n+2):hover{ transform:translate(-3px,-7px) rotate(-1deg); }
+
+.num{
+  background:none !important;
+  -webkit-text-fill-color:currentColor !important;
+  color:var(--purple-d) !important;
+  font-family:'Fredoka',sans-serif;
+  font-weight:700;
+  text-shadow:3px 3px 0 var(--yellow-l);
+}
+
+.bg-dots{ background-image:radial-gradient(var(--purple) 1.5px,transparent 1.5px) !important; background-size:20px 20px !important; }
+
+/* ---------- 6. DASHBOARD ---------- */
+.content{ background:transparent !important; }
+
+.sb{
+  background:var(--paper-2) !important;
+  border-right:3px solid var(--line) !important;
+  box-shadow:6px 0 0 rgba(43,36,64,.07) !important;
+  color:var(--ink);
+}
+.sb .border-white\/5,
+.sb .border-b{ border-color:rgba(43,36,64,.12) !important; }
+
+.sb-item{
+  display:flex;
+  align-items:center;
+  gap:.75rem;
+  padding:.7rem 1rem;
+  margin:0 .5rem .3rem;
+  border-radius:14px;
+  border:2.5px solid transparent;
+  color:var(--ink-soft) !important;
+  font-weight:800 !important;
+  font-size:.95rem;
+  cursor:pointer;
+  transition:all .18s cubic-bezier(.34,1.56,.64,1);
+}
+.sb-item i{ font-size:1rem; width:1.25rem; text-align:center; }
+.sb-item:hover{
+  background:var(--purple-l) !important;
+  color:var(--purple-d) !important;
+  transform:translateX(4px);
+}
+.sb-item.active{
+  background:var(--purple) !important;
+  color:#fff !important;
+  border-color:var(--line);
+  box-shadow:0 4px 0 var(--line);
+  transform:translateX(3px);
+}
+.sb-item.active i{ color:#fff; }
+
+/* badge de notification dans la sidebar */
+.sb-item .bg-violet-600\/20,
+.sb-item .bg-amber-500\/20{
+  background:var(--yellow) !important;
+  color:var(--line) !important;
+  border:2px solid var(--line);
+  padding:0 .4rem !important;
+}
+#adminLink.active{ background:var(--yellow) !important; color:var(--line) !important; }
+
+.sb .bg-gradient-to-br,
+.top-bar .bg-violet-600\/30{
+  border:2.5px solid var(--line) !important;
+  box-shadow:0 3px 0 var(--line) !important;
+}
+.sb .rounded-full.bg-violet-600\/30,
+.top-bar .rounded-full.bg-violet-600\/30{
+  border:2.5px solid var(--line) !important;
+  box-shadow:none !important;
+}
+.ring-2{ --tw-ring-color:var(--line); box-shadow:0 0 0 2.5px var(--line); }
+
+.top-bar{
+  background:var(--paper-2) !important;
+  border-bottom:3px solid var(--line) !important;
+  box-shadow:0 3px 0 rgba(43,36,64,.07) !important;
+  color:var(--ink) !important;
+}
+.top-bar .text-white{ color:var(--ink) !important; }
+
+/* ---------- 7. TEXTE ---------- */
+.val,.val2{
+  background:none !important;
+  -webkit-text-fill-color:currentColor !important;
+  color:var(--purple-d) !important;
+  font-family:'Fredoka',sans-serif !important;
+  font-weight:700;
+}
+.text-gray-500,.text-gray-600,.text-gray-400{ color:var(--muted) !important; }
+.text-violet-400,.text-violet-300{ color:var(--purple-d) !important; }
+.text-emerald-400{ color:#12a37c !important; }
+.text-red-400{ color:#d92d2d !important; }
+.text-amber-400{ color:#c98a00 !important; }
+.text-orange-400{ color:#e06a12 !important; }
+.text-sky-400{ color:#1c7fc7 !important; }
+.text-fuchsia-400{ color:#e0367f !important; }
+.text-white{ color:var(--ink) !important; }
+
+/* ---------- 8. FONDS UTILITAIRES DARK -> CARTOON ---------- */
+.bg-violet-600\/20,.bg-violet-600\/10,.bg-violet-600\/30,
+.bg-white\/5,.bg-white\/2,.bg-white\/\[0\.03\]{ background:var(--purple-l) !important; }
+.bg-violet-600\/40{ background:#ddcbff !important; }
+
+/* inputs */
+input,textarea,select{
+  background:var(--card) !important;
+  border:2.5px solid var(--line) !important;
+  border-radius:14px !important;
+  color:var(--ink) !important;
+  font-weight:700;
+  box-shadow:inset 0 2px 0 rgba(43,36,64,.06);
+}
+input::placeholder,textarea::placeholder{ color:var(--muted) !important; font-weight:600; }
+input:focus,textarea:focus,select:focus{
+  border-color:var(--purple) !important;
+  box-shadow:0 0 0 4px var(--purple-l);
+  outline:none;
+}
+
+/* progress bar */
+.bg-white\/5.h-3,.bg-white\/5.h-full{ background:#e9e2f5 !important; border:2.5px solid var(--line); border-radius:999px; }
+#progBar{ background:linear-gradient(90deg,var(--purple),var(--pink),var(--yellow)) !important; }
+
+/* mini barre dexp dans la sidebar */
+.bg-white\/10{ background:rgba(43,36,64,.08) !important; }
+
+/* séparateurs */
+.border-white\/5,.border-white\/10,.border-b,.border-t,
+[class*="border-white/5"]{ border-color:rgba(43,36,64,.12) !important; }
+
+/* pastilles d'icônes violettes -> blocs cartoon */
+.rounded-2xl.bg-violet-600\/20,
+.rounded-xl.bg-violet-600\/30,
+.rounded-full.bg-violet-600\/30{
+  border:2.5px solid var(--line) !important;
+  color:var(--purple-d) !important;
+  box-shadow:0 3px 0 var(--line) !important;
+}
+.rounded-2xl.bg-violet-600\/20 i,
+.rounded-xl.bg-violet-600\/30 i{ color:var(--purple-d) !important; }
+
+/* ---------- 9. DROPDOWN / TOAST / MOBILE NAV ---------- */
+.dropdown-menu,.toast,.mn{
+  background:var(--card) !important;
+  color:var(--ink) !important;
+  border:2.5px solid var(--line) !important;
+  border-radius:18px;
+  box-shadow:var(--shadow) !important;
+}
+.dropdown-item{ color:var(--ink) !important; font-weight:800 !important; }
+.dropdown-item:hover{ background:var(--purple-l) !important; color:var(--purple-d) !important; }
+.mn{ border-top:3px solid var(--line) !important; }
+.mn-btn{ color:var(--muted) !important; font-weight:800 !important; }
+.mn-btn.active{
+  color:var(--purple-d) !important;
+  background:var(--purple-l) !important;
+  border:2.5px solid var(--line) !important;
+  box-shadow:0 3px 0 var(--line) !important;
+}
+.overlay{ background:rgba(43,36,64,.45) !important; backdrop-filter:blur(3px); }
+
+.toast-icon{ border:2.5px solid var(--line) !important; border-radius:14px !important; box-shadow:0 3px 0 var(--line); }
+
+/* ---------- 10. CHARTS ---------- */
+canvas{ max-width:100%; }
+
+/* ---------- 11. ANIMATIONS ---------- */
+@keyframes bob{ 0%,100%{transform:translateY(0) rotate(-2deg)} 50%{transform:translateY(-14px) rotate(2deg)} }
+.floating{ animation:bob 5s ease-in-out infinite; }
+
+.pulse-glow{ animation:none; box-shadow:var(--shadow-lg) !important; }
+
+@keyframes popIn{ from{opacity:0;transform:scale(.94) translateY(14px)} to{opacity:1;transform:none} }
+.tc.active > div > *{ animation:popIn .38s cubic-bezier(.34,1.56,.64,1) backwards; }
+.tc.active > div > *:nth-child(2){ animation-delay:.05s; }
+.tc.active > div > *:nth-child(3){ animation-delay:.1s;  }
+.tc.active > div > *:nth-child(4){ animation-delay:.15s; }
+.tc.active > div > *:nth-child(5){ animation-delay:.2s;  }
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{ animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important; }
+}
+
+/* ---------- 12. RESPONSIVE ---------- */
+@media (max-width:900px){
+  .sb{ background:var(--paper-2) !important; }
+  .card,.item,.stat{ border-radius:18px; }
+  .card-h{ padding:1.5rem; border-radius:20px; }
+  .btn-p,.btn-ghost{ padding:.85rem 1.3rem; font-size:.9rem; }
+}
