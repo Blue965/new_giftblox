@@ -2,7 +2,8 @@ const initSqlJs = require('sql.js');
 const fs = require('fs');
 const path = require('path');
 
-const DB_PATH = path.join(__dirname, '..', 'giftblox.db');
+// Surchargeable via DB_PATH pour les tests / une instance jetable
+const DB_PATH = process.env.DB_PATH || path.join(__dirname, '..', 'giftblox.db');
 const OWNER_ID = '1527668994210005002';
 
 let db;
@@ -298,6 +299,8 @@ function get(sql, params = []) {
 function run(sql, params = []) {
   db.run(sql, params);
   save();
+  // Nombre de lignes réellement modifiées (0 si ignoré par INSERT OR IGNORE, etc.)
+  return db.getRowsModified();
 }
 
 function getOrCreateUser(id, username) {
@@ -345,7 +348,17 @@ function getGlobalStats() {
   let totalPoints = get("SELECT COALESCE(SUM(points),0) as s FROM users").s;
   let totalTx = get("SELECT COUNT(*) as c FROM transactions").c;
   let ticketsOpen = get("SELECT COUNT(*) as c FROM tickets WHERE status IN ('open','in_progress')").c;
-  return { totalUsers, activeToday: 0, totalPoints, totalTransactions: totalTx, ticketsOpen, serverAge: 'Nouveau' };
+  let activeToday = get("SELECT COUNT(DISTINCT user_id) as c FROM transactions WHERE date(created_at) = date('now','localtime')").c;
+
+  let oldest = get("SELECT MIN(created_at) as d FROM users").d;
+  let serverAge = 'Moins d\'un jour';
+  if (oldest) {
+    let days = Math.floor((Date.now() - new Date(oldest.replace(' ', 'T')).getTime()) / 86400000);
+    if (days > 0) serverAge = `${days} jour${days > 1 ? 's' : ''}`;
+    else serverAge = 'Moins d\'un jour';
+  }
+
+  return { totalUsers, activeToday, totalPoints, totalTransactions: totalTx, ticketsOpen, serverAge };
 }
 
 function createTicket(userId, subject, message, category) {
@@ -379,9 +392,15 @@ function getTicketMessages(ticketId) {
 }
 
 function generateReferralCode(userId) {
-  let code = Math.random().toString(36).substr(2, 8).toUpperCase();
-  let existing = get("SELECT * FROM referrals WHERE code = ?", [code]);
-  if (existing) return generateReferralCode(userId);
+  // Un seul code par utilisateur
+  let own = get("SELECT * FROM referrals WHERE referrer_id = ? LIMIT 1", [userId]);
+  if (own) return own;
+
+  let code = Math.random().toString(36).slice(2, 10).toUpperCase();
+  while (get("SELECT id FROM referrals WHERE code = ?", [code])) {
+    code = Math.random().toString(36).slice(2, 10).toUpperCase();
+  }
+
   let id = uid();
   run("INSERT INTO referrals (id, code, referrer_id) VALUES (?, ?, ?)", [id, code, userId]);
   return get("SELECT * FROM referrals WHERE id = ?", [id]);
@@ -396,6 +415,9 @@ function useReferralCode(code, referredId) {
   if (!ref) return null;
   if (ref.referred_id) return null;
   if (ref.referrer_id === referredId) return null;
+  // Les deux comptes doivent exister avant les UPDATE de points
+  getOrCreateUser(ref.referrer_id);
+  getOrCreateUser(referredId);
   run("UPDATE referrals SET referred_id = ?, used_count = used_count + 1 WHERE id = ?", [referredId, ref.id]);
   addPoints(ref.referrer_id, 100, 'Parrainage de ' + referredId);
   addPoints(referredId, 50, 'Utilisation du code ' + code);
@@ -403,7 +425,9 @@ function useReferralCode(code, referredId) {
 }
 
 function getReferralStats(userId) {
-  return get("SELECT COUNT(*) as count, COALESCE(SUM(used_count),0) as used FROM referrals WHERE referrer_id = ?", [userId]);
+  // Un code par utilisateur : `used_count` est le vrai nombre de parrainages réussis
+  let r = get("SELECT COALESCE(SUM(used_count),0) as used, COUNT(referred_id) as stored FROM referrals WHERE referrer_id = ?", [userId]);
+  return { count: r.used, used: r.used, firstReferred: r.stored > 0 };
 }
 
 function getTopReferrers(limit = 10) {
@@ -418,9 +442,12 @@ function getUserBadges(userId) {
 
 function checkAndUnlockBadges(userId) {
   let user = get("SELECT * FROM users WHERE id = ?", [userId]);
-  if (!user) return;
+  if (!user) return [];
+
   let allBadges = all("SELECT * FROM badges");
   let unlockedSet = new Set(all("SELECT badge_id FROM user_badges WHERE user_id = ?", [userId]).map(r => r.badge_id));
+  let newlyUnlocked = [];
+
   for (let badge of allBadges) {
     if (unlockedSet.has(badge.id)) continue;
     let shouldUnlock = false;
@@ -432,11 +459,17 @@ function checkAndUnlockBadges(userId) {
     if (badge.name === 'Dévoué' && user.tasks_completed >= 50) shouldUnlock = true;
     if (badge.name === 'Millionnaire' && user.points >= 1000000) shouldUnlock = true;
     if (badge.name === 'Vétéran' && user.level >= 50) shouldUnlock = true;
+
     if (shouldUnlock) {
-      run("INSERT OR IGNORE INTO user_badges (user_id, badge_id) VALUES (?, ?)", [userId, badge.id]);
-      createNotification(userId, 'Badge débloqué : ' + badge.name, badge.description || '', 'reward');
+      const added = run("INSERT OR IGNORE INTO user_badges (user_id, badge_id) VALUES (?, ?)", [userId, badge.id]);
+      if (added) {
+        createNotification(userId, 'Badge débloqué : ' + badge.name, badge.description || '', 'reward');
+        newlyUnlocked.push(badge);
+      }
     }
   }
+
+  return newlyUnlocked;
 }
 
 function getUserNotifications(userId) {
@@ -697,15 +730,40 @@ function getShopItems() {
   return all("SELECT * FROM shop_items WHERE active = 1 ORDER BY created_at DESC");
 }
 
+/** Cherche un article par ID exact, ou par nom (insensible à la casse). */
+function getShopItem(query) {
+  const q = String(query || '').trim();
+  if (!q) return null;
+  return get("SELECT * FROM shop_items WHERE id = ? AND active = 1", [q])
+    || get("SELECT * FROM shop_items WHERE lower(name) = lower(?) AND active = 1", [q])
+    || get("SELECT * FROM shop_items WHERE lower(name) LIKE lower(?) AND active = 1 ORDER BY created_at DESC", [`%${q}%`]);
+}
+
+/** Nombre d'exemplaires déjà vendus d'un article (null = stock illimité). */
+function getItemSold(itemId) {
+  return get("SELECT COUNT(*) as c FROM purchases WHERE item_id = ? AND status = 'completed'", [itemId]).c;
+}
+
+/** Force un niveau + recalcule l'XP cohérent avec la formule (niv * 120). */
+function setLevel(userId, level) {
+  const lv = Math.max(1, Math.floor(Number(level) || 1));
+  let xp = get("SELECT COALESCE(SUM(points),0) as s FROM users WHERE id = ?", [userId]).s;
+  // On garde un XP dans la tranche du niveau pour ne pas repartir de 0
+  xp = xp % (lv * 120);
+  run("UPDATE users SET level = ?, xp = ?, updated_at = datetime('now','localtime') WHERE id = ?", [lv, xp, userId]);
+  return get("SELECT * FROM users WHERE id = ?", [userId]);
+}
+
 function buyItem(userId, itemId) {
   let item = get("SELECT * FROM shop_items WHERE id = ? AND active = 1", [itemId]);
   if (!item) return null;
   let user = get("SELECT * FROM users WHERE id = ?", [userId]);
   if (!user) return null;
   if (user.points < item.price) return null;
-  if (item.stock > 0) {
-    let remaining = get("SELECT COALESCE(SUM(1),0) as c FROM purchases WHERE item_id = ? AND status = 'completed'", [itemId]).c;
-    if (remaining >= item.stock) return null;
+  // stock négatif ou nul = illimité ; sinon c'est un quota réel
+  if (item.stock != null && item.stock >= 0) {
+    let sold = get("SELECT COUNT(*) as c FROM purchases WHERE item_id = ? AND status = 'completed'", [itemId]).c;
+    if (sold >= item.stock) return null;
   }
   run("UPDATE users SET points = points - ?, updated_at = datetime('now','localtime') WHERE id = ?", [item.price, userId]);
   run("INSERT INTO transactions (id, user_id, type, amount, description) VALUES (?, ?, ?, ?, ?)", [uid(), userId, 'purchase', -item.price, 'Achat: ' + item.name]);
@@ -754,6 +812,7 @@ module.exports = {
   getUserNotifications, createNotification, markNotificationRead, markAllNotificationsRead,
   getWeeklyActivity, updateWeeklyActivity,
   getUserTransactions, getUserPurchases, getShopItems, buyItem,
+  getShopItem, getItemSold, setLevel,
   claimDaily, getQuests, getRecentActivity, uid,
   // New functions
   getAchievements, getUserAchievements, checkAndUnlockAchievements,

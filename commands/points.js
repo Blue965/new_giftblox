@@ -1,23 +1,40 @@
-const { EmbedBuilder } = require('discord.js');
+const { SlashCommandBuilder } = require('discord.js');
 const db = require('../database/db.js');
+const ui = require('../lib/ui.js');
 
 module.exports = {
-  name: 'points',
-  description: 'Voir tes points et ton niveau',
+  data: new SlashCommandBuilder()
+    .setName('points')
+    .setDescription('Voir les points et le niveau de quelqu\'un')
+    .addUserOption((o) => o.setName('membre').setDescription('Membre à regarder (toi par défaut)').setRequired(false)),
+
   async execute(interaction) {
-    const user = db.getOrCreateUser(interaction.user.id, interaction.user.username);
-    const embed = new EmbedBuilder()
-      .setColor(0x8b5cf6)
-      .setAuthor({ name: interaction.user.username, iconURL: interaction.user.displayAvatarURL() })
-      .setTitle('💰 Portefeuille')
-      .setDescription(`**${user.points.toLocaleString()}** points`)
-      .addFields(
-        { name: '⭐ Niveau', value: `${user.level}`, inline: true },
-        { name: '📊 XP', value: `${user.xp} / ${user.level * 120}`, inline: true },
-        { name: '🔥 Streak', value: `${user.daily_streak} jours`, inline: true }
-      )
-      .setFooter({ text: 'GiftBlox' })
-      .setTimestamp();
-    await interaction.reply({ embeds: [embed] });
-  }
+    const target = interaction.options.getUser('membre') || interaction.user;
+    const isSelf = target.id === interaction.user.id;
+
+    const user = db.getOrCreateUser(target.id, target.username);
+    const xpNeeded = user.level * 120;
+
+    const e = ui.embed({
+      title: `${ui.EMOJI.coin} Portefeuille${isSelf ? '' : ` de ${target.username}`}`,
+      description: [
+        `**${ui.fmt(user.points)}** points`,
+        '',
+        `${ui.bar(user.xp, xpNeeded)} **${ui.fmt(user.xp)}** / **${ui.fmt(xpNeeded)}** XP`,
+      ].join('\n'),
+      color: ui.C.primary,
+      thumb: ui.avatar(target),
+      fields: [
+        { name: 'Niveau', value: `**${user.level}**`, inline: true },
+        { name: 'Titre', value: `${ui.rankEmoji(user.level)} ${ui.rankName(user.level)}`, inline: true },
+        { name: 'Streak', value: `${ui.EMOJI.fire} **${user.daily_streak}** jour(s)`, inline: true },
+      ],
+      footer: isSelf ? 'Utilise /profile pour le détail complet' : `Demandé par ${interaction.user.username}`,
+    });
+
+    await interaction.reply({
+      embeds: [e],
+      ephemeral: !isSelf,
+    });
+  },
 };
