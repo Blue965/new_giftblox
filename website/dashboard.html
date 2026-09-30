@@ -6,75 +6,16 @@
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-<style>
-/* ── Structure / layout uniquement.
-   Tout le style visuel (couleurs, contours, ombres) est dans giftblox.css ── */
-
-.sb{width:272px;flex-shrink:0;height:100vh;position:sticky;top:0;overflow-y:auto;z-index:50;padding:0 10px;display:flex;flex-direction:column}
-.sb::-webkit-scrollbar{width:6px}
-.sb::-webkit-scrollbar-thumb{background:#cdbff0;border-radius:10px}
-.sb::-webkit-scrollbar-track{background:transparent}
-
-.sb-item i{width:20px;text-align:center;font-size:15px}
-.sb-item.mt-auto{margin-top:auto}
-
-.tc{display:none}
-.tc.active{display:block}
-
-.dropdown{position:relative;display:inline-block}
-.dropdown-menu{position:absolute;top:100%;right:0;margin-top:10px;min-width:220px;padding:8px;opacity:0;visibility:hidden;transform:translateY(-8px) scale(.96);transform-origin:top right;transition:opacity .2s, transform .25s cubic-bezier(.34,1.56,.64,1), visibility .2s;z-index:200}
-.dropdown.open .dropdown-menu{opacity:1;visibility:visible;transform:translateY(0) scale(1)}
-.dropdown-item{display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:12px;font-size:14px;cursor:pointer;transition:background .15s}
-.dropdown-item.danger:hover{background:var(--red-l);color:var(--red)}
-.dropdown-hr{border:none;border-top:2.5px solid rgba(43,36,64,.12);margin:6px 0}
-
-.top-bar{display:none;position:fixed;top:0;left:0;right:0;z-index:100;padding:12px 16px;align-items:center;justify-content:space-between;box-shadow:0 3px 0 rgba(43,36,64,.08)}
-
-.mn{display:none;position:fixed;bottom:0;left:0;right:0;z-index:100;padding:6px 8px env(safe-area-inset-bottom)}
-.mn-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 6px;border-radius:14px;font-size:10px;background:none;border:2.5px solid transparent;cursor:pointer;transition:transform .2s cubic-bezier(.34,1.56,.64,1)}
-.mn-btn i{font-size:19px;transition:transform .25s cubic-bezier(.34,1.56,.64,1)}
-.mn-btn:hover{transform:translateY(-2px)}
-.mn-btn.active i{transform:scale(1.15) translateY(-1px)}
-
-.overlay{position:fixed;inset:0;z-index:150;display:none}
-.overlay.show{display:block}
-
-.toast{position:fixed;bottom:24px;right:24px;z-index:999;padding:14px 18px;min-width:300px;display:flex;align-items:center;gap:13px;transform:translateY(24px) scale(.9);opacity:0;transition:all .35s cubic-bezier(.34,1.56,.64,1);pointer-events:none}
-.toast.show{transform:translateY(0) scale(1);opacity:1;pointer-events:all}
-.toast-icon{width:38px;height:38px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
-
-.val{font-size:30px;line-height:1.1}
-.val2{font-size:30px;line-height:1.1}
-
-@media (hover:none) and (pointer:coarse){
-  .card:hover,.item:hover,.stat:hover{transform:none}
-  .btn-p:active,.btn-ghost:active{transform:translateY(4px)}
-}
-
-@media (max-width:900px){
-  .sb{position:fixed;left:-320px;width:320px;transition:left .35s cubic-bezier(.165,.84,.44,1);z-index:200;box-shadow:none}
-  .sb.open{left:0;box-shadow:8px 0 0 rgba(43,36,64,.12)}
-  .mn{display:flex}
-  .content{padding-bottom:100px;padding-top:70px}
-  .top-bar{display:flex!important}
-  .grid-cols-3,.grid-cols-4{grid-template-columns:repeat(2,1fr)!important}
-}
-@media (max-width:600px){
-  .grid-cols-2,.grid-cols-3,.grid-cols-4{grid-template-columns:1fr!important}
-  .toast{left:14px;right:14px;bottom:88px;min-width:0}
-}
-</style>
 <link rel="stylesheet" href="giftblox.css">
 </head>
 <body>
 
 <div class="flex min-h-screen relative z-10">
-  <!-- Overlay mobile -->
-  <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+  <div class="overlay" id="overlay"></div>
 
   <!-- Sidebar -->
   <div class="sb" id="sidebar">
-    <div class="flex items-center gap-3 pt-5 pb-4 px-3 mb-2" style="border-bottom:2.5px solid #2b2440">
+    <div class="flex items-center gap-3 pt-5 pb-4 px-3 mb-2 sb-brand">
       <div class="w-12 h-12 flex items-center justify-center">
         <svg viewBox="0 0 64 66" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Logo GiftBlox" style="width:100%;height:100%;display:block">
           <g transform="translate(0 3)" fill="#2b2440" stroke="#2b2440" stroke-width="3.4" stroke-linejoin="round" stroke-linecap="round">
@@ -94,248 +35,320 @@
           <rect x="28.4" y="21" width="7.2" height="34.4" fill="#ff5c9d"/>
         </svg>
       </div>
-      <div><span class="font-black text-lg">GiftBlox</span><div class="text-[10px] font-extrabold uppercase tracking-wide" style="color:#ff5c9d">Premium</div></div>
+      <div><span class="font-black text-lg">GiftBlox</span><div class="text-[10px] font-extrabold uppercase tracking-wide text-pink">Premium</div></div>
     </div>
-    <div class="px-1 mb-5 mt-4">
-      <div class="flex items-center gap-3 rounded-2xl p-3" style="background:#fff;border:2.5px solid #2b2440;box-shadow:0 4px 0 #2b2440">
-        <div class="w-11 h-11 rounded-full bg-violet-600/30 flex items-center justify-center overflow-hidden" style="border:2.5px solid #2b2440"><img class="avatar-img w-full h-full object-cover" src=""></div>
+
+    <div class="px-1 mb-4 mt-4">
+      <div class="sb-me">
+        <div class="w-11 h-11 rounded-full bg-violet-600/30 flex items-center justify-center overflow-hidden avatar-ring"><img class="avatar-img w-full h-full object-cover" alt="" src=""></div>
         <div class="flex-1 min-w-0">
           <div class="font-extrabold text-sm truncate discord-username">...</div>
-          <div class="flex items-center gap-1.5 text-xs font-bold"><span class="font-black" style="color:#5b32c9" id="sbPts">0</span><span style="color:#8b83a3">pts</span><span style="color:#8b83a3">·</span><span style="color:#8b83a3">Nv.</span><span class="font-black" style="color:#5b32c9" id="sbLvl">1</span></div>
+          <div class="flex items-center gap-1.5 text-xs font-bold"><span class="font-black text-violet-deep" id="sbPts">0</span><span class="muted">pts</span><span class="muted">·</span><span class="muted">Nv.</span><span class="font-black text-violet-deep" id="sbLvl">1</span></div>
         </div>
       </div>
     </div>
+
+    <div class="sb-section">Jouer &amp; gagner</div>
     <nav>
       <div class="sb-item active" data-tab="home"><i class="fas fa-home"></i>Accueil</div>
-      <div class="sb-item" data-tab="quests"><i class="fas fa-tasks"></i>Quêtes <span class="ml-auto text-[10px] bg-violet-600/20 text-violet-400 px-2 py-0.5 rounded-full font-bold">3</span></div>
+      <div class="sb-item" data-tab="quests"><i class="fas fa-tasks"></i>Quêtes</div>
+      <div class="sb-item" data-tab="daily"><i class="fas fa-calendar-day"></i>Récompense</div>
+      <div class="sb-item" data-tab="games"><i class="fas fa-dice"></i>Mini-jeux</div>
       <div class="sb-item" data-tab="shop"><i class="fas fa-store"></i>Boutique</div>
-      <div class="sb-item" data-tab="vault"><i class="fas fa-vault"></i>Vault</div>
-      <div class="sb-item" data-tab="rewards"><i class="fas fa-gift"></i>Récompenses</div>
-      <div class="sb-item" data-tab="leaderboard"><i class="fas fa-trophy"></i>Classement</div>
       <div class="sb-item" data-tab="invites"><i class="fas fa-user-plus"></i>Parrainage</div>
-      <div class="sb-item" data-tab="ia"><i class="fas fa-robot"></i>IA Assistant</div>
-      <div class="sb-item" data-tab="analytics"><i class="fas fa-chart-bar"></i>Analytics</div>
+
+      <div class="sb-section">Ma progression</div>
+      <div class="sb-item" data-tab="rewards"><i class="fas fa-gift"></i>Badges</div>
+      <div class="sb-item" data-tab="achievements"><i class="fas fa-trophy"></i>Succès</div>
+      <div class="sb-item" data-tab="vault"><i class="fas fa-vault"></i>Vault</div>
+      <div class="sb-item" data-tab="seasons"><i class="fas fa-crown"></i>Saisons</div>
+      <div class="sb-item" data-tab="leaderboard"><i class="fas fa-ranking-star"></i>Classement</div>
       <div class="sb-item" data-tab="profile"><i class="fas fa-user"></i>Profil</div>
+
+      <div class="sb-section">Communauté</div>
+      <div class="sb-item" data-tab="members"><i class="fas fa-users"></i>Membres</div>
+      <div class="sb-item" data-tab="notifications"><i class="fas fa-bell"></i>Notifications<span class="sb-badge hidden" id="notifBadge">0</span></div>
+      <div class="sb-item" data-tab="ia"><i class="fas fa-robot"></i>IA Assistant</div>
       <div class="sb-item" data-tab="support"><i class="fas fa-headset"></i>Support</div>
-      <div class="sb-item !hidden" data-tab="admin" id="adminLink"><i class="fas fa-crown" style="color:#fbbf24"></i>Admin <span class="ml-auto text-[10px] bg-amber-500/20 text-amber-400 px-2 py-0.5 rounded-full font-bold">!</span></div>
+      <div class="sb-item hidden" data-tab="tickets" id="ticketsLink"><i class="fas fa-inbox"></i>Tickets</div>
+
+      <div class="sb-section">Pilotage</div>
+      <div class="sb-item" data-tab="analytics"><i class="fas fa-chart-bar"></i>Analytics</div>
+      <div class="sb-item hidden" data-tab="admin" id="adminLink"><i class="fas fa-crown text-amber"></i>Admin</div>
     </nav>
-    <div class="mt-auto pt-4 px-1 pb-4" style="border-top:2.5px solid #2b2440">
-      <div class="sb-item" onclick="logout()"><i class="fas fa-sign-out-alt"></i>Déconnexion</div>
+
+    <div class="mt-auto pt-4 px-1 pb-4 sb-logout">
+      <div class="sb-item" data-action="logout"><i class="fas fa-sign-out-alt"></i>Déconnexion</div>
     </div>
   </div>
 
   <!-- Main Content -->
   <div class="flex-1 content">
-    
-    <!-- Top Bar mobile -->
+
     <div class="top-bar">
-      <button onclick="toggleSidebar()" class="bg-transparent border-none text-xl cursor-pointer" style="color:#2b2440"><i class="fas fa-bars"></i></button>
+      <button class="bg-transparent border-none text-xl cursor-pointer text-ink" id="burger" aria-label="Menu"><i class="fas fa-bars"></i></button>
       <div class="flex items-center gap-2">
-        <div class="w-9 h-9 rounded-full overflow-hidden" style="border:2.5px solid #2b2440"><img class="avatar-img w-full h-full object-cover" src=""></div>
+        <div class="w-9 h-9 rounded-full overflow-hidden avatar-ring"><img class="avatar-img w-full h-full object-cover" alt="" src=""></div>
         <span class="font-black text-sm">GiftBlox</span>
       </div>
-      <div class="w-7"></div>
+      <div class="flex items-center gap-2">
+        <div class="ws-dot" id="wsDot" title="Connexion temps réel"></div>
+        <button class="icon-btn relative" data-tab="notifications" aria-label="Notifications">
+          <i class="fas fa-bell"></i>
+          <span class="notif-dot hidden" id="notifDot">0</span>
+        </button>
+      </div>
     </div>
 
-    <!-- HOME -->
+    <!-- ============ HOME ============ -->
     <div class="tc active" id="tab-home">
-      <div class="max-w-7xl mx-auto px-4 md:px-8 pt-6 md:pt-10 pb-24">
-        <div class="flex items-center justify-between mb-8">
+      <div class="page">
+        <div class="page-head">
           <div>
-            <h1 class="text-3xl md:text-4xl font-black">Bienvenue, <span id="welcomeName" style="color:#5b32c9">...</span> 👋</h1>
-            <p class="font-bold mt-1" style="color:#8b83a3">Prêt à gagner des points aujourd'hui ?</p>
+            <h1 class="page-title">Bienvenue, <span id="welcomeName" class="text-violet-deep">...</span> 👋</h1>
+            <p class="page-sub">Prêt à gagner des points aujourd'hui ?</p>
           </div>
-          <button onclick="selectTab('rewards')" class="btn-p hidden md:inline-flex"><i class="fas fa-calendar-day"></i>Récompense du jour</button>
+          <button class="btn-p hidden md:inline-flex" data-tab="daily"><i class="fas fa-calendar-day"></i>Récompense du jour</button>
         </div>
 
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <div class="stat">
-            <div class="flex items-center gap-2 mb-2"><i class="fas fa-coins" style="color:#5b32c9"></i><span class="text-[10px] font-extrabold uppercase" style="color:#5b5273">Points</span></div>
-            <div class="val" id="homePts">0</div>
-          </div>
-          <div class="stat">
-            <div class="flex items-center gap-2 mb-2"><i class="fas fa-star" style="color:#12a37c"></i><span class="text-[10px] font-extrabold uppercase" style="color:#5b5273">Niveau</span></div>
-            <div class="val2" id="homeLvl">1</div>
-          </div>
-          <div class="stat">
-            <div class="flex items-center gap-2 mb-2"><i class="fas fa-fire" style="color:#e06a12"></i><span class="text-[10px] font-extrabold uppercase" style="color:#5b5273">Streak</span></div>
-            <div class="val2" id="homeStreak">0</div>
-          </div>
-          <div class="stat">
-            <div class="flex items-center gap-2 mb-2"><i class="fas fa-check-circle" style="color:#1c7fc7"></i><span class="text-[10px] font-extrabold uppercase" style="color:#5b5273">Tâches</span></div>
-            <div class="val2" id="homeTasks">0</div>
-          </div>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8" id="homeStats">
+          <div class="stat"><div class="stat-ico" style="color:#5b32c9"><i class="fas fa-coins"></i></div><div><div class="text-[10px] font-extrabold uppercase label">Points</div><div class="val" id="homePts">0</div></div></div>
+          <div class="stat"><div class="stat-ico" style="color:#12a37c"><i class="fas fa-star"></i></div><div><div class="text-[10px] font-extrabold uppercase label">Niveau</div><div class="val" id="homeLvl">1</div></div></div>
+          <div class="stat"><div class="stat-ico" style="color:#e06a12"><i class="fas fa-fire"></i></div><div><div class="text-[10px] font-extrabold uppercase label">Streak</div><div class="val" id="homeStreak">0</div></div></div>
+          <div class="stat"><div class="stat-ico" style="color:#1c7fc7"><i class="fas fa-check-circle"></i></div><div><div class="text-[10px] font-extrabold uppercase label">Tâches</div><div class="val" id="homeTasks">0</div></div></div>
         </div>
 
         <div class="grid md:grid-cols-2 gap-6">
           <div class="card">
-            <div class="flex items-center justify-between mb-5">
-              <h2 class="font-bold text-lg">Activité récente</h2>
-              <button onclick="loadAll()" class="p-2 rounded-xl" style="background:#ede4ff;border:2.5px solid #2b2440;box-shadow:0 3px 0 #2b2440"><i class="fas fa-sync-alt" style="color:#5b32c9"></i></button>
-            </div>
+            <div class="card-head"><h2 class="card-title">Activité récente</h2><button class="icon-btn" id="btnRefresh" aria-label="Actualiser"><i class="fas fa-sync-alt text-violet-deep"></i></button></div>
             <div id="recentActivity" class="space-y-3 text-sm"></div>
           </div>
           <div class="card">
-            <div class="flex items-center justify-between mb-5">
-              <h2 class="font-bold text-lg">XP cette semaine</h2>
-              <span class="text-xs font-extrabold px-3 py-1 rounded-full" style="background:#fff3d1;border:2.5px solid #2b2440">7 jours</span>
-            </div>
+            <div class="card-head"><h2 class="card-title">Tes 7 derniers jours</h2><span class="chip">7 jours</span></div>
             <canvas id="chartXP" height="200"></canvas>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- QUESTS -->
+    <!-- ============ QUESTS ============ -->
     <div class="tc" id="tab-quests">
-      <div class="max-w-5xl mx-auto px-4 md:px-8 pt-6 md:pt-10 pb-24">
-        <div class="mb-8">
-          <h1 class="text-3xl md:text-4xl font-black">Quêtes</h1>
-          <p class="font-bold mt-1" style="color:#8b83a3">Complète des défis pour gagner des récompenses</p>
+      <div class="page">
+        <div class="page-head">
+          <div><h1 class="page-title">Quêtes</h1><p class="page-sub">Complète des défis pour gagner des récompenses</p></div>
         </div>
+        <div id="questsSummary" class="grid grid-cols-3 gap-4 mb-6"></div>
         <div id="questsList" class="grid md:grid-cols-2 gap-4"></div>
       </div>
     </div>
 
-    <!-- SHOP -->
-    <div class="tc" id="tab-shop">
-      <div class="max-w-6xl mx-auto px-4 md:px-8 pt-6 md:pt-10 pb-24">
-        <div class="mb-8">
-          <h1 class="text-3xl md:text-4xl font-black">Boutique</h1>
-          <p class="font-bold mt-1"><span id="shopPts" class="font-black" style="color:#5b32c9">0</span> <span style="color:#8b83a3">points disponibles</span></p>
+    <!-- ============ DAILY ============ -->
+    <div class="tc" id="tab-daily">
+      <div class="page">
+        <div class="page-head"><div><h1 class="page-title">Récompense du jour</h1><p class="page-sub">Reviens chaque jour pour garder ton streak</p></div></div>
+        <div class="grid md:grid-cols-3 gap-6">
+          <div class="card text-center">
+            <div class="big-emoji" id="dailyEmoji">🎁</div>
+            <h2 class="font-black text-xl mb-1">Ta récompense</h2>
+            <p class="page-sub mb-6">Une récompense quotidienne, tous les jours.</p>
+            <button class="btn-p w-full" id="btnDaily"><i class="fas fa-calendar-day"></i>Réclamer</button>
+            <div id="dailyResult" class="mt-4 text-sm"></div>
+          </div>
+          <div class="card md:col-span-2">
+            <h2 class="card-title mb-5">Progression de la série</h2>
+            <div id="dailyStreak" class="streak-grid"></div>
+          </div>
         </div>
+      </div>
+    </div>
+
+    <!-- ============ GAMES ============ -->
+    <div class="tc" id="tab-games">
+      <div class="page">
+        <div class="page-head">
+          <div><h1 class="page-title">Mini-jeux</h1><p class="page-sub">Joue avec tes points · la banque fait foi</p></div>
+          <span class="chip chip-lg"><i class="fas fa-coins text-violet-deep"></i> <b id="gamesPts">0</b> pts</span>
+        </div>
+        <div id="gamesList" class="grid md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+        <div class="card mt-6">
+          <h2 class="card-title mb-5">Historique récent</h2>
+          <div id="gamesHistory" class="space-y-2 text-sm max-h-80 overflow-y-auto"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ SHOP ============ -->
+    <div class="tc" id="tab-shop">
+      <div class="page">
+        <div class="page-head">
+          <div><h1 class="page-title">Boutique</h1><p class="page-sub"><span id="shopPts" class="font-black text-violet-deep">0</span> points disponibles</p></div>
+        </div>
+        <div id="shopFilters" class="filter-bar"></div>
         <div id="shopList" class="grid md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
       </div>
     </div>
 
-    <!-- VAULT -->
-    <div class="tc" id="tab-vault">
-      <div class="max-w-5xl mx-auto px-4 md:px-8 pt-6 md:pt-10 pb-24">
-        <h1 class="text-3xl md:text-4xl font-black mb-8">Vault</h1>
-        <div class="grid md:grid-cols-2 gap-6">
-          <div class="card"><h2 class="font-bold text-lg mb-5">Achats</h2><div id="purchasesList" class="space-y-3 text-sm"></div></div>
-          <div class="card"><h2 class="font-bold text-lg mb-5">Transactions</h2><div id="transactionsList" class="space-y-2 text-sm max-h-96 overflow-y-auto"></div></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- REWARDS -->
-    <div class="tc" id="tab-rewards">
-      <div class="max-w-5xl mx-auto px-4 md:px-8 pt-6 md:pt-10 pb-24">
-        <h1 class="text-3xl md:text-4xl font-black mb-8">Récompenses</h1>
-        <div class="card mb-6">
-          <h2 class="font-bold text-lg mb-5">Badges</h2>
-          <div id="badgesList" class="flex flex-wrap gap-4"></div>
-        </div>
-        <div class="card">
-          <h2 class="font-bold text-lg mb-2">Récompense quotidienne</h2>
-          <p class="text-sm font-bold mb-5" style="color:#8b83a3">Reviens chaque jour pour garder ton streak.</p>
-          <button onclick="claimDaily()" class="btn-p"><i class="fas fa-calendar-day"></i>Réclamer</button>
-          <div id="dailyResult" class="mt-4 text-sm"></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- LEADERBOARD -->
-    <div class="tc" id="tab-leaderboard">
-      <div class="max-w-4xl mx-auto px-4 md:px-8 pt-6 md:pt-10 pb-24">
-        <h1 class="text-3xl md:text-4xl font-black mb-8">Classement</h1>
-        <div class="card !p-3" id="leaderboardList"></div>
-      </div>
-    </div>
-
-    <!-- INVITES -->
+    <!-- ============ INVITES ============ -->
     <div class="tc" id="tab-invites">
-      <div class="max-w-4xl mx-auto px-4 md:px-8 pt-6 md:pt-10 pb-24">
-        <h1 class="text-3xl md:text-4xl font-black mb-8">Parrainage</h1>
+      <div class="page">
+        <div class="page-head"><div><h1 class="page-title">Parrainage</h1><p class="page-sub">Invite des amis et gagnez des points</p></div></div>
         <div class="grid md:grid-cols-2 gap-6">
           <div class="card text-center">
-            <h2 class="font-bold text-lg mb-4">Ton code</h2>
-            <div class="inline-block text-3xl md:text-4xl font-black tracking-widest px-5 py-3 my-4 rounded-2xl text-white" id="refCode" style="background:linear-gradient(180deg,#9a72ff,#7a4ff2);border:2.5px solid #2b2440;box-shadow:0 5px 0 #2b2440">---</div>
-            <p class="text-sm font-bold" style="color:#8b83a3"><span id="refCount" class="font-black" style="color:#5b32c9">0</span> utilisations</p>
+            <h2 class="card-title mb-4">Ton code</h2>
+            <button class="ref-code" id="refCode">---</button>
+            <p class="page-sub mt-3"><span id="refCount" class="font-black text-violet-deep">0</span> utilisations</p>
+            <div id="refStats" class="grid grid-cols-2 gap-3 mt-6"></div>
           </div>
           <div class="card">
-            <h2 class="font-bold text-lg mb-4">Top Parrains</h2>
+            <h2 class="card-title mb-4">Top Parrains</h2>
             <div id="topReferrers" class="space-y-3 text-sm"></div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- I.A. -->
-    <div class="tc" id="tab-ia">
-      <div class="max-w-4xl mx-auto px-4 md:px-8 pt-6 md:pt-10 pb-24">
-        <div class="mb-8">
-          <h1 class="text-3xl md:text-4xl font-black">Assistant IA</h1>
-          <p class="font-bold mt-1" style="color:#8b83a3">Propulsé par Groq · répond gratuitement à tes questions</p>
-        </div>
+    <!-- ============ REWARDS (badges) ============ -->
+    <div class="tc" id="tab-rewards">
+      <div class="page">
+        <div class="page-head"><div><h1 class="page-title">Badges</h1><p class="page-sub">Des distinctions à collectionner</p></div></div>
         <div class="card">
-          <div id="chatMessages" class="space-y-4 mb-6 max-h-[500px] overflow-y-auto"></div>
-          <div class="flex gap-3">
-            <input id="chatInput" class="flex-1 px-5 py-3 text-sm" placeholder="Pose une question..." onkeydown="if(event.key==='Enter')sendMessage()">
-            <button onclick="sendMessage()" class="btn-p"><i class="fas fa-paper-plane"></i><span class="hidden sm:inline">Envoyer</span></button>
+          <div class="card-head"><h2 class="card-title">Collection</h2><span class="chip" id="badgeProgress">0 / 0</span></div>
+          <div id="badgesList" class="flex flex-wrap gap-4"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ ACHIEVEMENTS ============ -->
+    <div class="tc" id="tab-achievements">
+      <div class="page">
+        <div class="page-head"><div><h1 class="page-title">Succès</h1><p class="page-sub">Des objectifs à long terme avec de grosses récompenses</p></div></div>
+        <div class="card mb-6">
+          <div class="flex items-center justify-between mb-3">
+            <span class="font-extrabold text-sm">Progression globale</span>
+            <span class="font-black text-violet-deep" id="achProgress">0 / 0</span>
+          </div>
+          <div class="progress-track"><div class="progress-fill" id="achBar" style="width:0%"></div></div>
+        </div>
+        <div id="achFilters" class="filter-bar"></div>
+        <div id="achList" class="grid md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+      </div>
+    </div>
+
+    <!-- ============ VAULT ============ -->
+    <div class="tc" id="tab-vault">
+      <div class="page">
+        <div class="page-head"><div><h1 class="page-title">Vault</h1><p class="page-sub">Tout ton historique de points</p></div></div>
+        <div class="grid md:grid-cols-2 gap-6">
+          <div class="card"><h2 class="card-title mb-5">Achats</h2><div id="purchasesList" class="space-y-3 text-sm max-h-96 overflow-y-auto"></div></div>
+          <div class="card"><h2 class="card-title mb-5">Transactions</h2><div id="transactionsList" class="space-y-2 text-sm max-h-96 overflow-y-auto"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ SEASONS ============ -->
+    <div class="tc" id="tab-seasons">
+      <div class="page">
+        <div class="page-head"><div><h1 class="page-title">Saisons</h1><p class="page-sub">Des compétitions à durée limitée avec des récompenses</p></div></div>
+        <div id="seasonBanner" class="mb-6"></div>
+        <div id="seasonRewards" class="card mb-6"></div>
+        <div class="card">
+          <h2 class="card-title mb-5">Classement de la saison</h2>
+          <div id="seasonBoard" class="space-y-3 text-sm"></div>
+        </div>
+        <div class="card mt-6">
+          <h2 class="card-title mb-5">Toutes les saisons</h2>
+          <div id="seasonList" class="grid md:grid-cols-2 gap-4"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ LEADERBOARD ============ -->
+    <div class="tc" id="tab-leaderboard">
+      <div class="page">
+        <div class="page-head"><div><h1 class="page-title">Classement</h1><p class="page-sub">Les membres les plus fortunés</p></div></div>
+        <div id="podium" class="grid md:grid-cols-3 gap-4 mb-6"></div>
+        <div class="card !p-3" id="leaderboardList"></div>
+      </div>
+    </div>
+
+    <!-- ============ MEMBERS ============ -->
+    <div class="tc" id="tab-members">
+      <div class="page">
+        <div class="page-head"><div><h1 class="page-title">Membres</h1><p class="page-sub">Recherche et profil de la communauté</p></div></div>
+        <div class="card mb-6">
+          <div class="search-bar">
+            <i class="fas fa-magnifying-glass muted"></i>
+            <input id="memberSearch" placeholder="Rechercher un pseudo ou un ID Discord…" autocomplete="off">
+            <button class="btn-p" id="btnMemberSearch"><i class="fas fa-arrow-right"></i><span class="hidden sm:inline">Chercher</span></button>
           </div>
         </div>
+        <div id="memberList" class="grid md:grid-cols-2 gap-4"></div>
+        <div id="memberPager" class="pager"></div>
       </div>
     </div>
 
-    <!-- ANALYTICS -->
-    <div class="tc" id="tab-analytics">
-      <div class="max-w-6xl mx-auto px-4 md:px-8 pt-6 md:pt-10 pb-24">
-        <h1 class="text-3xl md:text-4xl font-black mb-8">Analytics</h1>
-        <div class="grid md:grid-cols-3 gap-4 mb-8">
-          <div class="stat"><span class="text-[10px] font-extrabold uppercase" style="color:#5b5273">Membres</span><div class="val" id="anUsers">-</div></div>
-          <div class="stat"><span class="text-[10px] font-extrabold uppercase" style="color:#5b5273">Transactions</span><div class="val" id="anTx">-</div></div>
-          <div class="stat"><span class="text-[10px] font-extrabold uppercase" style="color:#5b5273">Tickets</span><div class="val" id="anTickets">-</div></div>
+    <!-- ============ NOTIFICATIONS ============ -->
+    <div class="tc" id="tab-notifications">
+      <div class="page">
+        <div class="page-head">
+          <div><h1 class="page-title">Notifications</h1><p class="page-sub">Tout ce qui s'est passé sur ton compte</p></div>
+          <button class="btn-ghost" id="btnReadAll"><i class="fas fa-check-double"></i>Tout marquer comme lu</button>
         </div>
-        <div class="grid md:grid-cols-2 gap-6">
-          <div class="card"><h2 class="font-bold text-lg mb-4">Distribution des points</h2><canvas id="chartPts" height="220"></canvas></div>
-          <div class="card"><h2 class="font-bold text-lg mb-4">Niveaux</h2><canvas id="chartLvls" height="220"></canvas></div>
-        </div>
+        <div id="notifList" class="space-y-3"></div>
       </div>
     </div>
 
-    <!-- PROFILE -->
+    <!-- ============ PROFILE ============ -->
     <div class="tc" id="tab-profile">
-      <div class="max-w-4xl mx-auto px-4 md:px-8 pt-6 md:pt-10 pb-24">
-        <h1 class="text-3xl md:text-4xl font-black mb-8">Profil</h1>
+      <div class="page">
+        <div class="page-head"><div><h1 class="page-title">Profil</h1><p class="page-sub">Ton identité GiftBlox</p></div></div>
         <div class="grid md:grid-cols-2 gap-6">
           <div class="card text-center">
-            <div class="w-28 h-28 rounded-full mx-auto mb-4 p-1.5" style="background:linear-gradient(180deg,#9a72ff,#ff5c9d);border:2.5px solid #2b2440;box-shadow:0 5px 0 #2b2440">
-              <div class="w-full h-full rounded-full overflow-hidden" style="background:#ede4ff;border:2.5px solid #2b2440"><img id="profileAvatar" class="w-full h-full object-cover" src=""></div>
+            <div class="avatar-xl">
+              <div class="avatar-xl-in"><img id="profileAvatar" alt="" src=""></div>
             </div>
-            <div class="text-2xl font-black" id="profileName">---</div>
-            <div class="text-xs font-bold mt-1" style="color:#8b83a3">ID : <span id="profileId">---</span></div>
-            <div class="flex justify-center gap-3 mt-6">
-              <div class="flex-1 p-3 rounded-2xl" style="background:#ede4ff;border:2.5px solid #2b2440;box-shadow:0 3px 0 #2b2440"><div class="text-2xl font-black" style="color:#5b32c9" id="pfPts">0</div><div class="text-[10px] font-extrabold uppercase" style="color:#5b5273">pts</div></div>
-              <div class="flex-1 p-3 rounded-2xl" style="background:#dcfaf0;border:2.5px solid #2b2440;box-shadow:0 3px 0 #2b2440"><div class="text-2xl font-black" style="color:#12a37c" id="pfLvl">1</div><div class="text-[10px] font-extrabold uppercase" style="color:#5b5273">niveau</div></div>
-              <div class="flex-1 p-3 rounded-2xl" style="background:#fff3d1;border:2.5px solid #2b2440;box-shadow:0 3px 0 #2b2440"><div class="text-2xl font-black" style="color:#e06a12" id="pfBadges">0</div><div class="text-[10px] font-extrabold uppercase" style="color:#5b5273">badges</div></div>
-            </div>
+            <div class="text-2xl font-black mt-3" id="profileName">---</div>
+            <div class="text-xs font-bold mt-1 label">ID : <span id="profileId">---</span></div>
+            <div class="grid grid-cols-3 gap-3 mt-6" id="profileStats"></div>
           </div>
           <div class="card flex flex-col justify-center">
-            <h2 class="font-bold text-lg mb-4">Progression</h2>
-            <div class="h-5 rounded-full mb-2 overflow-hidden" style="background:#e9e2f5;border:2.5px solid #2b2440">
-              <div class="h-full rounded-full transition-all duration-1000" id="progBar" style="width:0%;background:linear-gradient(90deg,#7a4ff2,#ff5c9d)"></div>
-            </div>
+            <h2 class="card-title mb-4">Progression</h2>
+            <div class="progress-track mb-2"><div class="progress-fill" id="progBar" style="width:0%"></div></div>
             <div class="text-sm font-bold">
-              <span id="progXp" class="font-black" style="color:#5b32c9">0</span>
-              <span style="color:#8b83a3"> / </span>
-              <span style="color:#5b5273" id="progXpMax">120</span> XP
+              <span id="progXp" class="font-black text-violet-deep">0</span>
+              <span class="muted"> / </span>
+              <span class="label" id="progXpMax">120</span> XP
             </div>
+            <h2 class="card-title mt-8 mb-4">Réputation</h2>
+            <div id="profileBadges" class="flex flex-wrap gap-2"></div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- SUPPORT -->
+    <!-- ============ I.A. ============ -->
+    <div class="tc" id="tab-ia">
+      <div class="page">
+        <div class="page-head"><div><h1 class="page-title">Assistant IA</h1><p class="page-sub">Propulsé par Groq · répond gratuitement à tes questions</p></div></div>
+        <div class="card">
+          <div id="chatMessages" class="space-y-4 mb-6 chat-scroll"></div>
+          <div class="flex gap-3">
+            <input id="chatInput" class="flex-1 px-5 py-3 text-sm" placeholder="Pose une question..." maxlength="1000" autocomplete="off">
+            <button class="btn-p" id="btnSend"><i class="fas fa-paper-plane"></i><span class="hidden sm:inline">Envoyer</span></button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ SUPPORT ============ -->
     <div class="tc" id="tab-support">
-      <div class="max-w-5xl mx-auto px-4 md:px-8 pt-6 md:pt-10 pb-24">
-        <h1 class="text-3xl md:text-4xl font-black mb-8">Support</h1>
+      <div class="page">
+        <div class="page-head"><div><h1 class="page-title">Support</h1><p class="page-sub">Ouvre un ticket, on te répond</p></div></div>
         <div class="grid md:grid-cols-2 gap-6">
           <div class="card">
-            <h2 class="font-bold text-lg mb-5">Nouveau ticket</h2>
-            <input id="tSubject" class="w-full px-4 py-3 mb-3 text-sm" placeholder="Sujet">
-            <textarea id="tMessage" class="w-full px-4 py-3 mb-3 text-sm" rows="4" placeholder="Décris ton problème..."></textarea>
+            <h2 class="card-title mb-5">Nouveau ticket</h2>
+            <input id="tSubject" class="w-full px-4 py-3 mb-3 text-sm" placeholder="Sujet" maxlength="120">
+            <textarea id="tMessage" class="w-full px-4 py-3 mb-3 text-sm" rows="4" placeholder="Décris ton problème..." maxlength="2000"></textarea>
             <select id="tCat" class="w-full px-4 py-3 mb-4 text-sm">
               <option value="general">Général</option>
               <option value="support">Support</option>
@@ -343,338 +356,93 @@
               <option value="bug">Bug</option>
               <option value="feature">Suggestion</option>
             </select>
-            <button onclick="createTicket()" class="btn-p"><i class="fas fa-paper-plane"></i>Créer le ticket</button>
-            <div id="ticketResult" class="mt-4 text-sm"></div>
+            <button class="btn-p" id="btnTicket"><i class="fas fa-paper-plane"></i>Créer le ticket</button>
           </div>
-          <div class="card"><h2 class="font-bold text-lg mb-5">Mes tickets</h2><div id="myTickets" class="space-y-2 text-sm max-h-96 overflow-y-auto"></div></div>
+          <div class="card">
+            <h2 class="card-title mb-5">Mes tickets</h2>
+            <div id="myTickets" class="space-y-3 text-sm max-h-96 overflow-y-auto"></div>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- ADMIN -->
-    <div class="tc" id="tab-admin">
-      <div class="max-w-6xl mx-auto px-4 md:px-8 pt-6 md:pt-10 pb-24">
-        <div class="flex items-center gap-4 mb-8">
-          <div class="w-14 h-14 rounded-2xl flex items-center justify-center" style="background:#ffc93c;border:2.5px solid #2b2440;box-shadow:0 4px 0 #2b2440"><i class="fas fa-crown" style="color:#2b2440"></i></div>
-          <div><h1 class="text-3xl md:text-4xl font-black">Administration</h1><p class="font-bold" style="color:#8b83a3">Vue réservée au propriétaire</p></div>
+    <!-- ============ TICKETS (admin) ============ -->
+    <div class="tc" id="tab-tickets">
+      <div class="page">
+        <div class="page-head">
+          <div><h1 class="page-title">Tickets</h1><p class="page-sub">Réponds aux demandes du support</p></div>
         </div>
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <div class="stat"><span class="text-[10px] font-extrabold uppercase" style="color:#5b5273">Membres</span><div class="val2" id="adUsers">-</div></div>
-          <div class="stat"><span class="text-[10px] font-extrabold uppercase" style="color:#5b5273">Points totaux</span><div class="val" id="adPoints">-</div></div>
-          <div class="stat"><span class="text-[10px] font-extrabold uppercase" style="color:#5b5273">Transactions</span><div class="val2" id="adTx">-</div></div>
-          <div class="stat"><span class="text-[10px] font-extrabold uppercase" style="color:#5b5273">Tickets ouverts</span><div class="val2" id="adTickets">-</div></div>
-        </div>
-        <div class="grid md:grid-cols-2 gap-6">
-          <div class="card"><h2 class="font-bold text-lg mb-5">Top utilisateurs</h2><div id="adTopUsers" class="space-y-3 text-sm"></div></div>
-          <div class="card"><h2 class="font-bold text-lg mb-5">Transactions récentes</h2><div id="adRecentTickets" class="space-y-2 text-sm max-h-96 overflow-y-auto"></div></div>
+        <div id="ticketFilters" class="filter-bar"></div>
+        <div class="grid md:grid-cols-3 gap-6">
+          <div class="card md:col-span-1">
+            <h2 class="card-title mb-4">File d'attente</h2>
+            <div id="ticketQueue" class="space-y-2 text-sm max-h-[560px] overflow-y-auto"></div>
+          </div>
+          <div class="card md:col-span-2">
+            <div id="ticketDetail" class="text-sm"><div class="empty">Sélectionne un ticket</div></div>
+          </div>
         </div>
       </div>
     </div>
+
+    <!-- ============ ANALYTICS ============ -->
+    <div class="tc" id="tab-analytics">
+      <div class="page">
+        <div class="page-head"><div><h1 class="page-title">Analytics</h1><p class="page-sub">Données réelles de la communauté</p></div></div>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8" id="anStats"></div>
+        <div class="card mb-6">
+          <div class="card-head">
+            <h2 class="card-title">Activité des 14 derniers jours</h2>
+            <div class="flex gap-2">
+              <span class="chip"><i class="fas fa-coins text-violet-deep"></i> <b id="sumGained">0</b> gagnés</span>
+              <span class="chip"><i class="fas fa-fire text-orange"></i> <b id="sumSpent">0</b> dépensés</span>
+            </div>
+          </div>
+          <canvas id="chartPoints" height="240"></canvas>
+        </div>
+        <div class="grid md:grid-cols-2 gap-6">
+          <div class="card"><h2 class="card-title mb-4">Nouveaux membres</h2><canvas id="chartUsers" height="220"></canvas></div>
+          <div class="card"><h2 class="card-title mb-4">Membres actifs / jour</h2><canvas id="chartActive" height="220"></canvas></div>
+          <div class="card"><h2 class="card-title mb-4">Répartition des niveaux</h2><canvas id="chartLvls" height="220"></canvas></div>
+          <div class="card"><h2 class="card-title mb-4">Types de transactions</h2><canvas id="chartTypes" height="220"></canvas></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ ADMIN ============ -->
+    <div class="tc" id="tab-admin">
+      <div class="page">
+        <div class="page-head">
+          <div class="flex items-center gap-4">
+            <div class="stat-ico" style="background:#ffc93c;width:56px;height:56px;font-size:22px"><i class="fas fa-crown text-ink"></i></div>
+            <div><h1 class="page-title">Administration</h1><p class="page-sub">Vue réservée au propriétaire</p></div>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8" id="adStats"></div>
+        <div class="grid md:grid-cols-2 gap-6 mb-6">
+          <div class="card"><h2 class="card-title mb-5">Top utilisateurs</h2><div id="adTopUsers" class="space-y-3 text-sm"></div></div>
+          <div class="card"><h2 class="card-title mb-5">Transactions récentes</h2><div id="adRecentTx" class="space-y-2 text-sm max-h-96 overflow-y-auto"></div></div>
+        </div>
+        <div class="card">
+          <h2 class="card-title mb-5">Santé du mini-jeu</h2>
+          <div id="adGames" class="grid md:grid-cols-4 gap-4"></div>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
 
-<!-- Mobile Nav -->
-<div class="mn"></div>
+<div class="mn" id="mn"></div>
 
-<!-- Toast notification -->
 <div class="toast" id="toast">
   <div class="toast-icon" id="toastIcon" style="background:#dcfaf0;color:#12a37c"><i class="fas fa-check"></i></div>
   <div>
     <div class="font-extrabold text-sm" id="toastTitle">Succès</div>
-    <div class="text-xs font-bold" style="color:#5b5273" id="toastMsg">Action effectuée</div>
+    <div class="text-xs font-bold label" id="toastMsg">Action effectuée</div>
   </div>
 </div>
 
-<script>
-const OWNER_ID = '1527668994210005002';
-let u = {}, chXp = null, chPts = null, chLvls = null;
-
-function checkAuth(){
-  const d = localStorage.getItem('discord_user');
-  if(!d){window.location.href='index.html';return}
-  u = JSON.parse(d);
-  document.querySelectorAll('.discord-username').forEach(e=>e.textContent=u.username);
-  const a = u.avatar?`https://cdn.discordapp.com/avatars/${u.id}/${u.avatar}.png?size=256`:`https://cdn.discordapp.com/embed/avatars/${u.discriminator%5}.png`;
-  document.querySelectorAll('.avatar-img').forEach(e=>e.src=a);
-  document.getElementById('welcomeName').textContent=u.username;
-  document.getElementById('profileName').textContent=u.username;
-  document.getElementById('profileId').textContent=u.id;
-  document.getElementById('profileAvatar').src=a;
-  if(u.id===OWNER_ID) document.getElementById('adminLink').classList.remove('!hidden');
-  loadAll();
-}
-
-function loadAll(){ loadUser(); loadLeaderboard(); loadAnalytics(); loadShop(); loadQuests(); loadBadges(); loadReferrals(); loadSupport(); if(u.id===OWNER_ID) loadAdmin(); }
-
-function api(p){return fetch('/api'+p).then(r=>r.json())}
-function apiPost(p,d){return fetch('/api'+p,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(d)}).then(r=>r.json())}
-
-function toast(title,msg,icon='check',color='#12a37c'){
-  const t=document.getElementById('toast'),ti=document.getElementById('toastIcon'),tt=document.getElementById('toastTitle'),tm=document.getElementById('toastMsg');
-  ti.style.background=color+'22';ti.style.color=color;ti.innerHTML='<i class="fas fa-'+icon+'"></i>';
-  tt.textContent=title;tm.textContent=msg;t.classList.add('show');
-  clearTimeout(t._tm); t._tm=setTimeout(()=>t.classList.remove('show'),3000);
-}
-
-const ROW = 'display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;border:2.5px solid #2b2440;border-radius:16px;background:#fdf6ec;box-shadow:0 3px 0 #2b2440;font-weight:700';
-const EMPTY = 'text-center py-10 text-sm;font-weight:700;color:#8b83a3';
-
-async function loadUser(){
-  const id=u.id;
-  const j=await api('/user/'+id);
-  if(!j.success)return;
-  const d=j.data;
-  ['#homePts','#sbPts','#shopPts','#pfPts'].forEach(s=>{const e=document.querySelector(s);if(e)e.textContent=d.points.toLocaleString()});
-  ['#homeLvl','#sbLvl','#pfLvl'].forEach(s=>{const e=document.querySelector(s);if(e)e.textContent=d.level});
-  document.getElementById('homeStreak').textContent=d.dailyStreak;
-  document.getElementById('homeTasks').textContent=d.tasksCompleted;
-  const xpN=d.level*120;
-  const pct=((d.xp/xpN)*100).toFixed(1);
-  document.getElementById('progBar').style.width=pct+'%';
-  document.getElementById('progXp').textContent=d.xp;
-  document.getElementById('progXpMax').textContent=xpN;
-  const bc=d.badges.filter(b=>b.unlocked).length;
-  document.getElementById('pfBadges').textContent=bc;
-  const act=d.recentActivity||[];
-  document.getElementById('recentActivity').innerHTML=act.length?act.map(a=>`<div style="${ROW};justify-content:flex-start"><div style="width:12px;height:12px;border-radius:50%;background:#7a4ff2;border:2.5px solid #2b2440;flex-shrink:0"></div><span style="font-size:14px;font-weight:700;color:#5b5273">${a.text||''}</span></div>`).join('') : `<div class="${EMPTY}">Aucune activité récente</div>`;
-  if(d.weeklyActivity&&d.weeklyActivity.points) buildChart('chartXP',d.weeklyActivity.points);
-  api('/user/'+id+'/purchases').then(j=>{if(j.success)document.getElementById('purchasesList').innerHTML=j.purchases.length?j.purchases.map(p=>`<div style="${ROW}"><span>${p.item_name}</span><span style="font-weight:900;color:#d92d2d">−${p.price} pts</span></div>`).join(''):`<div class="${EMPTY}">Aucun achat</div>`});
-  api('/user/'+id+'/transactions').then(j=>{if(j.success)document.getElementById('transactionsList').innerHTML=j.transactions.slice(0,30).map(t=>`<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 12px;border-bottom:2.5px solid rgba(43,36,64,.1)"><span style="font-size:13px;font-weight:700;color:#5b5273">${t.description||t.type}</span><span style="font-weight:900;font-size:13px;color:${t.amount>0?'#12a37c':'#d92d2d'}">${t.amount>0?'+':''}${t.amount}</span></div>`).join('')||`<div class="${EMPTY}">Aucune transaction</div>`});
-}
-
-async function loadLeaderboard(){
-  const {success,data}=await api('/leaderboard?limit=25');
-  if(!success)return;
-  const podium=[['#ffc93c','#2b2440'],['#e3dcf0','#2b2440'],['#ffd9a8','#2b2440']];
-  document.getElementById('leaderboardList').innerHTML=data.map((x,i)=>{
-    const me=x.id===u.id;
-    const bg=me?'background:#fff3d1':(i<3?podium[i][0]:'#fdf6ec');
-    return `<div style="${ROW};background:${bg};box-shadow:0 3px 0 #2b2440;${me?'border-width:3px':''}">
-      <div style="display:flex;align-items:center;gap:14px">
-        <span style="width:38px;height:38px;display:flex;align-items:center;justify-content:center;border-radius:12px;font-weight:800;font-size:${i<3?'20px':'15px'};background:#fff;border:2.5px solid #2b2440;box-shadow:0 3px 0 #2b2440">${i<3?['🥇','🥈','🥉'][i]:'#'+(i+1)}</span>
-        <div style="font-weight:800">${x.username}${me?' <span style="background:#7a4ff2;color:#fff;border:2.5px solid #2b2440;padding:1px 8px;border-radius:999px;font-size:10px;letter-spacing:.05em">VOUS</span>':''}</div>
-      </div>
-      <span style="font-weight:900;font-size:15px">${x.points.toLocaleString()} <span style="font-size:11px;font-weight:700;color:#8b83a3">pts</span></span>
-    </div>`;
-  }).join('');
-}
-
-async function loadAnalytics(){
-  const j=await api('/global-stats');
-  if(!j.success)return;
-  document.getElementById('anUsers').textContent=j.totalUsers;
-  document.getElementById('anTx').textContent=j.totalTransactions;
-  document.getElementById('anTickets').textContent=j.ticketsOpen;
-  createChart('chartPts','bar');
-  createChart('chartLvls','line');
-}
-
-const CHART_FONT = {family:"'Nunito',sans-serif",weight:'700'};
-const chartOpts = (tickSize)=>({
-  responsive:true,
-  maintainAspectRatio:false,
-  plugins:{legend:{display:false}},
-  scales:{
-    x:{grid:{display:false},border:{color:'#2b2440'},ticks:{color:'#8b83a3',font:{...CHART_FONT,size:tickSize}}},
-    y:{grid:{color:'rgba(43,36,64,.08)'},border:{display:false},ticks:{color:'#8b83a3',font:{...CHART_FONT,size:tickSize}}}
-  }
-});
-
-function buildChart(id,data){
-  const c=document.getElementById(id);if(!c)return;
-  if(chXp)chXp.destroy();
-  chXp=new Chart(c.getContext('2d'),{
-    type:'line',
-    data:{labels:['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'],datasets:[{
-      label:'XP',data:data||[0,0,0,0,0,0,0],
-      borderColor:'#7a4ff2',backgroundColor:'rgba(122,79,242,.15)',fill:true,tension:.4,
-      pointRadius:6,pointBackgroundColor:'#fff',pointBorderColor:'#2b2440',pointBorderWidth:2.5,borderWidth:3
-    }]},
-    options:chartOpts(11)
-  });
-}
-
-function createChart(id,type){
-  const c=document.getElementById(id);if(!c)return;
-  const l=['Jan','Fév','Mar','Avr','Mai','Jui','Jul','Aoû','Sep','Oct','Nov','Déc'];
-  if(type=='bar'){
-    if(chPts)chPts.destroy();
-    chPts=new Chart(c.getContext('2d'),{
-      type:'bar',
-      data:{labels:l,datasets:[{label:'Points',data:[120,180,140,220,280,240,300,260,310,350,290,400],
-        backgroundColor:['#7a4ff2','#9a72ff','#ff5c9d','#ff8a3d','#ffc93c','#23c99a'],
-        borderColor:'#2b2440',borderWidth:2,borderRadius:10}]},
-      options:chartOpts(9)
-    });
-  }else{
-    if(chLvls)chLvls.destroy();
-    chLvls=new Chart(c.getContext('2d'),{
-      type:'line',
-      data:{labels:l,datasets:[{label:'Niveaux',data:[1,2,2,3,4,5,5,6,7,8,9,10],
-        borderColor:'#ff5c9d',backgroundColor:'rgba(255,92,157,.15)',fill:true,tension:.4,
-        pointRadius:5,pointBackgroundColor:'#fff',pointBorderColor:'#2b2440',pointBorderWidth:2.5,borderWidth:3}]},
-      options:chartOpts(9)
-    });
-  }
-}
-
-const TILE = 'width:52px;height:52px;display:flex;align-items:center;justify-content:center;border-radius:16px;background:#ede4ff;border:2.5px solid #2b2440;box-shadow:0 3px 0 #2b2440;font-size:18px;color:#5b32c9;flex-shrink:0';
-
-async function loadShop(){
-  const {success,items}=await api('/shop');
-  if(!success)return;
-  document.getElementById('shopList').innerHTML=items.map(x=>{
-    const icons={'role':'fa-user-tag','code':'fa-key','digital':'fa-image','physical':'fa-cube'};
-    return `<div class="item"><div class="flex items-start gap-4 mb-4">
-      <div style="${TILE}"><i class="fas ${icons[x.type]||'fa-gift'}"></i></div>
-      <div class="flex-1"><h3 class="font-bold text-base leading-tight">${x.name}</h3><p class="text-xs mt-1" style="color:#8b83a3;font-weight:700">${x.description||''}</p></div>
-    </div>
-    <div class="flex items-center justify-between">
-      <span class="font-black text-lg" style="color:#5b32c9">${x.price.toLocaleString()}<span class="text-[11px] font-bold ml-1" style="color:#8b83a3">pts</span></span>
-      <button onclick='buyItem("${x.id}")' class="text-sm px-5 py-2.5 rounded-xl font-extrabold" style="background:#7a4ff2;color:#fff;border:2.5px solid #2b2440;box-shadow:0 3px 0 #2b2440;cursor:pointer">Acheter</button>
-    </div></div>`;
-  }).join('');
-}
-
-function buyItem(i){apiPost('/buy',{userId:u.id,itemId:i}).then(j=>{if(j.success){toast('Achat réussi',j.item.name,'check','#12a37c');loadUser();loadShop()}else toast('Échec',j.error||'Points insuffisants','times','#d92d2d')})}
-
-async function loadQuests(){
-  const {success,quests}=await api('/quests');
-  if(!success)return;
-  document.getElementById('questsList').innerHTML=quests.length?quests.map(q=>{
-    const icons={'target':'fa-bullseye','gem':'fa-gem','users':'fa-users','flame':'fa-fire','cart':'fa-shopping-cart'};
-    return `<div class="item"><div class="flex items-start gap-4">
-      <div style="${TILE}"><i class="fas ${icons[q.icon]||'fa-star'}"></i></div>
-      <div class="flex-1"><h3 class="font-bold leading-tight">${q.title}</h3><p class="text-xs mt-1" style="color:#8b83a3;font-weight:700">${q.description||''} · Objectif : ${q.goal}</p></div>
-      <div class="text-right flex-shrink-0"><div class="font-black text-lg" style="color:#12a37c">+${q.reward}</div><div class="text-[10px] font-extrabold" style="color:#8b83a3">PTS</div></div>
-    </div></div>`;
-  }).join('') : `<div class="${EMPTY}">Aucune quête disponible</div>`;
-}
-
-async function loadBadges(){
-  const {success,data}=await api('/user/'+u.id);
-  if(!success)return;
-  const bs=data.badges||[];
-  const cell=(b,on)=>`<div title="${b.name}" style="width:88px;height:88px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;border-radius:18px;border:2.5px solid #2b2440;box-shadow:0 4px 0 #2b2440;background:${on?'linear-gradient(180deg,#c9b4ff,#ede4ff)':'#efe9f7'};opacity:${on?1:.55}">
-    <i class="fas ${on?'fa-'+b.icon:'fa-lock'}" style="font-size:20px;color:${on?'#5b32c9':'#a89fc0'}"></i>
-    <span style="font-size:9px;font-weight:800;text-align:center;line-height:1.2;color:${on?'#2b2440':'#a89fc0'}">${b.name}</span></div>`;
-  document.getElementById('badgesList').innerHTML=bs.map(b=>cell(b,b.unlocked)).join('')
-    || `<div class="${EMPTY}">Aucun badge pour l'instant</div>`;
-}
-
-async function loadReferrals(){
-  const {success,code,stats}=await api('/referral/'+u.id);
-  if(success){
-    if(code){document.getElementById('refCode').textContent=code.code;document.getElementById('refCount').textContent=stats.count||0}
-    else{document.getElementById('refCode').textContent='Générer';document.getElementById('refCode').style.cursor='pointer';document.getElementById('refCode').onclick=()=>apiPost('/referral/generate',{userId:u.id}).then(()=>loadReferrals())}
-  }
-  const {data}=await api('/referral/top');
-  if(data)document.getElementById('topReferrers').innerHTML=data.length?data.map((r,i)=>`<div style="${ROW}"><span>${i+1}. ${r.username}</span><span class="text-xs font-extrabold" style="color:#5b32c9">${r.count} parrainages</span></div>`).join(''):`<div class="${EMPTY}">Aucun</div>`;
-}
-
-const STATUS = {open:['#23c99a','OUVERT'],in_progress:['#ffc93c','EN COURS'],closed:['#ded8ea','FERMÉ'],resolved:['#3fa9f5','RÉSOLU']};
-
-async function loadSupport(){
-  const j=await api('/tickets?userId='+u.id);
-  if(!j.success)return;
-  document.getElementById('myTickets').innerHTML=j.tickets.length?j.tickets.map(t=>{
-    const st=STATUS[t.status]||[t.status,t.status];
-    return `<div style="display:flex;flex-direction:column;gap:6px;padding:14px;border:2.5px solid #2b2440;border-radius:16px;background:#fdf6ec;box-shadow:0 3px 0 #2b2440">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px">
-        <span class="font-extrabold text-sm">${t.subject}</span>
-        <span style="flex-shrink:0;background:${st[0]};color:${st[0]==='#ded8ea'?'#2b2440':'#2b2440'};border:2.5px solid #2b2440;padding:2px 9px;border-radius:999px;font-size:9px;font-weight:800;letter-spacing:.05em">${st[1]}</span>
-      </div>
-      <p class="text-xs truncate" style="color:#8b83a3;font-weight:700">${t.message.substring(0,100)}…</p>
-    </div>`;
-  }).join(''):`<div class="${EMPTY}">Aucun ticket</div>`;
-}
-
-function createTicket(){
-  const sub=document.getElementById('tSubject').value,msg=document.getElementById('tMessage').value,cat=document.getElementById('tCat').value;
-  if(!sub||!msg){toast('Erreur','Remplis tous les champs','times','#d92d2d');return}
-  apiPost('/tickets',{userId:u.id,subject:sub,message:msg,category:cat}).then(j=>{if(j.success){toast('Ticket créé !','Notre équipe va te répondre','check','#12a37c');document.getElementById('tSubject').value='';document.getElementById('tMessage').value='';loadSupport()}});
-}
-
-async function loadAdmin(){
-  const j=await api('/admin/stats');
-  if(!j.success)return;
-  document.getElementById('adUsers').textContent=j.totalUsers;
-  document.getElementById('adPoints').textContent=j.totalPoints.toLocaleString();
-  document.getElementById('adTx').textContent=j.totalTransactions;
-  document.getElementById('adTickets').textContent=j.ticketsOpen;
-  if(j.topUsers)document.getElementById('adTopUsers').innerHTML=j.topUsers.map((x,i)=>`<div style="${ROW}"><span>${i+1}. ${x.username}</span><span class="font-black text-sm" style="color:#5b32c9">${x.points.toLocaleString()} pts</span></div>`).join('');
-  if(j.recentTransactions)document.getElementById('adRecentTickets').innerHTML=j.recentTransactions.slice(0,10).map(t=>`<div style="display:flex;justify-content:space-between;gap:10px;padding:10px 12px;border-bottom:2.5px solid rgba(43,36,64,.1)"><span class="text-xs font-bold" style="color:#5b5273">${t.description||t.type}</span><span class="text-xs font-black" style="color:${t.amount>0?'#12a37c':'#d92d2d'}">${t.amount>0?'+':''}${t.amount}</span></div>`).join('')||`<div class="${EMPTY}">Aucune transaction</div>`;
-}
-
-function claimDaily(){
-  apiPost('/daily/claim',{userId:u.id}).then(j=>{
-    if(j.success){toast('+'+j.reward+' points','Streak : '+j.streak+' jours 🔥','check','#12a37c');loadUser()}
-    else toast('Déjà réclamé','Reviens demain !','times','#d92d2d');
-  });
-}
-
-function sendMessage(){
-  const inp=document.getElementById('chatInput'),msg=inp.value.trim();
-  if(!msg)return;
-  const el=document.getElementById('chatMessages');
-  const av=document.querySelector('.avatar-img').src;
-  el.innerHTML+=`<div style="display:flex;align-items:flex-start;gap:10px;justify-content:flex-end">
-    <div style="max-width:75%;padding:12px 16px;border-radius:16px;font-size:14px;font-weight:700;background:#7a4ff2;color:#fff;border:2.5px solid #2b2440;box-shadow:0 3px 0 #2b2440">${esc(msg)}</div>
-    <div style="width:36px;height:36px;border-radius:50%;overflow:hidden;border:2.5px solid #2b2440;flex-shrink:0"><img class="w-full h-full object-cover" src="${av}"></div>
-  </div>`;
-  inp.value='';
-  el.scrollTop=el.scrollHeight;
-  apiPost('/ia/chat',{message:msg,discordId:u.id}).then(j=>{el.innerHTML+=`<div style="display:flex;align-items:flex-start;gap:10px">
-    <div style="width:36px;height:36px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:#ede4ff;border:2.5px solid #2b2440;box-shadow:0 3px 0 #2b2440;flex-shrink:0"><i class="fas fa-robot" style="color:#5b32c9;font-size:14px"></i></div>
-    <div style="max-width:80%">
-      <div class="font-extrabold text-xs mb-1" style="color:#5b32c9">GiftBot IA</div>
-      <div style="font-size:14px;font-weight:700;line-height:1.6;padding:14px 16px;border-radius:16px;background:#fdf6ec;border:2.5px solid #2b2440;box-shadow:0 3px 0 #2b2440">${j.reply||'Pas de réponse.'}</div>
-    </div>
-  </div>`;el.scrollTop=el.scrollHeight});
-}
-
-function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
-
-// Navigation
-document.querySelectorAll('.sb-item[data-tab]').forEach(el=>{
-  el.addEventListener('click',function(){
-    selectTab(this.dataset.tab);
-    if(window.innerWidth<900)toggleSidebar();
-  });
-});
-
-function selectTab(t){
-  document.querySelectorAll('.tc').forEach(e=>e.classList.remove('active'));
-  document.getElementById('tab-'+t).classList.add('active');
-  document.querySelectorAll('.sb-item').forEach(e=>e.classList.remove('active'));
-  const el=document.querySelector('.sb-item[data-tab="'+t+'"]');
-  if(el)el.classList.add('active');
-  document.querySelectorAll('.mn-btn').forEach(e=>e.classList.remove('active'));
-  const mb=document.querySelector('.mn-btn[data-tab="'+t+'"]');
-  if(mb)mb.classList.add('active');
-}
-
-function toggleSidebar(){
-  document.getElementById('sidebar').classList.toggle('open');
-  document.getElementById('overlay').classList.toggle('show');
-}
-
-function logout(){localStorage.removeItem('discord_user');localStorage.removeItem('discord_token');window.location.href='index.html'}
-
-// Mobile tabs
-const MOBILE = {home:'Accueil',shop:'Boutique',quests:'Quêtes',leaderboard:'Classement',profile:'Profil'};
-const M_ICON = {home:'fa-home',shop:'fa-store',quests:'fa-tasks',leaderboard:'fa-trophy',profile:'fa-user'};
-Object.keys(MOBILE).forEach(t=>{
-  const btn=document.createElement('button');
-  btn.className='mn-btn'+(t==='home'?' active':'');
-  btn.dataset.tab=t;
-  btn.innerHTML=`<i class="fas ${M_ICON[t]}"></i><span>${MOBILE[t]}</span>`;
-  btn.onclick=()=>selectTab(t);
-  document.querySelector('.mn').appendChild(btn);
-});
-
-// Init
-checkAuth();
-</script>
+<script src="dashboard.js"></script>
 </body>
 </html>

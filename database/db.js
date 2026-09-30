@@ -8,10 +8,63 @@ const OWNER_ID = '1527668994210005002';
 
 let db;
 
-function save() {
-  const data = db.export();
-  const buffer = Buffer.from(data);
+/**
+ * sql.js garde la base EN MÉMOIRE : chaque sauvegarde exporte puis réécrit
+ * l'intégralité du fichier. Faire ça à chaque écriture rend chaque opération
+ * O(taille de la base) et bloque l'event loop — invisible sur une petite base,
+ * catastrophique dès que le serveur grandit.
+ *
+ * On regroupe donc les écritures rapprochées (150 ms) et on force un flush à
+ * la sortie du process. Perte maximale en cas de crash : 150 ms d'écritures.
+ */
+const SAVE_DEBOUNCE_MS = 150;
+let saveTimer = null;
+let savePending = false;
+
+function writeNow() {
+  if (!db) return;
+  const buffer = Buffer.from(db.export());
   fs.writeFileSync(DB_PATH, buffer);
+  savePending = false;
+}
+
+function save(immediate = false) {
+  if (immediate) {
+    if (saveTimer) { clearTimeout(saveTimer); saveTimer = null; }
+    savePending = true;
+    return writeNow();
+  }
+  savePending = true;
+  if (saveTimer) return;
+  saveTimer = setTimeout(() => {
+    saveTimer = null;
+    if (savePending) writeNow();
+  }, SAVE_DEBOUNCE_MS);
+  saveTimer.unref?.();
+}
+
+/** Écrit immédiatement tout ce qui est en attente. */
+function flush() {
+  if (saveTimer) { clearTimeout(saveTimer); saveTimer = null; }
+  if (savePending) writeNow();
+}
+
+// Volet bail uniquement sur une sortie normale : on NE capture pas
+// 'uncaughtException' ici, sinon le runner de tests (et tout debogueur)
+// n'apprendraient jamais qu'une erreur a eu lieu.
+let closing = false;
+function shutdown(signal) {
+  if (closing) return;
+  closing = true;
+  try { flush(); } catch { /* rien à faire pendant l'arrêt */ }
+  // Un listener sur SIGINT/SIGTERM annule la terminaison par défaut de Node :
+  // sans cet exit() explicite, le processus resterait vivant (et Docker
+  // finirait par le tuer en SIGKILL, perdant la dernière sauvegarde).
+  if (signal) process.exit(0);
+}
+process.on('exit', () => shutdown(null));
+for (const sig of ['SIGINT', 'SIGTERM', 'SIGHUP']) {
+  process.on(sig, () => shutdown(sig));
 }
 
 function uid() {
@@ -274,26 +327,20 @@ function query(sql, params = []) {
 
 function all(sql, params = []) {
   const stmt = db.prepare(sql);
-  const rows = stmt.getAsObject(params);
-  // getAsObject returns one row; need to iterate
-  let results = [];
-  while (stmt.step()) {
-    results.push(stmt.getAsObject());
-  }
+  if (params.length) stmt.bind(params);
+  const results = [];
+  // step() avance le curseur : on collecte la ligne courante PUIS on avance.
+  while (stmt.step()) results.push(stmt.getAsObject());
   stmt.free();
-  return results.length ? results : (rows && rows.id ? [rows] : []);
+  return results;
 }
 
 function get(sql, params = []) {
   const stmt = db.prepare(sql);
   stmt.bind(params);
-  if (stmt.step()) {
-    const row = stmt.getAsObject();
-    stmt.free();
-    return row;
-  }
+  const row = stmt.step() ? stmt.getAsObject() : null;
   stmt.free();
-  return null;
+  return row;
 }
 
 function run(sql, params = []) {
@@ -316,12 +363,22 @@ function getOrCreateUser(id, username) {
 }
 
 function addPoints(userId, amount, desc) {
+  // Sans ce garde-fou, l'UPDATE ne touchait aucune ligne pour un utilisateur
+  // inconnu : les points étaient perdus SANS erreur, mais une transaction
+  // fantôme restait écrite dans l'historique.
+  let existing = get("SELECT id FROM users WHERE id = ?", [userId]);
+  if (!existing) existing = getOrCreateUser(userId);
+  if (!existing) return null;
+
   run("UPDATE users SET points = points + ?, updated_at = datetime('now','localtime') WHERE id = ?", [amount, userId]);
   run("INSERT INTO transactions (id, user_id, type, amount, description) VALUES (?, ?, ?, ?, ?)", [uid(), userId, amount > 0 ? 'earn' : 'spend', amount, desc || `${Math.abs(amount)} points`]);
   return get("SELECT * FROM users WHERE id = ?", [userId]);
 }
 
 function setPoints(userId, amount) {
+  if (!get("SELECT id FROM users WHERE id = ?", [userId])) {
+    if (!getOrCreateUser(userId)) return null;
+  }
   run("UPDATE users SET points = ?, updated_at = datetime('now','localtime') WHERE id = ?", [amount, userId]);
   return get("SELECT * FROM users WHERE id = ?", [userId]);
 }
@@ -553,6 +610,98 @@ function getMiniGames() {
   return all("SELECT * FROM mini_games WHERE active = 1");
 }
 
+// Une carte { v: points A=14..2, s: symbole }. shoe() tire sur un shoe de 52
+// cartes, comme dans un casino réel (et non un tirage infini indépendant).
+const SUITS = ['♠', '♥', '♦', '♣'];
+function shoe() {
+  const deck = [];
+  for (const s of SUITS) for (let v = 2; v <= 14; v++) deck.push({ v, s });
+  for (let i = deck.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [deck[i], deck[j]] = [deck[j], deck[i]];
+  }
+  return deck;
+}
+
+function cardLabel(c) {
+  const rank = { 11: 'J', 12: 'Q', 13: 'K', 14: 'A' }[c.v] || String(c.v);
+  return rank + c.s;
+}
+
+function handValue(cards) {
+  return handState(cards).total;
+}
+
+/** total = meilleur total ; soft = vrai si un as compte 11 ; hard = total as 1. */
+function handState(cards) {
+  let hard = 0;
+  let aces = 0;
+  for (const c of cards) {
+    if (c.v === 14) aces++;
+    else hard += c.v > 10 ? 10 : c.v;
+  }
+  const soft = aces > 0 && hard + 10 <= 21 ? hard + 10 : 0;
+  return { total: soft || hard + aces, soft, hard: hard + aces };
+}
+
+/**
+ * Stratégie de base simplifiée (sans double ni split) : on se couche sur 17,
+ * et sur 18/19 souples. C'est suffisant pour equilibre le jeu — tirer
+ * systématiquement jusqu'à 21 faisait buster le joueur la plupart du temps.
+ */
+function shouldStand(cards) {
+  const { total, soft } = handState(cards);
+  if (soft >= 18) return true;
+  return !soft && total >= 17;
+}
+
+/**
+ * Blackjack résolu en un seul appel : le joueur suit une stratégie de base,
+ * le dealer s'arrête à 17 minimum. L'as vaut 11 ou 1.
+ */
+function playBlackjack(betAmount, houseEdge) {
+  const deck = shoe();
+  const draw = () => deck.pop();
+  const player = [draw(), draw()];
+  const dealer = [draw(), draw()];
+
+  while (!shouldStand(player) && handValue(player) < 21) player.push(draw());
+  const playerTotal = handValue(player);
+  const playerBJ = player.length === 2 && playerTotal === 21;
+
+  while (handValue(dealer) < 17) dealer.push(draw());
+  const dealerTotal = handValue(dealer);
+  const dealerBJ = dealer.length === 2 && dealerTotal === 21;
+
+  let resultAmount = 0;
+  let outcome = 'loss';
+
+  // Ordre de résolution du blackjack :
+  // 1. le joueur bust → défaite ; 2. blackjack des deux → égalité ;
+  // 3. blackjack joueur → 2.5x ; 4. blackjack croupier → défaite ;
+  // 5. croupier bust ou main supérieure → victoire ; 6. égalité / défaite.
+  if (playerTotal > 21) {
+    outcome = 'loss';
+  } else if (playerBJ && dealerBJ) {
+    outcome = 'push';
+  } else if (playerBJ) {
+    resultAmount = Math.floor(betAmount * (2.5 - houseEdge * 2));
+    outcome = 'win';
+  } else if (dealerBJ) {
+    outcome = 'loss';
+  } else if (dealerTotal > 21 || playerTotal > dealerTotal) {
+    resultAmount = Math.floor(betAmount * (2 - houseEdge * 2));
+    outcome = 'win';
+  } else if (playerTotal === dealerTotal) {
+    outcome = 'push';
+  }
+
+  const hand = `**Ta main** : ${player.map(cardLabel).join(' ')} → **${playerTotal}**\n`
+    + `**Croupier** : ${dealer.map(cardLabel).join(' ')} → **${dealerTotal}**`;
+
+  return { outcome, resultAmount, hand };
+}
+
 function playMiniGame(userId, gameId, betAmount) {
   let user = get("SELECT * FROM users WHERE id = ?", [userId]);
   let game = get("SELECT * FROM mini_games WHERE id = ?", [gameId]);
@@ -563,32 +712,49 @@ function playMiniGame(userId, gameId, betAmount) {
   
   let resultAmount = 0;
   let outcome = 'loss';
+  let hand = null;
   
   // Simple game logic based on type
   switch (game.game_type) {
-    case 'coinflip':
+    case 'coinflip': {
+      const face = Math.random() < 0.5 ? 'Pile' : 'Face';
+      hand = `**${face}** !`;
       if (Math.random() < 0.5 - game.house_edge) {
         resultAmount = betAmount * 2;
         outcome = 'win';
       }
       break;
-    case 'roulette':
-      const rouletteNum = Math.floor(Math.random() * 37);
-      if (rouletteNum === 0) {
+    }
+    case 'roulette': {
+      const num = Math.floor(Math.random() * 37);
+      const red = [1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36];
+      const color = num === 0 ? 'vert' : red.includes(num) ? 'rouge' : 'noir';
+      hand = `Roulette : **${num}** (${color})`;
+      if (num === 0) {
         // Zero - house wins
-      } else if (rouletteNum % 2 === 0) {
+      } else if (num % 2 === 0) {
         resultAmount = Math.floor(betAmount * (1 + (1 - game.house_edge)));
         outcome = 'win';
       }
       break;
-    case 'dice':
-      const dice1 = Math.floor(Math.random() * 6) + 1;
-      const dice2 = Math.floor(Math.random() * 6) + 1;
-      if (dice1 + dice2 > 7) {
+    }
+    case 'dice': {
+      const d1 = Math.floor(Math.random() * 6) + 1;
+      const d2 = Math.floor(Math.random() * 6) + 1;
+      hand = `Dés : **${d1}** + **${d2}** = **${d1 + d2}**`;
+      if (d1 + d2 > 7) {
         resultAmount = Math.floor(betAmount * (1 + (1 - game.house_edge)));
         outcome = 'win';
       }
       break;
+    }
+    case 'blackjack': {
+      const r = playBlackjack(betAmount, game.house_edge);
+      resultAmount = r.resultAmount;
+      outcome = r.outcome;
+      hand = r.hand;
+      break;
+    }
     default:
       // Random chance
       if (Math.random() < 0.45) {
@@ -597,12 +763,14 @@ function playMiniGame(userId, gameId, betAmount) {
       }
   }
   
+  if (outcome === 'push') resultAmount = betAmount;
+
   // Deduct bet
   addPoints(userId, -betAmount, 'Game bet: ' + game.name);
   
-  // Add winnings
+  // Add winnings / refund the stake on a push.
   if (resultAmount > 0) {
-    addPoints(userId, resultAmount, 'Game win: ' + game.name);
+    addPoints(userId, resultAmount, outcome === 'push' ? 'Game push (mise rendue): ' + game.name : 'Game win: ' + game.name);
   }
   
   // Record session
@@ -610,7 +778,14 @@ function playMiniGame(userId, gameId, betAmount) {
   run("INSERT INTO game_sessions (id, user_id, game_id, bet_amount, result_amount, outcome) VALUES (?, ?, ?, ?, ?, ?)", 
       [sessionId, userId, gameId, betAmount, resultAmount, outcome]);
   
-  return { sessionId, outcome, resultAmount, profit: resultAmount - betAmount };
+  return {
+    sessionId,
+    outcome,
+    result_amount: resultAmount,
+    profit: resultAmount - betAmount,
+    bet_amount: betAmount,
+    hand,
+  };
 }
 
 function getUserGameHistory(userId, limit = 20) {
@@ -629,24 +804,190 @@ function searchUsers(query, limit = 20) {
   return all("SELECT * FROM users WHERE username LIKE ? LIMIT ?", ['%' + query + '%', limit]);
 }
 
-function getWeeklyStats() {
-  const weekStart = new Date();
-  weekStart.setDate(weekStart.getDate() - 7);
+/** Recherche par username OU id Discord, avec uniquement les colonnes utiles. */
+function searchUsersDetailed(query, limit = 20) {
+  return all(`
+    SELECT id, username, avatar, points, level, xp, daily_streak, invite_count,
+           tasks_completed, is_banned, role, created_at
+    FROM users
+    WHERE username LIKE ? OR id LIKE ?
+    ORDER BY points DESC
+    LIMIT ?
+  `, ['%' + query + '%', '%' + query + '%', limit]);
+}
+
+/** Liste paginée des membres, triés par points décroissants. */
+function listUsers({ limit = 25, offset = 0, search = '' } = {}) {
+  const where = search ? 'WHERE username LIKE ? OR id LIKE ?' : '';
+  const params = search ? ['%' + search + '%', '%' + search + '%', limit, offset] : [limit, offset];
+  const rows = all(`
+    SELECT id, username, avatar, points, level, xp, daily_streak, invite_count,
+           tasks_completed, is_banned, role, created_at
+    FROM users ${where}
+    ORDER BY points DESC, created_at ASC
+    LIMIT ? OFFSET ?
+  `, params);
+  const countRow = get(
+    `SELECT COUNT(*) as c FROM users ${where}`,
+    search ? ['%' + search + '%', '%' + search + '%'] : []
+  );
+  return { rows, total: countRow.c };
+}
+
+function getUserProfile(userId) {
+  return get(`
+    SELECT id, username, avatar, points, level, xp, daily_streak, tasks_completed,
+           invite_count, is_banned, role, created_at
+    FROM users WHERE id = ?
+  `, [userId]);
+}
+
+function _rangeStats(sinceDays) {
+  // SQLite n'accepte pas le modificateur court '-7' : il faut '-7 days',
+  // sinon date() renvoie NULL et le compte vaut toujours 0.
+  const since = `-${sinceDays} days`;
   return {
-    users: 0, // Simplified for now
-    points: 0,
-    activity: 0
+    users: get("SELECT COUNT(*) as c FROM users WHERE date(created_at) >= date('now','localtime',?)", [since]).c,
+    points: get("SELECT COALESCE(SUM(CASE WHEN amount > 0 THEN amount ELSE 0 END),0) as s FROM transactions WHERE date(created_at) >= date('now','localtime',?)", [since]).s,
+    activity: get("SELECT COUNT(*) as c FROM transactions WHERE date(created_at) >= date('now','localtime',?)", [since]).c,
   };
 }
 
+function getWeeklyStats() {
+  return _rangeStats(7);
+}
+
 function getMonthlyStats() {
-  const monthStart = new Date();
-  monthStart.setMonth(monthStart.getMonth() - 1);
-  return {
-    users: 0, // Simplified for now
-    points: 0,
-    activity: 0
-  };
+  return _rangeStats(30);
+}
+
+/**
+ * Série temporelle RÉELLE pour les graphiques du dashboard.
+ * Agrège par jour sur `days` jours : nouveaux membres, points gagnés,
+ * transactions et membres actifs. Remplit les jours sans donnée avec des zéros
+ * pour que Chart.js ait une série continue.
+ */
+function getActivitySeries(days = 14) {
+  const n = Math.max(1, Math.min(days, 90));
+  const users = all(
+    "SELECT date(created_at) as d, COUNT(*) as v FROM users WHERE date(created_at) >= date('now','localtime',?) GROUP BY d",
+    [`-${n - 1} days`]
+  );
+  const gained = all(`
+    SELECT date(created_at) as d,
+           SUM(CASE WHEN amount > 0 THEN amount ELSE 0 END) as gained,
+           SUM(CASE WHEN amount < 0 THEN -amount ELSE 0 END) as spent,
+           COUNT(*) as tx
+    FROM transactions WHERE date(created_at) >= date('now','localtime',?) GROUP BY d
+  `, [`-${n - 1} days`]);
+  const active = all(
+    "SELECT date(created_at) as d, COUNT(DISTINCT user_id) as v FROM transactions WHERE date(created_at) >= date('now','localtime',?) GROUP BY d",
+    [`-${n - 1} days`]
+  );
+
+  const idx = (rows, key) => new Map(rows.map(r => [r.d, r]));
+  const u = idx(users), g = idx(gained), a = idx(active);
+
+  const labels = [];
+  const newUsers = [];
+  const pointsGained = [];
+  const pointsSpent = [];
+  const transactions = [];
+  const activeUsers = [];
+
+  for (let i = n - 1; i >= 0; i--) {
+    const d = new Date(Date.now() - i * 86400000).toISOString().slice(0, 10);
+    labels.push(d);
+    newUsers.push(u.get(d)?.v || 0);
+    pointsGained.push(g.get(d)?.gained || 0);
+    pointsSpent.push(g.get(d)?.spent || 0);
+    transactions.push(g.get(d)?.tx || 0);
+    activeUsers.push(a.get(d)?.v || 0);
+  }
+
+  return { labels, newUsers, pointsGained, pointsSpent, transactions, activeUsers };
+}
+
+/** Répartition des membres par tranche de niveau, pour le graphique donut. */
+function getLevelDistribution() {
+  const rows = all(`
+    SELECT level / 10 AS bucket, COUNT(*) as count
+    FROM users GROUP BY bucket ORDER BY bucket
+  `);
+  const labels = [];
+  const data = [];
+  for (const r of rows) {
+    const start = r.bucket * 10;
+    labels.push(start === 0 ? 'Niv. 1-9' : `Niv. ${start}+`);
+    data.push(r.count);
+  }
+  return { labels, data };
+}
+
+/** Répartition des types de transactions (gains / dépenses / boutique). */
+function getTransactionTypeBreakdown() {
+  const rows = all("SELECT type, COUNT(*) as count FROM transactions GROUP BY type ORDER BY count DESC");
+  return { labels: rows.map(r => r.type), data: rows.map(r => r.count) };
+}
+
+/** Top gamblers : plus gros volumes misés. */
+function getGameStats(limit = 10) {
+  const wagered = get("SELECT COALESCE(SUM(bet_amount),0) as s FROM game_sessions").s;
+  const sessions = get("SELECT COUNT(*) as c FROM game_sessions").c;
+  const wins = get("SELECT COUNT(*) as c FROM game_sessions WHERE outcome = 'win'").c;
+  const byGame = all(`
+    SELECT mg.id, mg.name, COUNT(gs.id) as plays, COALESCE(SUM(gs.bet_amount),0) as wagered
+    FROM mini_games mg LEFT JOIN game_sessions gs ON gs.game_id = mg.id
+    GROUP BY mg.id ORDER BY plays DESC
+  `);
+  return { wagered, sessions, wins, losses: sessions - wins, winRate: sessions ? +((wins / sessions) * 100).toFixed(1) : 0, byGame };
+}
+
+/** Transactions du serveur entier (vue admin), avec le username résolu. */
+function getGlobalTransactions(limit = 20) {
+  return all(`
+    SELECT t.*, COALESCE(u.username, 'Inconnu') as username
+    FROM transactions t LEFT JOIN users u ON u.id = t.user_id
+    ORDER BY t.created_at DESC LIMIT ?
+  `, [limit]);
+}
+
+/** Compteur de notifications non lues pour la pastille du header. */
+function countUnreadNotifications(userId) {
+  return get("SELECT COUNT(*) as c FROM notifications WHERE user_id = ? AND is_read = 0", [userId]).c;
+}
+
+// --- Saisons ---
+function getSeasons() {
+  return all("SELECT * FROM seasons ORDER BY start_date DESC");
+}
+
+function getActiveSeason() {
+  return get(
+    "SELECT * FROM seasons WHERE active = 1 ORDER BY start_date DESC LIMIT 1"
+  ) || null;
+}
+
+function getSeasonRewards(seasonId) {
+  return all("SELECT * FROM season_rewards WHERE season_id = ? ORDER BY rank ASC", [seasonId]);
+}
+
+/** Classement d'une saison : points des membres sur la période. */
+function getSeasonLeaderboard(season, limit = 25) {
+  if (!season) return [];
+  return all(`
+    SELECT u.id, u.username, u.avatar,
+           COALESCE(SUM(CASE WHEN t.amount > 0 THEN t.amount ELSE 0 END), 0) as season_points,
+           u.points, u.level
+    FROM users u
+    LEFT JOIN transactions t
+      ON t.user_id = u.id
+     AND date(t.created_at) BETWEEN date(?) AND date(?)
+    GROUP BY u.id
+    HAVING season_points > 0
+    ORDER BY season_points DESC
+    LIMIT ?
+  `, [season.start_date, season.end_date, limit]);
 }
 
 function getActiveQuests() {
@@ -817,6 +1158,12 @@ module.exports = {
   // New functions
   getAchievements, getUserAchievements, checkAndUnlockAchievements,
   getMiniGames, playMiniGame, getUserGameHistory,
-  searchUsers, getWeeklyStats, getMonthlyStats, getActiveQuests,
-  getUserQuests, completeQuest, purchaseItem
+  searchUsers, searchUsersDetailed, listUsers, getUserProfile,
+  getWeeklyStats, getMonthlyStats, getActivitySeries, getLevelDistribution,
+  getTransactionTypeBreakdown, getGameStats, getGlobalTransactions,
+  countUnreadNotifications,
+  getSeasons, getActiveSeason, getSeasonRewards, getSeasonLeaderboard,
+  getActiveQuests,
+  getUserQuests, completeQuest, purchaseItem,
+  flush
 };

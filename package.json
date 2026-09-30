@@ -3,9 +3,10 @@
   "version": "2.0.0",
   "private": true,
   "scripts": {
+    "start": "node main.js",
     "start:bot": "node index.js",
     "start:api": "node api.js",
-    "start": "concurrently \"npm run start:bot\" \"npm run start:api\""
+    "test": "node --test --test-timeout=120000 --test-force-exit tests/regression.test.js"
   },
   "dependencies": {
     "concurrently": "^8.2.2",
