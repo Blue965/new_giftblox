@@ -52,7 +52,8 @@ if (!helpCmd) {
 }
 
 // ── Enregistrement des commandes sur Discord ───────────────────────────────
-client.once('ready', async () => {
+// 'clientReady' remplace 'ready' (déprécié en v14.22, supprimé en v15)
+client.once('clientReady', async () => {
   console.log(`\n✅ Connecté en tant que ${client.user.tag}`);
   console.log(`📦 ${commands.length} commandes chargées\n`);
 
