@@ -125,8 +125,8 @@ client.on('interactionCreate', async (interaction) => {
   }
 });
 
-async function start() {
-  await db.init();
+async function start({ initDb = true } = {}) {
+  if (initDb) await db.init();
   await client.login(TOKEN);
 }
 

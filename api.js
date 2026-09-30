@@ -385,9 +385,14 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'website', 'dashboard.html'));
 });
 
-async function start() {
-  await db.init();
+async function start({ initDb = true } = {}) {
+  // Un seul appel à db.init() dans tout le process (cf. main.js) :
+  // sql.js garde la base EN MÉMOIRE et réécrit le fichier entier à chaque
+  // save(). Deux process avec deux copies mémoire = perte de données.
+  if (initDb) await db.init();
   server.listen(PORT, () => console.log(`API sur http://localhost:${PORT} avec WebSocket support`));
 }
 
-start();
+module.exports = { app, server, start, PORT };
+
+if (require.main === module) start();
